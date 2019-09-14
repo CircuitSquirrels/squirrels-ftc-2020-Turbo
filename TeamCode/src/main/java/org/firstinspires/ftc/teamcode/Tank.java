@@ -21,10 +21,6 @@ public class Tank extends RobotHardware {
         double rightPower = Range.clip(drive - turn, -1.0, 1.0) ;
         setDriveForTank(leftPower, rightPower);
 
-        setPower(MotorName.FEEDER, gamepad1.right_trigger);
-        setPower(MotorName.ARM, -gamepad1.right_stick_y);
-        setPower(MotorName.WRIST, gamepad1.right_stick_x);
-
         // Telemetry
 //        telemetry.addLine(); // Create Space
         // Display all motor encoder values

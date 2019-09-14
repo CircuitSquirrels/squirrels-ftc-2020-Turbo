@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
-import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
@@ -19,12 +18,11 @@ import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 public class AutoOpmode extends RobotHardware {
 
 
-    public TimingMonitor timingMonitor;
-    public MecanumNavigation mecanumNavigation;
-    public AutoDrive autoDrive;
+    private TimingMonitor timingMonitor;
+    private MecanumNavigation mecanumNavigation;
+    private AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
-    protected RobotStateMachine robotStateMachine;
     public SimpleVision simpleVision;
     private Thread thread;
     public Controller controller;
@@ -37,14 +35,14 @@ public class AutoOpmode extends RobotHardware {
     private boolean writeControls = false;
 
     //Interactive Init menu
-    InteractiveInit interactiveInit = null;
-    public Mutable<Boolean> Simple = new Mutable<>(false);
-    public Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
-    public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
-    public Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
-    public Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
-    public Mutable<Boolean> useIMU = new Mutable<>(false);
-    public Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
+    private InteractiveInit interactiveInit = null;
+    private Mutable<Boolean> Simple = new Mutable<>(false);
+    private Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
+    private Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+    private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
+    private Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
+    private Mutable<Boolean> useIMU = new Mutable<>(false);
+    private Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -90,8 +88,7 @@ public class AutoOpmode extends RobotHardware {
         thread = new Thread(new VisionLoader());
         thread.start();
 
-        // Finally, construct the state machine.
-        robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
+
         telemetry.addData("Initialization:", "Successful!");
 
         // Initialization Menu
@@ -124,7 +121,6 @@ public class AutoOpmode extends RobotHardware {
 
         interactiveInit.update();
         //Maintain lift winch position while hanging.
-        robotStateMachine.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
     }
 
     @Override
@@ -143,7 +139,6 @@ public class AutoOpmode extends RobotHardware {
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-        robotStateMachine.init();
 
         interactiveInit.lock();
 
@@ -175,7 +170,6 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST controller.update()");
         mecanumNavigation.update();
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
-        robotStateMachine.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
         if ( useIMU.get() ) {
             imuUtilities.update();
@@ -194,7 +188,6 @@ public class AutoOpmode extends RobotHardware {
         }
 
         mecanumNavigation.displayPosition();
-        telemetry.addData("Current State", robotStateMachine.state.toString());
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
@@ -208,7 +201,7 @@ public class AutoOpmode extends RobotHardware {
             telemetry.addData("Vision Not Loaded", "");
         }
         timingMonitor.checkpoint("POST Vision");
-        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LIFT_WINCH));
+        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LEFT_LIFT_WINCH));
     }
 
     @Override

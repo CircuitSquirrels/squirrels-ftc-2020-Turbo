@@ -3,10 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
-import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
-
-import java.util.Vector;
 
 /**
  * Created by Ashley on 12/19/2017.
@@ -99,22 +96,22 @@ public class DiagnosticTelemetryRecorder extends DiagnosticOpMode {
     private void writeControlsToFile() {
         controlWriter.addFieldToRecord("time",time);
 
-        controlWriter.addFieldToRecord("left_stick_x",controller1.left_stick_x);
-        controlWriter.addFieldToRecord("left_stick_y",controller1.left_stick_y);
-        controlWriter.addFieldToRecord("right_stick_x",controller1.right_stick_x);
-        controlWriter.addFieldToRecord("right_stick_y",controller1.right_stick_y);
-        controlWriter.addFieldToRecord("left_trigger",controller1.left_trigger);
-        controlWriter.addFieldToRecord("right_trigger",controller1.right_trigger);
+        controlWriter.addFieldToRecord("left_stick_x", controllerDrive.left_stick_x);
+        controlWriter.addFieldToRecord("left_stick_y", controllerDrive.left_stick_y);
+        controlWriter.addFieldToRecord("right_stick_x", controllerDrive.right_stick_x);
+        controlWriter.addFieldToRecord("right_stick_y", controllerDrive.right_stick_y);
+        controlWriter.addFieldToRecord("left_trigger", controllerDrive.left_trigger);
+        controlWriter.addFieldToRecord("right_trigger", controllerDrive.right_trigger);
 
-        controlWriter.addFieldToRecord("right_stick_button",controller1.rightStickButton() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("left_stick_button",controller1.leftStickButton() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("right_bumper",controller1.rightBumper() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("left_bumper",controller1.leftBumper() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("right_stick_button", controllerDrive.rightStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_stick_button", controllerDrive.leftStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("right_bumper", controllerDrive.rightBumper() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_bumper", controllerDrive.leftBumper() ? 1.0 : 0.0);
 
-        controlWriter.addFieldToRecord("a_button",controller1.A() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("b_button",controller1.B() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("x_button",controller1.X() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("y_button",controller1.Y() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("a_button", controllerDrive.A() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("b_button", controllerDrive.B() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("x_button", controllerDrive.X() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("y_button", controllerDrive.Y() ? 1.0 : 0.0);
 
         controlWriter.completeRecord();
     }

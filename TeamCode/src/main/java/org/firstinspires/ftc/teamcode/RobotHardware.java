@@ -4,7 +4,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -51,10 +50,7 @@ public class RobotHardware extends OpMode {
         DRIVE_FRONT_RIGHT,
         DRIVE_BACK_LEFT,
         DRIVE_BACK_RIGHT,
-        ARM,
-        WRIST,
-        FEEDER,
-        LIFT_WINCH,
+        LEFT_LIFT_WINCH
     }
 
     /**
@@ -354,7 +350,7 @@ public class RobotHardware extends OpMode {
      * Gets the Vuforia license key.
      */
     protected String getVuforiaLicenseKey() {
-        String vuforiaLicenseKey = "AdhUZeT/////AAABmZzp9UHWY0xvhsM/ycx2t6ZVzVQkoHxi/L3Seg8ZsTZoOWhthLLS481295WPHcmQGzxpPfZdoDwf7cdSjCWQ9wS/mUybv81LrzdDJ01LIzhRigSltT36iYZhFno+j8mtHiU9RQbNOmI5KMP6zCJRoU6hqxi8BZdH97u86+iX2XzuzCeE6WDrjPLcnIfIxq8FpIa9maMi2GRlLx9RxmD0be0AJfeKN9Cw6fBo6hrdSnQX2Jx92qhEqwS6DB4JQxfgBTsNcM2igPiFz1GUTdmk4dLQBJjrJimGu3uHqyQpMbCydEj9wiog4FsfiShfLWGxezMfVUWEhrn+5fS4Ti1/00w5L3Xi5Qck/uWuKabUZjcR";
+        String vuforiaLicenseKey = "";
         return vuforiaLicenseKey;
     }
 
@@ -418,12 +414,10 @@ public class RobotHardware extends OpMode {
 
         // Set motor directions.
         try {
-            allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.ARM.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.WRIST.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.FEEDER.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotor.Direction.FORWARD);
+            allMotors.get(MotorName.DRIVE_FRONT_LEFT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
+            allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
+            allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
+            allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Unable to set motor direction", "");
         }
@@ -436,14 +430,8 @@ public class RobotHardware extends OpMode {
 
         // Set arm motor to brake
         try {
-            allMotors.get(MotorName.ARM.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.ARM.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            allMotors.get(MotorName.WRIST.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.WRIST.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            allMotors.get(MotorName.FEEDER.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            allMotors.get(MotorName.FEEDER.ordinal()).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Unable to set arm motor to zero power brake or encoder use", "");
         }

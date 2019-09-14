@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
-import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
