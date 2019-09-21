@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 
-@TeleOp (name = "Manual", group = "Competition")
+@TeleOp (name="Manual",group="Competition")
 public class Manual extends RobotHardware {
 
     //Setting controller variables
@@ -39,7 +39,6 @@ public class Manual extends RobotHardware {
     @Override
     public void init() {
         super.init();
-
         //Changing gamepads to controllers
         controllerDrive = new Controller (gamepad1);
         controllerArm = new Controller (gamepad2);
@@ -49,7 +48,6 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
-
     }
 
     @Override
@@ -88,8 +86,6 @@ public class Manual extends RobotHardware {
         // Telemetry
         mecanumNavigation.displayPosition();
 
-
-
         // Mecanum Drive Control
         setDriveForSimpleMecanum(Math.pow(controllerDrive.left_stick_x, exponential), Math.pow(controllerDrive.left_stick_y, exponential),
                 Math.pow(controllerDrive.right_stick_x, exponential), Math.pow(controllerDrive.right_stick_y, exponential));
@@ -105,21 +101,16 @@ public class Manual extends RobotHardware {
         if (copilotEnabled) {
             // Copilot Controls
 
-            // Lift Control
-            if (controllerArm.dpadUp()) {
-                setPower(MotorName.LEFT_LIFT_WINCH, lifterSpeed);
-                liftEncoderHoldPosition = getEncoderValue(MotorName.LEFT_LIFT_WINCH);
-                telemetry.addData("LIFT", "UP");
-            } else if (controllerArm.dpadDown()) {
-                setPower(MotorName.LEFT_LIFT_WINCH, -lifterSpeed);
-                liftEncoderHoldPosition = getEncoderValue(MotorName.LEFT_LIFT_WINCH);
-                telemetry.addData("LIFT", "DOWN");
-            } else {
-                setPower(MotorName.LEFT_LIFT_WINCH, 0);
-                driveMotorToPos(MotorName.LEFT_LIFT_WINCH,liftEncoderHoldPosition,1.0, 100);
+            if (controllerArm.leftBumper()) {
+                setAngle(ServoName.FOUNDATION, 0.5);
+                telemetry.addData("SERVO: ", "UP");
+            } else if (controllerArm.rightBumper()) {
+                setAngle(ServoName.FOUNDATION, 0.8);
+                telemetry.addData("SERVO: ", "DOWN");
             }
 
-
+            // Lift Control
+            setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(-controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
             // Pilot Controls
 
@@ -140,7 +131,6 @@ public class Manual extends RobotHardware {
     }
 
 
-
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 0;
@@ -157,12 +147,9 @@ public class Manual extends RobotHardware {
             setPower(motorName, 0);
         }
 
-        if(Math.abs(errorSignal) <= arrivedDistance) {
-            return true;
-        }else {
-            return false;
-        }
+        return Math.abs(errorSignal) <= arrivedDistance;
     }
+
 
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
         int rampDistanceTicks = 400;
