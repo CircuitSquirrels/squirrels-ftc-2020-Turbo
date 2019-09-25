@@ -12,8 +12,8 @@ public class Color {
     }
 	
 	public enum Mineral {
-		GOLD,
-		SILVER,
+		Skystone,
+		Stone,
         UNKNOWN,
 	}
 

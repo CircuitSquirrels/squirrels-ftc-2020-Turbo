@@ -110,22 +110,25 @@ public class Manual extends RobotHardware {
             }
 
             // Lift Control
-            setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(-controllerArm.left_stick_y, exponential) * lifterSpeed);
+            setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
             // Pilot Controls
+
+            if (controllerArm.leftBumper()) {
+                setAngle(ServoName.FOUNDATION, 0.5);
+                telemetry.addData("SERVO: ", "UP");
+            } else if (controllerArm.rightBumper()) {
+                setAngle(ServoName.FOUNDATION, 0.8);
+                telemetry.addData("SERVO: ", "DOWN");
+            }
 
             // Lift Control
             if (controllerDrive.dpadUp()) {
                 setPower(MotorName.LEFT_LIFT_WINCH, lifterSpeed);
-                liftEncoderHoldPosition = getEncoderValue(MotorName.LEFT_LIFT_WINCH);
-                telemetry.addData("LIFT", "UP");
             } else if (controllerDrive.dpadDown()) {
                 setPower(MotorName.LEFT_LIFT_WINCH, -lifterSpeed);
-                liftEncoderHoldPosition = getEncoderValue(MotorName.LEFT_LIFT_WINCH);
-                telemetry.addData("LIFT", "DOWN");
             } else {
                 setPower(MotorName.LEFT_LIFT_WINCH, 0);
-                driveMotorToPos(MotorName.LEFT_LIFT_WINCH,liftEncoderHoldPosition,1.0, 100);
             }
         }
     }
