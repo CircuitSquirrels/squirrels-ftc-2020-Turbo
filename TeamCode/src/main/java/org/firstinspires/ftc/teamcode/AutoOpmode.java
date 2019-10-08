@@ -285,29 +285,7 @@ public class AutoOpmode extends RobotHardware {
             csvWriter.addFieldToRecord("IMU_heading",imuUtilities.getCompensatedHeading());
         }
 
-        // Vision detection as number
-        double idLocation;
-        Color.Mineral mineralColor;
-        if (simpleVision != null) {
-            mineralColor = simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
-            switch (mineralColor) {
-                case UNKNOWN:
-                    idLocation = 0;
-                    break;
-                case SILVER:
-                    idLocation = 1;
-                    break;
-                case GOLD:
-                    idLocation = 2;
-                    break;
-                default:
-                    idLocation = -999;
-                    break;
-            }
-            csvWriter.addFieldToRecord("Mineral ID UNK_SLVR_GOLD", idLocation);
 
-
-        }
 
         // Add IMU data to current csvWriter record
         //addIMUToRecord(csvWriter);
