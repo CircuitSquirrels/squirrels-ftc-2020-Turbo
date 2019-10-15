@@ -32,8 +32,8 @@ public class Constants {
 
     public static final double MM_PER_IN = 25.4f;
     private static double rotationScaleIncrease = 1.0975 / 1.088844444; //1.0084722;
-    public static final double WHEELBASE_WIDTH_IN = 15 / rotationScaleIncrease;
-    public static final double WHEELBASE_LENGTH_IN = 11.75 / rotationScaleIncrease;
+    public static final double WHEELBASE_WIDTH_IN = 11.5 / rotationScaleIncrease;
+    public static final double WHEELBASE_LENGTH_IN = 16 / rotationScaleIncrease;
     public static final double WHEELBASE_WIDTH_MM  = WHEELBASE_WIDTH_IN  * MM_PER_IN;
     public static final double WHEELBASE_LENGTH_MM  = WHEELBASE_LENGTH_IN  * MM_PER_IN;
     public static final double DRIVE_WHEEL_RADIUS_MM = DRIVE_WHEEL_DIAMETER_INCHES /2.0 * MM_PER_IN;

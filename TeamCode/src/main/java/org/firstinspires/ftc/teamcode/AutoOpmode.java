@@ -18,13 +18,13 @@ import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 public class AutoOpmode extends RobotHardware {
 
 
-    private TimingMonitor timingMonitor;
-    private MecanumNavigation mecanumNavigation;
-    private AutoDrive autoDrive;
+    public TimingMonitor timingMonitor;
+    public MecanumNavigation mecanumNavigation;
+    public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
     public SimpleVision simpleVision;
-    private Thread thread;
+    public Thread thread;
     public Controller controller;
     public IMUUtilities imuUtilities;
     public SoundManager soundManager;
@@ -37,10 +37,8 @@ public class AutoOpmode extends RobotHardware {
     //Interactive Init menu
     private InteractiveInit interactiveInit = null;
     private Mutable<Boolean> Simple = new Mutable<>(false);
-    private Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
     private Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
-    private Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
     private Mutable<Boolean> useIMU = new Mutable<>(false);
     private Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
@@ -88,7 +86,6 @@ public class AutoOpmode extends RobotHardware {
         thread = new Thread(new VisionLoader());
         thread.start();
 
-
         telemetry.addData("Initialization:", "Successful!");
 
         // Initialization Menu
@@ -97,8 +94,6 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
         interactiveInit.addBoolean(useIMU,"Use IMU", false, true);
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
-        interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
-        interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);
         interactiveInit.addBoolean(earlyFlagDrop, "Drop flag early", false, true);
 
         soundManager = new SoundManager(this);
@@ -128,11 +123,7 @@ public class AutoOpmode extends RobotHardware {
         super.init();
 
         // Navigation and control
-        if(UsingMiniRobot.get()) {
-            mecanumNavigation = new MecanumNavigation(this,Constants.MiniRobot.getDriveTrainMecanum());
-        } else {
-            mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
-        }
+        mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
@@ -150,7 +141,6 @@ public class AutoOpmode extends RobotHardware {
                 controlWriter = new CSV(this);
                 controlWriter.open("controls.csv");
             }
-
             recordConstantsToFile();
         }
 
