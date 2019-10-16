@@ -42,38 +42,38 @@ public class AutoOpmode extends RobotHardware {
     private Mutable<Boolean> useIMU = new Mutable<>(false);
     private Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
-    @Autonomous(name="auto.Red.Crater", group="Auto")
+    @Autonomous(name="auto.Red.Pickup", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.RED;
-            robotStartPos = StartPosition.FIELD_CRATER;
+            robotStartPos = StartPosition.FIELD_PICKUP;
             super.init();
         }
     }
 
-    @Autonomous(name="auto.Red.Depot", group="Auto")
+    @Autonomous(name="auto.Red.Build", group="Auto")
     public static class AutoRedDepot extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.RED;
-            robotStartPos = StartPosition.FIELD_DEPOT;
+            robotStartPos = StartPosition.FIELD_BUILD;
             super.init();
         }
     }
 
-    @Autonomous(name="auto.Blue.Crater", group="Auto")
+    @Autonomous(name="auto.Blue.Pickup", group="Auto")
     public static class AutoBlueCrater extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.BLUE;
-            robotStartPos = StartPosition.FIELD_CRATER;
+            robotStartPos = StartPosition.FIELD_PICKUP;
             super.init();
         }
     }
 
-    @Autonomous(name="auto.Blue.Depot", group="Auto")
+    @Autonomous(name="auto.Blue.Build", group="Auto")
     public static class AutoBlueDepot extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.BLUE;
-            robotStartPos = StartPosition.FIELD_DEPOT;
+            robotStartPos = StartPosition.FIELD_BUILD;
             super.init();
         }
     }

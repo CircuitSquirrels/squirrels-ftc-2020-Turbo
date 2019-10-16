@@ -158,10 +158,10 @@ public class Waypoints {
 
     void customizeWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, boolean doPartnerMineralField) {
         if(teamColor == Color.Ftc.BLUE) {
-            if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
+            if(startPosition == RobotHardware.StartPosition.FIELD_PICKUP) {
                 create_blue_crater_waypoints();
 
-            } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
+            } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
                 //Blue Depot
                 create_blue_depot_waypoints();
 
@@ -169,12 +169,12 @@ public class Waypoints {
                 throw new IllegalStateException("Invalid Starting Position");
             }
         } else if (teamColor == Color.Ftc.RED) {
-            if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
+            if(startPosition == RobotHardware.StartPosition.FIELD_PICKUP) {
                 //Red Crater
                 create_blue_crater_waypoints();
                 rotate_waypoints_in_place(180);
 
-            } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
+            } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
                 //Red Depot
                 create_blue_depot_waypoints();
                 rotate_waypoints_in_place(180);
