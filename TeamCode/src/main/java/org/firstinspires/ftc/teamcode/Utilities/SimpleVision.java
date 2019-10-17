@@ -108,7 +108,7 @@ public class SimpleVision {
 
     // TensorFlow Properties
     public boolean tfSupported = true;
-    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
+    private static final String TFOD_MODEL_ASSET = "/sdcard/FIRST/Skystone.tflite"; //For OpenRC, loaded from internal storage to reduce APK size
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
     private TFObjectDetector tfod;
@@ -218,7 +218,7 @@ public class SimpleVision {
     private void initializeVuforiaTrackingGeometry(VuforiaLocalizer.Parameters parameters) {
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/Skystone");
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
@@ -251,7 +251,7 @@ public class SimpleVision {
         allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(targetsSkystone);
 
-        VuforiaTrackables stonesAndChips = vuforia.loadTrackablesFromAsset("StonesAndChips");
+        VuforiaTrackables stonesAndChips = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/StonesAndChips");
         VuforiaTrackable redTarget = stonesAndChips.get(0);
         redTarget.setName("RedTarget");  // Stones
 
