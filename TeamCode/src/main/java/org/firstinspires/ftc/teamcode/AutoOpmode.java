@@ -11,23 +11,23 @@ import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
+import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.SoundManager;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
 public class AutoOpmode extends RobotHardware {
 
-
     public TimingMonitor timingMonitor;
     public MecanumNavigation mecanumNavigation;
     public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
-    public SimpleVision simpleVision;
+    public RobotStateContext robotStateContext;
+//    public SimpleVision simpleVision;
     public Thread thread;
     public Controller controller;
     public IMUUtilities imuUtilities;
-    public SoundManager soundManager;
 
     // Telemetry Recorder
     private CSV csvWriter;
@@ -85,7 +85,7 @@ public class AutoOpmode extends RobotHardware {
         controller = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
-
+        robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
 
         // Initialization Menu
@@ -95,12 +95,6 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(useIMU,"Use IMU", false, true);
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(earlyFlagDrop, "Drop flag early", false, true);
-
-        soundManager = new SoundManager(this);
-        soundManager.addSound("gold");
-        soundManager.addSound("silver");
-        soundManager.preloadAllSounds();
-
     }
 
     @Override
@@ -108,11 +102,11 @@ public class AutoOpmode extends RobotHardware {
         super.init_loop();
         controller.update();
 
-        if (simpleVision == null) {
-            telemetry.addData("Vision:", "LOADING...");
-        } else {
-            telemetry.addData("Vision:", "INITIALIZED");
-        }
+//        if (simpleVision == null) {
+//            telemetry.addData("Vision:", "LOADING...");
+//        } else {
+//            telemetry.addData("Vision:", "INITIALIZED");
+//        }
 
         interactiveInit.update();
         //Maintain lift winch position while hanging.
@@ -185,8 +179,8 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST TELEMETRY");
 
         try {
-            simpleVision.updateTensorFlow(true);
-            simpleVision.displayTensorFlowDetections();
+//            simpleVision.updateTensorFlow(true);
+//            simpleVision.displayTensorFlowDetections();
         } catch(Exception e) {
             telemetry.addData("Vision Not Loaded", "");
         }
@@ -206,9 +200,9 @@ public class AutoOpmode extends RobotHardware {
     // Initialize vuforia in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
         public void run() {
-            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
-                    false, true,false,
-                    false, false);
+//            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
+//                    false, true,false,
+//                    false, false);
         }
     }
 

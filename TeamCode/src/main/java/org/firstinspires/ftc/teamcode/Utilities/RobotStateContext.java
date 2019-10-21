@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
@@ -53,7 +54,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(stateTimer.seconds() > 1) {
                 opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
                 opMode.imuUtilities.updateNow();
-                nextState(DRIVE, new Drive_Right());
+                stateMachine.changeState(DRIVE, new Drive_Right());
             }
         }
     }
@@ -63,10 +64,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             if(stateTimer.seconds() > 1) {
-                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(3, 3, 0), driveSpeed);
-                opMode.imuUtilities.updateNow();
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(3, 3, 3), driveSpeed);
                 if(arrived) {
-                    nextState(DRIVE, new Stop_State());
+                    stateMachine.changeState(DRIVE, new Stop_State());
                 }
             }
         }
