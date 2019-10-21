@@ -43,7 +43,7 @@ public class AutoOpmode extends RobotHardware {
     private Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Pickup", group="Auto")
-    public static class AutoRedCrater extends AutoOpmode {
+    public static class AutoRedPickup extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.RED;
             robotStartPos = StartPosition.FIELD_PICKUP;
@@ -52,7 +52,7 @@ public class AutoOpmode extends RobotHardware {
     }
 
     @Autonomous(name="auto.Red.Build", group="Auto")
-    public static class AutoRedDepot extends AutoOpmode {
+    public static class AutoRedBuild extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.RED;
             robotStartPos = StartPosition.FIELD_BUILD;
@@ -61,7 +61,7 @@ public class AutoOpmode extends RobotHardware {
     }
 
     @Autonomous(name="auto.Blue.Pickup", group="Auto")
-    public static class AutoBlueCrater extends AutoOpmode {
+    public static class AutoBluePickup extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.BLUE;
             robotStartPos = StartPosition.FIELD_PICKUP;
@@ -70,7 +70,7 @@ public class AutoOpmode extends RobotHardware {
     }
 
     @Autonomous(name="auto.Blue.Build", group="Auto")
-    public static class AutoBlueDepot extends AutoOpmode {
+    public static class AutoBlueBuild extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.BLUE;
             robotStartPos = StartPosition.FIELD_BUILD;
