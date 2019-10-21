@@ -86,6 +86,7 @@ public class AutoOpmode extends RobotHardware {
         thread = new Thread(new VisionLoader());
         thread.start();
         robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
+        robotStateContext.init();
         telemetry.addData("Initialization:", "Successful!");
 
         // Initialization Menu
@@ -154,6 +155,7 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST controller.update()");
         mecanumNavigation.update();
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
+        robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
         if ( useIMU.get() ) {
             imuUtilities.update();
