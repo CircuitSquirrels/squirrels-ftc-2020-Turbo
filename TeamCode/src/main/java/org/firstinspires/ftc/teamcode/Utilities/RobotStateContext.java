@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
@@ -54,17 +50,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(stateTimer.seconds() > 1) {
                 opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
                 opMode.imuUtilities.updateNow();
-                stateMachine.changeState(DRIVE, new Drive_Right());
+                stateMachine.changeState(DRIVE, new Drive_somewhere());
             }
         }
     }
 
-    class Drive_Right extends Executive.StateBase {
+    class Drive_somewhere extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
             if(stateTimer.seconds() > 1) {
-                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(3, 3, 3), driveSpeed);
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12, 12, degreesToRadians(180)), driveSpeed);
                 if(arrived) {
                     stateMachine.changeState(DRIVE, new Stop_State());
                 }
@@ -83,5 +79,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
 
 
+    private double degreesToRadians(double degrees) {
+        return degrees * Math.PI / 180;
+    }
 
+    private double radiansToDegrees(double radians) {
+        return radians * 180 / Math.PI;
+    }
 }

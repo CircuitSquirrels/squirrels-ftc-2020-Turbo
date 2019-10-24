@@ -53,6 +53,7 @@ public class Executive {
 
         public void changeState(StateType stateType, StateBase state) {
             stateMap.put(stateType, state);
+            state.init(this);
         }
 
         public void removeStateType(StateType stateType) {
@@ -62,8 +63,10 @@ public class Executive {
 
         public void clearDeletedStates() {
             for (StateType stateType : StateType.values()) {
-                if (stateMap.get(stateType).isDeleteRequested()) {
-                    stateMap.remove(stateType);
+                if(stateMap.get(stateType) != null) {
+                    if (stateMap.get(stateType).isDeleteRequested()) {
+                        stateMap.remove(stateType);
+                    }
                 }
             }
         }
@@ -88,7 +91,10 @@ public class Executive {
             Set<StateType> stateTypeSet = stateMap.keySet();
             StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
             for (StateType type : stateTypeKeyArray) {
-                stateMap.get(type).init(this);
+                StateBase state = stateMap.get(type);
+                if(state != null) {
+                    state.init(this);
+                }
             }
         }
 
@@ -156,6 +162,8 @@ public class Executive {
         public void init(StateMachine stateMachine) {
             this.stateMachine = stateMachine;
             this.opMode = stateMachine.opMode;
+            stateTimer = new ElapsedTime();
+            statePeriod = new ElapsedTime();
             initialized = true;
             stateTimer.reset();
             statePeriod.reset();
