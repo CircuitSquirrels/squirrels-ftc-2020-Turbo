@@ -21,10 +21,12 @@ public class Manual extends RobotHardware {
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> CoPilot = new Mutable<>(false);
     private Mutable<Double> Exponential = new Mutable<>(1.0);
+    private Mutable<Double> Slowmode = new Mutable<>(1.0);
 
     private double lifterSpeed;
     private double exponential;
     private boolean copilotEnabled;
+    private double slowmode;
     private int liftEncoderHoldPosition = 0;
 
 
@@ -33,6 +35,7 @@ public class Manual extends RobotHardware {
     private AutoDrive autoDrive;
 
     private double triggerThreshold = 0.1;
+
 
 
 
@@ -46,6 +49,7 @@ public class Manual extends RobotHardware {
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+        interactiveInit.addDouble(Slowmode, "Slow Mode Multiplier",  0.25, 0.5, 0.75, 1.0);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
@@ -81,14 +85,15 @@ public class Manual extends RobotHardware {
 
         lifterSpeed = LiftSpeed.get();
         exponential = Exponential.get();
+        slowmode = Slowmode.get();
         copilotEnabled = CoPilot.get();
 
         // Telemetry
         mecanumNavigation.displayPosition();
 
         // Mecanum Drive Control
-        setDriveForSimpleMecanum(Math.pow(controllerDrive.left_stick_x, exponential), Math.pow(controllerDrive.left_stick_y, exponential),
-                Math.pow(controllerDrive.right_stick_x, exponential), Math.pow(controllerDrive.right_stick_y, exponential));
+        setDriveForSimpleMecanum(Math.pow(controllerDrive.left_stick_x, exponential) * slowmode, Math.pow(controllerDrive.left_stick_y, exponential) * slowmode,
+                Math.pow(controllerDrive.right_stick_x, exponential) * slowmode, Math.pow(controllerDrive.right_stick_y, exponential) * slowmode);
         nonDriveControls();
 
     }
@@ -100,6 +105,10 @@ public class Manual extends RobotHardware {
         // Feeder Lift, and Lift Winch
         if (copilotEnabled) {
             // Copilot Controls
+
+            if(controllerDrive.YOnce()) {
+                mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+            }
 
             if (controllerArm.leftBumper()) {
                 setAngle(ServoName.FOUNDATION, 0.5);

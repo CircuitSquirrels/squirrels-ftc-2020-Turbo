@@ -259,7 +259,7 @@ public class MecanumNavigation {
         public double wheelbaseLength;
         public double wheelbaseWidth;
         public double wheelDiameter;
-        public int encoderTicksPerRotation;
+        public double encoderTicksPerRotation;
         public double lateralScaling = 1.0;
 
         public DriveTrainMecanum(double wheelbaseLength, double wheelbaseWidth,
@@ -271,7 +271,7 @@ public class MecanumNavigation {
         }
 
         public DriveTrainMecanum(double wheelbaseLength, double wheelbaseWidth,
-                                 double wheelDiameter, int encoderTicksPerRotation, double lateralScaling) {
+                                 double wheelDiameter, double encoderTicksPerRotation, double lateralScaling) {
             this.wheelbaseLength = wheelbaseLength;
             this.wheelbaseWidth = wheelbaseWidth;
             this.wheelDiameter = wheelDiameter;
