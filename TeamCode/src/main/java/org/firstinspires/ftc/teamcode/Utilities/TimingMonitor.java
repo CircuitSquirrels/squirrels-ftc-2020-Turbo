@@ -33,6 +33,7 @@ public class TimingMonitor {
     private int totalCheckpoints;
     private boolean checkpointOrderError;
     private final int MAX_CHECKPOINTS = 100;
+    private boolean enabled = true;
 
     public TimingMonitor(RobotHardware opMode) {
         this.opMode = opMode;
@@ -42,6 +43,7 @@ public class TimingMonitor {
 
     public void reset() {
         initialized = true; // What does this represent?
+        enabled = true;
         firstLoopCompleted = false; // Required to begin timing
         checkpointIndex = 0;
         totalCheckpoints = 0;
@@ -50,7 +52,21 @@ public class TimingMonitor {
         checkpointMaxTimes = new ArrayList<>();
     }
 
+    /*
+    Disabling the timing monitor will remove the reports and minimize the processing footprint.
+     */
+    public void disable() {
+        enabled = false;
+    }
+
+    public void enable() {
+        enabled = true;
+        this.reset();
+    }
+
     public void loopStart() {
+        if(!enabled) return; // Exit function in not enabled.
+
         double previousTime;
         double currentTime;
         // Determine if the first loop has been completed
@@ -89,6 +105,8 @@ public class TimingMonitor {
     }
 
     public void checkpoint(String checkpointName){
+        if(!enabled) return; // Exit function in not enabled.
+
         double currentTime;
         double previousTime;
         if(checkpointIndex > 0 && checkpointIndex <= MAX_CHECKPOINTS) {
@@ -128,6 +146,11 @@ public class TimingMonitor {
     }
 
     public void displayMaxTimes() {
+        if(!enabled) {
+            opMode.telemetry.addData("TimingMonitor", "Disabled");
+            return; // Exit function in not enabled.
+        }
+
         opMode.telemetry.addData("TimingMonitor","Max Time Results:");
         if(checkpointOrderError) {
             opMode.telemetry.addData("ERROR", "checkpoint order inconsistent.");
