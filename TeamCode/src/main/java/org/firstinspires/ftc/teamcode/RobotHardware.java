@@ -47,11 +47,26 @@ public class RobotHardware extends OpMode {
 
     // The motors on the robot.
     public enum MotorName {
-        DRIVE_FRONT_LEFT,
-        DRIVE_FRONT_RIGHT,
-        DRIVE_BACK_LEFT,
-        DRIVE_BACK_RIGHT,
-        LEFT_LIFT_WINCH
+        DRIVE_FRONT_LEFT(DcMotor.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_FRONT_RIGHT(DcMotor.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_LEFT(DcMotor.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_RIGHT(DcMotor.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT, DcMotor.RunMode.RUN_USING_ENCODER),
+        LEFT_LIFT_WINCH(DcMotor.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER);
+
+        private DcMotor.Direction direction;
+        private DcMotor.ZeroPowerBehavior zeroPowerBehavior;
+        private DcMotor.RunMode runMode;
+        MotorName(DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, DcMotor.RunMode runMode) {
+            this.direction = direction;
+            this.zeroPowerBehavior = zeroPowerBehavior;
+            this.runMode = runMode;
+        }
+
+        public DcMotor.Direction getDirection() {return direction;}
+
+        public DcMotor.ZeroPowerBehavior getZeroPowerBehavior() {return zeroPowerBehavior;}
+
+        public DcMotor.RunMode getRunMode() {return runMode;}
     }
 
     /**
@@ -200,9 +215,15 @@ public class RobotHardware extends OpMode {
 
     // The servos on the robot.
     public enum ServoName {
-//        FLIPPER_RIGHT,
-//        FLIPPER_LEFT,
-        FOUNDATION
+        CLAW(Servo.Direction.FORWARD),
+        FOUNDATION(Servo.Direction.FORWARD);
+
+        private Servo.Direction direction;
+        ServoName(Servo.Direction direction) {
+            this.direction = direction;
+        }
+
+        public Servo.Direction getDirection() {return direction;}
     }
 
     // Servo methods
@@ -394,10 +415,16 @@ public class RobotHardware extends OpMode {
 
     public void init() {
 
+        // Creates a list of all valid DcMotors and initializes their
+        // Direction, ZeroPowerBehavior, and RunMode( with or without Encoder)
         allMotors = new ArrayList<DcMotor>();
         for (MotorName m : MotorName.values()) {
             try {
-                allMotors.add(hardwareMap.get(DcMotor.class, m.name()));
+                DcMotor motor = hardwareMap.get(DcMotor.class, m.name());
+                allMotors.add(motor);
+                motor.setDirection(m.getDirection());
+                motor.setZeroPowerBehavior(m.getZeroPowerBehavior());
+                motor.setMode(m.getRunMode());
             } catch (Exception e) {
                 telemetry.addData("Motor Missing", m.name());
                 allMotors.add(null);
@@ -413,46 +440,25 @@ public class RobotHardware extends OpMode {
 
         resetAndStopAllMotors();
 
-        // Set motor directions.
-        try {
-            allMotors.get(MotorName.DRIVE_FRONT_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setDirection(DcMotorSimple.Direction.REVERSE);
-        } catch (Exception e) {
-            telemetry.addData("Unable to set motor direction", "");
-        }
-
         // Set drive motors to use encoders
-        setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
         setDriveMotorsZeroPowerBraking(false);
 
-        // Set arm motor to brake
-        try {
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        } catch (Exception e) {
-            telemetry.addData("Unable to set arm motor to zero power brake or encoder use", "");
-        }
-
+        // Initialize servos, and set their direction.
         allServos = new ArrayList<Servo>();
         for (ServoName s : ServoName.values()) {
             try {
-                allServos.add(hardwareMap.get(Servo.class, s.name()));
+                Servo servo = hardwareMap.get(Servo.class, s.name());
+                allServos.add(servo);
+                servo.setDirection(s.getDirection());
             } catch (Exception e) {
                 telemetry.addData("Servo Missing", s.name());
                 allServos.add(null);
             }
         }
-        // Set servo direction
-//        try {
-//            allServos.get(ServoName.FLIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
-//        } catch (Exception e) {
-//            telemetry.addData("Unable to set left servo direction", "");
-//        }
+
 
         allColorSensors = new ArrayList<ColorSensor>();
         for (ColorSensorName s : ColorSensorName.values()) {
