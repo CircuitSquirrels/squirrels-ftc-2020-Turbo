@@ -23,8 +23,8 @@ public class AutoOpmode extends RobotHardware {
     public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
+    public SimpleVision simpleVision;
     public RobotStateContext robotStateContext;
-//    public SimpleVision simpleVision;
     public Thread thread;
     public Controller controller;
     public IMUUtilities imuUtilities;
@@ -103,14 +103,12 @@ public class AutoOpmode extends RobotHardware {
         super.init_loop();
         controller.update();
 
-//        if (simpleVision == null) {
-//            telemetry.addData("Vision:", "LOADING...");
-//        } else {
-//            telemetry.addData("Vision:", "INITIALIZED");
-//        }
-
+        if (simpleVision == null) {
+            telemetry.addData("Vision:", "LOADING...");
+        } else {
+            telemetry.addData("Vision:", "INITIALIZED");
+        }
         interactiveInit.update();
-        //Maintain lift winch position while hanging.
     }
 
     @Override
@@ -181,8 +179,8 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST TELEMETRY");
 
         try {
-//            simpleVision.updateTensorFlow(true);
-//            simpleVision.displayTensorFlowDetections();
+            simpleVision.updateTensorFlow(true);
+            simpleVision.displayTensorFlowDetections();
         } catch(Exception e) {
             telemetry.addData("Vision Not Loaded", "");
         }
@@ -202,9 +200,11 @@ public class AutoOpmode extends RobotHardware {
     // Initialize vuforia in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
         public void run() {
-//            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
-//                    false, true,false,
-//                    false, false);
+
+            //TODO Might need to use trackables, the second to last boolean.
+            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
+                    false, true,false,
+                    true, false);
         }
     }
 

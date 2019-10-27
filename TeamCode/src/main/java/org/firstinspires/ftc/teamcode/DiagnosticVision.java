@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 
 
@@ -44,7 +43,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
             telemetry.addData("VuForia Nav2D",simpleVision.getPositionNav2D());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
-            simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            simpleVision.identifyMineral(SimpleVision.SkystoneIdentificationLocation.CENTER);
         }
     }
 

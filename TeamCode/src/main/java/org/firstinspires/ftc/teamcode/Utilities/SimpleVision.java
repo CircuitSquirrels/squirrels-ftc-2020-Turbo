@@ -11,12 +11,8 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.MatrixF;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -37,7 +33,6 @@ import java.util.Locale;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XZY;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
@@ -104,6 +99,7 @@ public class SimpleVision {
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
+    private boolean PHONE_IS_PORTRAIT = true;
 
 
     // TensorFlow Properties
@@ -129,7 +125,7 @@ public class SimpleVision {
         UNKNOWN,
     }
 
-    public static enum MineralIdentificationLocation {
+    public static enum SkystoneIdentificationLocation {
         CENTER,
         BOTTOM,
     }
@@ -162,6 +158,9 @@ public class SimpleVision {
              try {
                  webcamName = opMode.hardwareMap.get(WebcamName.class, "Webcam 1");
                  parameters.cameraName = webcamName;
+                 // Might be required for webcam (Phone != portrait, and Camera == Back)
+                 PHONE_IS_PORTRAIT = false;
+                 parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
              } catch (Exception e) {
                  useWebcam = false; this.useWebcam = false; // Default to not using webcam.
                  opMode.telemetry.addData("Webcam"," not detected");
@@ -250,17 +249,6 @@ public class SimpleVision {
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
         allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(targetsSkystone);
-
-        VuforiaTrackables stonesAndChips = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/StonesAndChips");
-        VuforiaTrackable redTarget = stonesAndChips.get(0);
-        redTarget.setName("RedTarget");  // Stones
-
-        VuforiaTrackable blueTarget  = stonesAndChips.get(1);
-        blueTarget.setName("BlueTarget");  // Chips
-
-        /** For convenience, gather together all the trackable objects in one easily-iterable collection */
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(stonesAndChips);
 
         /**
          * In order for localization to work, we need to tell the system where each target is on the field, and
@@ -351,6 +339,18 @@ public class SimpleVision {
         // pointing to the LEFT side of the Robot.
         // The two examples below assume that the camera is facing forward out the front of the robot.
 
+        // We need to rotate the camera around it's long axis to bring the correct camera forward.
+        if (parameters.cameraDirection == BACK) {
+            phoneYRotate = -90;
+        } else {
+            phoneYRotate = 90;
+        }
+
+        // Rotate the phone vertical about the X axis if it's in portrait mode
+        if (PHONE_IS_PORTRAIT) {
+            phoneXRotate = 90 ;
+        }
+
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
         final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
@@ -396,6 +396,7 @@ public class SimpleVision {
 
 
             // Provide feedback as to where the robot is located (if we know).
+            //TODO Separate detections of Skystone from all other targets, since the skystone coordinates are relative.
             if (targetVisible) {
                 // express position (translation) of robot in inches.
                 VectorF translation = lastLocation.getTranslation();
@@ -525,7 +526,7 @@ public class SimpleVision {
         }
     }
 
-    public Color.Mineral identifyMineral(MineralIdentificationLocation idLocation) {
+    public Color.Mineral identifyMineral(SkystoneIdentificationLocation idLocation) {
         Color.Mineral detectedMineralColor = Color.Mineral.UNKNOWN;
 
         if (pastRecognitions != null && pastRecognitions.size() > 0) {
@@ -541,11 +542,11 @@ public class SimpleVision {
             double detectionX;
             double detectionY;
 
-            if (idLocation == MineralIdentificationLocation.CENTER) {
+            if (idLocation == SkystoneIdentificationLocation.CENTER) {
                 // Find image center
                 targetX = imageWidth / 2;
                 targetY = imageHeight / 2;
-            } else if (idLocation == MineralIdentificationLocation.BOTTOM) {
+            } else if (idLocation == SkystoneIdentificationLocation.BOTTOM) {
                 // Find bottom center
                 targetX = imageWidth /2;
                 targetY = imageHeight; // Bottom is max pixel value.
