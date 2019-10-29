@@ -444,7 +444,7 @@ public class RobotHardware extends OpMode {
         //setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
-        setDriveMotorsZeroPowerBraking(false);
+        // setDriveMotorsZeroPowerBraking(false);
 
         // Initialize servos, and set their direction.
         allServos = new ArrayList<Servo>();

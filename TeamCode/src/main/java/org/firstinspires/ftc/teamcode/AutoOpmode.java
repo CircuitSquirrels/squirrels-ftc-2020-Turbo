@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
@@ -82,13 +83,14 @@ public class AutoOpmode extends RobotHardware {
     public void init() {
         super.init();
         timingMonitor = new TimingMonitor(AutoOpmode.this);
+        timingMonitor.disable();
         controller = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
         robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
         robotStateContext.init();
         telemetry.addData("Initialization:", "Successful!");
-
+        System.out.println("This is a test");
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
@@ -102,11 +104,11 @@ public class AutoOpmode extends RobotHardware {
     public void init_loop() {
         super.init_loop();
         controller.update();
-
         if (simpleVision == null) {
             telemetry.addData("Vision:", "LOADING...");
         } else {
             telemetry.addData("Vision:", "INITIALIZED");
+            simpleVision.updateVuMarkPose();
         }
         interactiveInit.update();
     }
@@ -179,6 +181,8 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST TELEMETRY");
 
         try {
+            simpleVision.updateVuMarkPose();
+            telemetry.addData("Nav 2D", simpleVision.getPositionNav2D().toString());
             simpleVision.updateTensorFlow(true);
             simpleVision.displayTensorFlowDetections();
         } catch(Exception e) {
@@ -203,7 +207,7 @@ public class AutoOpmode extends RobotHardware {
 
             //TODO Might need to use trackables, the second to last boolean.
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
-                    false, true,false,
+                    true, false,true,
                     true, false);
         }
     }

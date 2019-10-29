@@ -217,33 +217,33 @@ public class SimpleVision {
     private void initializeVuforiaTrackingGeometry(VuforiaLocalizer.Parameters parameters) {
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/Skystone");
+        targetsSkystone = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/Skystone");
 
-        VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+        VuforiaTrackable stoneTarget = targetsSkystone.get(0);
         stoneTarget.setName("Stone Target");
-        VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
+        VuforiaTrackable blueRearBridge = targetsSkystone.get(1);
         blueRearBridge.setName("Blue Rear Bridge");
-        VuforiaTrackable redRearBridge = targetsSkyStone.get(2);
+        VuforiaTrackable redRearBridge = targetsSkystone.get(2);
         redRearBridge.setName("Red Rear Bridge");
-        VuforiaTrackable redFrontBridge = targetsSkyStone.get(3);
+        VuforiaTrackable redFrontBridge = targetsSkystone.get(3);
         redFrontBridge.setName("Red Front Bridge");
-        VuforiaTrackable blueFrontBridge = targetsSkyStone.get(4);
+        VuforiaTrackable blueFrontBridge = targetsSkystone.get(4);
         blueFrontBridge.setName("Blue Front Bridge");
-        VuforiaTrackable red1 = targetsSkyStone.get(5);
+        VuforiaTrackable red1 = targetsSkystone.get(5);
         red1.setName("Red Perimeter 1");
-        VuforiaTrackable red2 = targetsSkyStone.get(6);
+        VuforiaTrackable red2 = targetsSkystone.get(6);
         red2.setName("Red Perimeter 2");
-        VuforiaTrackable front1 = targetsSkyStone.get(7);
+        VuforiaTrackable front1 = targetsSkystone.get(7);
         front1.setName("Front Perimeter 1");
-        VuforiaTrackable front2 = targetsSkyStone.get(8);
+        VuforiaTrackable front2 = targetsSkystone.get(8);
         front2.setName("Front Perimeter 2");
-        VuforiaTrackable blue1 = targetsSkyStone.get(9);
+        VuforiaTrackable blue1 = targetsSkystone.get(9);
         blue1.setName("Blue Perimeter 1");
-        VuforiaTrackable blue2 = targetsSkyStone.get(10);
+        VuforiaTrackable blue2 = targetsSkystone.get(10);
         blue2.setName("Blue Perimeter 2");
-        VuforiaTrackable rear1 = targetsSkyStone.get(11);
+        VuforiaTrackable rear1 = targetsSkystone.get(11);
         rear1.setName("Rear Perimeter 1");
-        VuforiaTrackable rear2 = targetsSkyStone.get(12);
+        VuforiaTrackable rear2 = targetsSkystone.get(12);
         rear2.setName("Rear Perimeter 2");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
@@ -446,7 +446,7 @@ public class SimpleVision {
         }
 
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        tfod.loadModelFromFile(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
 
