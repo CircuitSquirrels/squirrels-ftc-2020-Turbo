@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.BehaviorSandBox;
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
+import org.firstinspires.ftc.teamcode.Utilities.Executive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
@@ -25,7 +27,7 @@ public class AutoOpmode extends RobotHardware {
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
     public SimpleVision simpleVision;
-    public RobotStateContext robotStateContext;
+    public Executive.RobotStateMachineContextInterface robotStateContext;
     public Thread thread;
     public Controller controller;
     public IMUUtilities imuUtilities;
@@ -79,6 +81,15 @@ public class AutoOpmode extends RobotHardware {
         }
     }
 
+    @Autonomous(name="auto.Sandbox", group="Test")
+    public static class Sandbox extends AutoOpmode {
+        @Override public void init() {
+            robotColor = Color.Ftc.UNKNOWN;
+            robotStartPos = StartPosition.FIELD_BUILD;
+            super.init();
+        }
+    }
+
     @Override
     public void init() {
         super.init();
@@ -87,7 +98,11 @@ public class AutoOpmode extends RobotHardware {
         controller = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
-        robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
+        if(!robotColor.equals(Color.Ftc.UNKNOWN)) {
+            robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
+        } else {
+            robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
+        }
         robotStateContext.init();
         telemetry.addData("Initialization:", "Successful!");
         System.out.println("This is a test");

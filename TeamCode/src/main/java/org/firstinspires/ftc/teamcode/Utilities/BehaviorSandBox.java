@@ -14,7 +14,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
     Waypoints waypoints;
     double driveSpeed = 0.8;
     Controller controllerDrive;
-    Controller controllerArm;
 
     public BehaviorSandBox(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
@@ -22,14 +21,13 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
         waypoints = new Waypoints(teamColor, startPosition, true);
-        this.controllerDrive = new Controller (opMode.gamepad1);
-        this.controllerArm = new Controller (opMode.gamepad2);
     }
 
     public void init() {
         stateMachine.changeState(DRIVE, new Start_Menu());
 //        stateMachine.changeState(Executive.StateMachine.StateType.ARM, new ArmLevelState());
         stateMachine.init();
+        controllerDrive = opMode.controller;
     }
 
     public void update() {
@@ -64,34 +62,25 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
 
     class Manual extends Executive.StateBase {
         @Override
-        public void update() {
-            super.update();
-            if(stateTimer.seconds() > 1) {
-                if(controllerDrive.startOnce()) {
-                    stateMachine.changeState(DRIVE, new Start_Menu());
-                }
-                opMode.setDriveForSimpleMecanum(controllerDrive.left_stick_x, controllerDrive.left_stick_y, controllerDrive.right_stick_x, controllerDrive.right_stick_y);
-                opMode.telemetry.clear();
-                for (RobotHardware.MotorName m : RobotHardware.MotorName.values()) {
-                    opMode.telemetry.addData(m.name() + ": ", opMode.getEncoderValue(m));
-                }
-            }
+        public void init(Executive.StateMachine stateMachine) {
+            super.init(stateMachine);
+            opMode.telemetry.clear();
         }
-    }
 
-    class Drive_somewhere extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
-            if(stateTimer.seconds() > 1) {
-                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12, 12, degreesToRadians(180)), driveSpeed);
-                if(arrived) {
-                    stateMachine.changeState(DRIVE, new Stop_State());
-                }
+            if(controllerDrive.startOnce()) {
+                stateMachine.changeState(DRIVE, new Start_Menu());
+            }
+
+            opMode.setDriveForSimpleMecanum(controllerDrive.left_stick_x, controllerDrive.left_stick_y, controllerDrive.right_stick_x, controllerDrive.right_stick_y);
+
+            for (RobotHardware.MotorName m : RobotHardware.MotorName.values()) {
+                opMode.telemetry.addData(m.name() + ": ", opMode.getEncoderValue(m));
             }
         }
     }
-
 
     class Stop_State extends Executive.StateBase {
         @Override

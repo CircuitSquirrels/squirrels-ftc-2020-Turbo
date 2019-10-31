@@ -200,8 +200,7 @@ public class RobotHardware extends OpMode {
 
     // The servos on the robot.
     public enum ServoName {
-//        FLIPPER_RIGHT,
-//        FLIPPER_LEFT,
+        WRIST,
         FOUNDATION
     }
 

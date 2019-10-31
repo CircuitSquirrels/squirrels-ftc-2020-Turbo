@@ -111,10 +111,10 @@ public class Manual extends RobotHardware {
             }
 
             if (controllerArm.leftBumper()) {
-                setAngle(ServoName.FOUNDATION, 0.5);
+                setAngle(ServoName.WRIST, 0.5);
                 telemetry.addData("SERVO: ", "UP");
             } else if (controllerArm.rightBumper()) {
-                setAngle(ServoName.FOUNDATION, 0.8);
+                setAngle(ServoName.WRIST, 0.8);
                 telemetry.addData("SERVO: ", "DOWN");
             }
 
@@ -122,12 +122,11 @@ public class Manual extends RobotHardware {
             setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
             // Pilot Controls
-
-            if (controllerArm.leftBumper()) {
-                setAngle(ServoName.FOUNDATION, 0.5);
+            if (controllerDrive.leftBumper()) {
+                setAngle(ServoName.WRIST, 0.5);
                 telemetry.addData("SERVO: ", "UP");
-            } else if (controllerArm.rightBumper()) {
-                setAngle(ServoName.FOUNDATION, 0.8);
+            } else if (controllerDrive.rightBumper()) {
+                setAngle(ServoName.WRIST, 0.8);
                 telemetry.addData("SERVO: ", "DOWN");
             }
 
