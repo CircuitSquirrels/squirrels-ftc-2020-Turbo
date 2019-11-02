@@ -19,6 +19,13 @@ public class Constants {
     public static final double DRIVE_WHEEL_MM_PER_ROT = DRIVE_WHEEL_RADIUS_MM * 2 *  Math.PI;
 
     public static final double DRIVE_WHEEL_STEPS_PER_ROT = 28*19.2;
+
+    public static final double LEFT_CLAW_VERTICAL = 0.12;
+    public static final double LEFT_CLAW_OPEN = 0.59;
+    public static final double LEFT_CLAW_CLOSED = 0.85;
+    public static final double RIGHT_CLAW_VERTICAL = 0.88;
+    public static final double RIGHT_CLAW_OPEN = 0.39;
+    public static final double RIGHT_CLAW_CLOSED = 0.15;
     
     // Simplify initializing mecanum navigation.
     public static MecanumNavigation.DriveTrainMecanum getDriveTrainMecanum() {

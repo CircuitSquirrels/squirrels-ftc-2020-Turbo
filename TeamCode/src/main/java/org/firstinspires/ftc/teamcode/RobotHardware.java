@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
+import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 
@@ -146,8 +147,7 @@ public class RobotHardware extends OpMode {
      * @param zeroPowerBraking boolean to activate or deactivate zero power braking
      */
     protected void setDriveMotorsZeroPowerBraking(boolean zeroPowerBraking) {
-        DcMotor.ZeroPowerBehavior brakingMode = zeroPowerBraking ? DcMotor.ZeroPowerBehavior.BRAKE
-                : DcMotor.ZeroPowerBehavior.FLOAT;
+        DcMotor.ZeroPowerBehavior brakingMode = zeroPowerBraking ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
         for (MotorName motor : driveMotorNames) {
             DcMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
@@ -200,8 +200,10 @@ public class RobotHardware extends OpMode {
 
     // The servos on the robot.
     public enum ServoName {
-        WRIST,
-        FOUNDATION
+        CLAW_LEFT,
+        CLAW_RIGHT,
+        FOUNDATION,
+        AUTO_ARM
     }
 
     // Servo methods
@@ -257,6 +259,16 @@ public class RobotHardware extends OpMode {
         setAngle(servo, nextPosition);
 
         return isMovementDone;
+    }
+
+    public void openClaw() {
+        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_OPEN);
+        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_OPEN);
+    }
+
+    public void closeClaw() {
+        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_CLOSED);
+        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_CLOSED);
     }
 
     // The color sensors on the robot.
@@ -427,7 +439,7 @@ public class RobotHardware extends OpMode {
         setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
-        // setDriveMotorsZeroPowerBraking(false);
+        setDriveMotorsZeroPowerBraking(false);
 
         // Set arm motor to brake
         try {

@@ -105,28 +105,29 @@ public class Manual extends RobotHardware {
         // Feeder Lift, and Lift Winch
         if (copilotEnabled) {
             // Copilot Controls
-
             if(controllerDrive.YOnce()) {
                 mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
             }
 
             if (controllerArm.leftBumper()) {
-                setAngle(ServoName.WRIST, 0.5);
+                setAngle(ServoName.CLAW_LEFT, 0.4);
                 telemetry.addData("SERVO: ", "UP");
             } else if (controllerArm.rightBumper()) {
-                setAngle(ServoName.WRIST, 0.8);
+                setAngle(ServoName.CLAW_LEFT, 1);
                 telemetry.addData("SERVO: ", "DOWN");
             }
 
             // Lift Control
             setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
-            // Pilot Controls
+            /**
+             * Pilot Controls
+             */
             if (controllerDrive.leftBumper()) {
-                setAngle(ServoName.WRIST, 0.5);
+                setAngle(ServoName.CLAW_LEFT, 0.4);
                 telemetry.addData("SERVO: ", "UP");
             } else if (controllerDrive.rightBumper()) {
-                setAngle(ServoName.WRIST, 0.8);
+                setAngle(ServoName.CLAW_LEFT, 1);
                 telemetry.addData("SERVO: ", "DOWN");
             }
 
