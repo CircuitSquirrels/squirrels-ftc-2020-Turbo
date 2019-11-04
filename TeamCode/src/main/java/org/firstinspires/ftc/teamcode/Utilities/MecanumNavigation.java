@@ -159,6 +159,11 @@ public class MecanumNavigation {
             this.theta += radians;
         }
 
+        public void reflectInX() {
+            this.y = -y;
+            this.theta = -theta; // Allows negative angles.
+        }
+
         public Navigation2D rotateCopy (double degrees) {
             Navigation2D nav2D_copy = (Navigation2D) this.clone();
             nav2D_copy.rotate(degrees);

@@ -362,7 +362,7 @@ public class RobotHardware extends OpMode {
 
     // Possible starting positions.
     public enum StartPosition {
-        FIELD_PICKUP,
+        FIELD_LOADING,
         FIELD_BUILD,
     }
 

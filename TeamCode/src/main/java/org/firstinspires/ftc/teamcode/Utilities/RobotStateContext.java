@@ -20,7 +20,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.teamColor = teamColor;
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
-        waypoints = new Waypoints(teamColor, startPosition, true);
+        waypoints = new Waypoints(teamColor, startPosition);
     }
 
     public void init() {

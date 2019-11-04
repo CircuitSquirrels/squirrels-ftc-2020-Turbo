@@ -9,18 +9,18 @@ public class Waypoints {
     RobotHardware.StartPosition startPosition;
     double genericRotate = 0;
 
+    // Value should be 1-6, where 1 is near the center of the field, and 6 is adjacent to the outer wall.
+    private int skystoneDetectionPosition = 1;
+
     /**
-     * blueCrater waypoints, as well as partner_blueDepot waypoints (for partner mineral field) are
-     * first defined to be used as a template.  Then a series of rotations are used to define
-     * generic waypoints depending on the start position and team color.
+     * blueLoading waypoints arefirst defined to be used as a template.
+     * Then a reflection on the X axis is used to define generic waypoints depending on the
+     * start position and team color.
      *
-     * These initial waypoints for blueCrater and the partner_blueDepot are generated from
+     * These initial waypoints for blueLoading are generated from
      * a list of parameters to ease tweaking.
      *
-     * We are allowing the 'left' and 'right' mineral to refer to the robot's perspective,
-     * regardless of which side of the mineral field it is on.  This isn't consistent with a
-     * global naming convention, but it doesn't matter as long as we knock the gold mineral
-     * wherever we find it.
+     * Constructor uses skystoneDetectionPosition as an input.
      */
 
     /**
@@ -48,45 +48,85 @@ public class Waypoints {
 
     double skystoneWidth = 0;
     double skystoneLength = 0;
-    double tileWidth = 0;
+    double tileWidth = 24;
+
+    double robotWidth = 17;
+    double robotSidePadding = robotWidth/2;
+    double robotFrontPadding = 5.25; //Distance from Robot front edge to wheelbase center.
+    double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
 
     double loadingStart_X = 0;
     double loadingStart_Y = 0;
-    double grabOffset_X = 0;
-    double grabOffset_Y = 0;
+    double grabOffset_X = 0; // Forward on Robot from navigation point, center of drivetrain.
+    double grabOffset_Y = 0; // Left on Robot
+
+    double scanOffset_Y = 10;
 
     /**
-     * Blue crater positions set and used as templates
+     * Blue Loading positions set and used as templates
      */
-//    Navigation2D blueCrater_initialPosition = new Navigation2D(blueCrater_start_x,blueCrater_start_y,degreesToRadians(blueCrater_start_degrees + blueCrater_hanging_biased));
+    Navigation2D blueLoading_initialPosition = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
 
-    public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
+    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_backupPosition_A = new Navigation2D(0,0, degreesToRadians(0));
+    Navigation2D blueLoading_buildZone_A = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_scanPosition_B = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_grabSkystone_B = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_backupPosition_B = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_buildZone_B = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_parkOuter = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_parkInner = new Navigation2D(0,0,degreesToRadians(0));
+
+    /**
+     * Blue Building positions
+     */
+    Navigation2D blueBuilding_initialPosition = new Navigation2D(+tileWidth+robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
+
+
+    public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, int skystoneDetectionPosition) {
         this.teamColor = teamColor;
         this.startPosition = startPosition;
+        this.skystoneDetectionPosition = skystoneDetectionPosition;
+        customizeWaypoints(teamColor, startPosition, skystoneDetectionPosition);
     }
 
-    void customizeWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, boolean doPartnerMineralField) {
+    public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
+        // Default skystone position to 1.
+        this(teamColor, startPosition, 1);
+    }
+
+    /**
+     * @param skystoneDetectionPosition
+     * Sets the skystone position and recalculates the waypoint positions by calling customizeWaypoints()
+     */
+    public void setSkystoneDetectionPosition(int skystoneDetectionPosition) {
+        this.skystoneDetectionPosition = skystoneDetectionPosition;
+        customizeWaypoints(teamColor, startPosition, skystoneDetectionPosition);
+    }
+
+    void customizeWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, int skystoneDetectionPosition) {
         if(teamColor == Color.Ftc.BLUE) {
-            if(startPosition == RobotHardware.StartPosition.FIELD_PICKUP) {
-                create_blue_crater_waypoints();
+            if(startPosition == RobotHardware.StartPosition.FIELD_LOADING) {
+                create_blue_loading_waypoints();
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
                 //Blue Depot
-                create_blue_depot_waypoints();
+                create_blue_build_waypoints();
 
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
             }
         } else if (teamColor == Color.Ftc.RED) {
-            if(startPosition == RobotHardware.StartPosition.FIELD_PICKUP) {
+            if(startPosition == RobotHardware.StartPosition.FIELD_LOADING) {
                 //Red Crater
-                create_blue_crater_waypoints();
-                rotate_waypoints_in_place(180);
+                create_blue_loading_waypoints();
+                x_reflect_waypoints_in_place();
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
                 //Red Depot
-                create_blue_depot_waypoints();
-                rotate_waypoints_in_place(180);
+                create_blue_build_waypoints();
+                x_reflect_waypoints_in_place();
 
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
@@ -105,28 +145,45 @@ public class Waypoints {
         return radians * 180 / Math.PI;
     }
 
-    void create_blue_crater_waypoints() {
-        //Blue Crater
-//        initialPosition = blueCrater_initialPosition.copy();
+    void create_blue_loading_waypoints() {
+        //Blue Loading Zone
+        initialPosition = blueLoading_initialPosition.copy();
+        scanPosition_A = blueLoading_scanPosition_A.copy();
+        grabSkystone_A = blueLoading_grabSkystone_A.copy();
+        backupPosition_A = blueLoading_backupPosition_A.copy();
+        buildZone_A = blueLoading_buildZone_A.copy();
+        scanPosition_B = blueLoading_scanPosition_B.copy();
+        grabSkystone_B = blueLoading_grabSkystone_B.copy();
+        backupPosition_B = blueLoading_backupPosition_B.copy();
+        buildZone_B = blueLoading_buildZone_B.copy();
+        parkOuter = blueLoading_parkOuter.copy();
+        parkInner = blueLoading_parkInner.copy();
 
 
     }
 
 
-    void rotate_waypoints_in_place(double rotateDegrees) {
-        // rotate the generic waypoints around (0,0), storing
+    void x_reflect_waypoints_in_place() {
+        // reflect the generic waypoints around x axis, storing
         // back into the generic waypoints.
-
-        initialPosition.rotate(rotateDegrees);
+        initialPosition.reflectInX();
+        scanPosition_A.reflectInX();
+        grabSkystone_A.reflectInX();
+        backupPosition_A.reflectInX();
+        buildZone_A.reflectInX();
+        scanPosition_B.reflectInX();
+        grabSkystone_B.reflectInX();
+        backupPosition_B.reflectInX();
+        buildZone_B.reflectInX();
+        parkOuter.reflectInX();
+        parkInner.reflectInX();
 
     }
 
 
-    void create_blue_depot_waypoints() {
-        create_blue_crater_waypoints();
-        // generally 90 degree rotation from blueCrater points
-        genericRotate = 90;
-        rotate_waypoints_in_place(genericRotate);
+    void create_blue_build_waypoints() {
+
+
 
 
         // This angle doesn't give a view of the vuforia target, which could be

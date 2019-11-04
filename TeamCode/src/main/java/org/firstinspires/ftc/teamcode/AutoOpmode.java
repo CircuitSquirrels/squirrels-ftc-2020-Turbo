@@ -47,7 +47,7 @@ public class AutoOpmode extends RobotHardware {
     public static class AutoRedPickup extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.RED;
-            robotStartPos = StartPosition.FIELD_PICKUP;
+            robotStartPos = StartPosition.FIELD_LOADING;
             super.init();
         }
     }
@@ -65,7 +65,7 @@ public class AutoOpmode extends RobotHardware {
     public static class AutoBluePickup extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.BLUE;
-            robotStartPos = StartPosition.FIELD_PICKUP;
+            robotStartPos = StartPosition.FIELD_LOADING;
             super.init();
         }
     }
