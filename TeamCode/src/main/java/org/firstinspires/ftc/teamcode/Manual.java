@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
@@ -87,41 +88,46 @@ public class Manual extends RobotHardware {
         mecanumNavigation.displayPosition();
 
         // Mecanum Drive Control
-        setDriveForSimpleMecanum(Math.pow(controllerDrive.left_stick_x, exponential) * slowmode, Math.pow(controllerDrive.left_stick_y, exponential) * slowmode,
-                Math.pow(controllerDrive.right_stick_x, exponential) * slowmode, Math.pow(controllerDrive.right_stick_y, exponential) * slowmode);
-        nonDriveControls();
+        setDriveForSimpleMecanum(
+                Math.pow(controllerDrive.left_stick_x, exponential) * slowmode,
+                Math.pow(controllerDrive.left_stick_y, exponential) * slowmode,
+                Math.pow(controllerDrive.right_stick_x, exponential) * slowmode,
+                Math.pow(controllerDrive.right_stick_y, exponential) * slowmode);
 
+        nonDriveControls();
     }
 
     /**
      * Robot controls for one or two people, customizable in the InteractiveInit
      */
     private void nonDriveControls() {
-        if (copilotEnabled) {
-            // Reset the robot's current position
-            if(controllerDrive.YOnce()) {
-                mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
-            }
-            // Add claw servo controls
-            if (controllerArm.leftBumper()) {
-                setAngle(ServoName.CLAW_LEFT, 0.4);
-                telemetry.addData("Claw: ", "DOWN");
-            } else if (controllerArm.rightBumper()) {
-                setAngle(ServoName.CLAW_LEFT, 1);
-                telemetry.addData("Claw: ", "UP");
-            }
+        // Reset the robot's current position
+        if(controllerDrive.YOnce()) {
+            mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+        }
 
+
+
+        Controller clawController;
+        if (copilotEnabled) {
+            clawController = controllerArm;
             // Lifter Control
             setPower(MotorName.LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
-            if (controllerDrive.leftBumper()) {
-                setAngle(ServoName.CLAW_LEFT, 0.4);
-                telemetry.addData("SERVO: ", "UP");
-            } else if (controllerDrive.rightBumper()) {
-                setAngle(ServoName.CLAW_LEFT, 1);
-                telemetry.addData("SERVO: ", "DOWN");
-            }
+            clawController = controllerDrive;
+            // Lifter Control
+            setPower(MotorName.LIFT_WINCH, Math.pow(controllerDrive.right_stick_y, 5) * lifterSpeed);
         }
+
+        // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
+        if (clawController.leftBumper()) {
+            closeClaw();
+            telemetry.addData("Claw: ", "CLOSED");
+        } else if (clawController.rightBumper()) {
+            openClaw();
+            telemetry.addData("Claw: ", "OPEN");
+        }
+
     }
 
     /**
