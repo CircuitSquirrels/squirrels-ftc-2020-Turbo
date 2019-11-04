@@ -24,7 +24,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         this.teamColor = teamColor;
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
-        waypoints = new Waypoints(teamColor, startPosition, true);
+        waypoints = new Waypoints(teamColor, startPosition);
     }
 
     public void init() {
@@ -151,15 +151,18 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         double speed = 1;
         double nextServoPosition;
         RobotHardware.ServoName currentServo;
+        boolean disableClawServoTest = true;
 
         @Override
         public void init(Executive.StateMachine stateMachine) {
             super.init(stateMachine);
             opMode.telemetry.clear();
+            opMode.verticalClaw();
 
             for (RobotHardware.ServoName s : RobotHardware.ServoName.values()) {
                 try {
-                    servoPositions.put(s, 0.0);
+                    double previousServoPosition = opMode.getAngle(s);
+                    servoPositions.put(s, previousServoPosition);
                 } catch (Exception e) {
                     opMode.telemetry.addData("Servo Missing: ", s.name());
                 }
@@ -177,12 +180,12 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             }
 
             // Select Index of servo to control.
-            if(controllerDrive.dpadUpOnce()) servoIndex = servoIndex < maxServoIndex ? servoIndex++ : servoIndex;
-            if(controllerDrive.dpadUpOnce()) servoIndex = servoIndex > 0 ? servoIndex-- : servoIndex;
+            if(controllerDrive.dpadUpOnce() && servoIndex < maxServoIndex) ++servoIndex;
+            if(controllerDrive.dpadDownOnce() &&  servoIndex > 0) --servoIndex;
 
             // Add a customizable controller input divider for more precise testing.
-            if(controllerDrive.dpadRightOnce()) inputDivider = inputDivider * 10;
-            if(controllerDrive.dpadLeftOnce()) inputDivider = inputDivider / 10;
+            if(controllerDrive.dpadRightOnce()) inputDivider *= 10;
+            if(controllerDrive.dpadLeftOnce()) inputDivider /=  10;
 
             // Get the current servo that is selected and move it to the new position
             currentServo = RobotHardware.ServoName.values()[servoIndex];
@@ -192,7 +195,12 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             //Move Servo to position stored in servoPositions HashMap
             for (RobotHardware.ServoName s : RobotHardware.ServoName.values()) {
                 try {
+                    if(disableClawServoTest && (s == RobotHardware.ServoName.CLAW_LEFT || s == RobotHardware.ServoName.CLAW_RIGHT)) {
+                        opMode.telemetry.addData("SERVO DISABLED: ","Claw Servos are Physically Attached!");
+                        continue; // Skip this part of the loop to prevent moving servo incorrectly.
+                    }
                     opMode.setAngle(s, servoPositions.get(s));
+
                 } catch (Exception e) {
                     opMode.telemetry.addData("Error couldn't set server position for:  ", s + ", " + opMode.df.format(servoPositions.get(s)));
                 }

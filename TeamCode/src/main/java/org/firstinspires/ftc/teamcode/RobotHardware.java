@@ -274,6 +274,14 @@ public class RobotHardware extends OpMode {
     }
 
     /**
+     * Initialize the claw vertical with the position defined in Constants.
+     */
+    public void verticalClaw() {
+        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_VERTICAL);
+        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_VERTICAL);
+    }
+
+    /**
      * Open the claw with the position defined in Constants.
      */
     public void openClaw() {
