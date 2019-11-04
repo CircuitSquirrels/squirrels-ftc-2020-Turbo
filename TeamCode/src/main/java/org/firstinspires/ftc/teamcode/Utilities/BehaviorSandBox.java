@@ -46,8 +46,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
      * Define Concrete State Classes
      */
 
-
-
     class Start_Menu extends Executive.StateBase {
         @Override
         public void init(Executive.StateMachine stateMachine) {
@@ -149,6 +147,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         HashMap<RobotHardware.ServoName, Double> servoPositions = new HashMap<>();
         int servoIndex = 0;
         int maxServoIndex;
+        int inputDivider = 10;
         double speed = 1;
         double nextServoPosition;
         RobotHardware.ServoName currentServo;
@@ -178,17 +177,16 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             }
 
             // Select Index of servo to control.
-            if(controllerDrive.dpadUpOnce() && (servoIndex < maxServoIndex)) {
-                servoIndex++;
-            }
+            if(controllerDrive.dpadUpOnce()) servoIndex = servoIndex < maxServoIndex ? servoIndex++ : servoIndex;
+            if(controllerDrive.dpadUpOnce()) servoIndex = servoIndex > 0 ? servoIndex-- : servoIndex;
 
-            if(controllerDrive.dpadDownOnce() && servoIndex>0) {
-                servoIndex--;
-            }
+            // Add a customizable controller input divider for more precise testing.
+            if(controllerDrive.dpadRightOnce()) inputDivider = inputDivider * 10;
+            if(controllerDrive.dpadLeftOnce()) inputDivider = inputDivider / 10;
 
-            // Get the current servo that is selected
+            // Get the current servo that is selected and move it to the new position
             currentServo = RobotHardware.ServoName.values()[servoIndex];
-            nextServoPosition = Range.clip(-controllerDrive.left_stick_y / 100 + servoPositions.get(currentServo), -1, 1);
+            nextServoPosition = Range.clip(-controllerDrive.left_stick_y / inputDivider + servoPositions.get(currentServo), -1, 1);
             servoPositions.put(currentServo, nextServoPosition);
 
             //Move Servo to position stored in servoPositions HashMap
@@ -196,13 +194,12 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
                 try {
                     opMode.setAngle(s, servoPositions.get(s));
                 } catch (Exception e) {
-                    opMode.telemetry.addData("Error couldn't set server position for:  ",
-                            s + " " + opMode.df.format(servoPositions.get(s)));
+                    opMode.telemetry.addData("Error couldn't set server position for:  ", s + ", " + opMode.df.format(servoPositions.get(s)));
                 }
             }
-
-            opMode.telemetry.addData("Servo: ", servoIndex + " " + currentServo);
-            opMode.telemetry.addData("Servo Angle: ", opMode.df.format(servoPositions.get(currentServo)));
+            opMode.telemetry.addData("Input Divider: ", inputDivider)
+                    .addData("Servo: ", servoIndex + ", " + currentServo)
+                    .addData("Servo Angle: ", opMode.df.format(servoPositions.get(currentServo)));
         }
     }
 

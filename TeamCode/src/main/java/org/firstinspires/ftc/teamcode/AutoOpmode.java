@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.BehaviorSandBox;
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.Executive;
@@ -16,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
-import org.firstinspires.ftc.teamcode.Utilities.SoundManager;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
 public class AutoOpmode extends RobotHardware {
@@ -204,7 +202,7 @@ public class AutoOpmode extends RobotHardware {
             telemetry.addData("Vision Not Loaded", "");
         }
         timingMonitor.checkpoint("POST Vision");
-        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LEFT_LIFT_WINCH));
+        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LIFT_WINCH));
     }
 
     @Override

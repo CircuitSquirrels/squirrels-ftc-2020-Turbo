@@ -13,31 +13,27 @@ import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 @TeleOp (name="Manual",group="Competition")
 public class Manual extends RobotHardware {
 
-    //Setting controller variables
+    // Setting controller variables
     Controller controllerDrive = null;
     Controller controllerArm = null;
 
-    //Adding interactive init variables
+    // Adding interactive init variables
+    private InteractiveInit interactiveInit = null;
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> CoPilot = new Mutable<>(false);
     private Mutable<Double> Exponential = new Mutable<>(1.0);
     private Mutable<Double> Slowmode = new Mutable<>(1.0);
 
+    // Define interactive init variable holders
     private double lifterSpeed;
     private double exponential;
     private boolean copilotEnabled;
     private double slowmode;
-    private int liftEncoderHoldPosition = 0;
 
-
-    private InteractiveInit interactiveInit = null;
+    // Define the MecanumNav and other useful variables
     MecanumNavigation mecanumNavigation;
     private AutoDrive autoDrive;
-
     private double triggerThreshold = 0.1;
-
-
-
 
     @Override
     public void init() {
@@ -57,19 +53,24 @@ public class Manual extends RobotHardware {
     @Override
     public void init_loop() {
         super.init_loop();
-
         interactiveInit.update();
     }
 
     @Override
     public void start() {
         super.start();
-        // MecanumNavigation and auto control
+        // Initialize the Mecanum Navigation for use
         mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
-
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
+        // Assign the variables to Interactive Init values
+        lifterSpeed = LiftSpeed.get();
+        exponential = Exponential.get();
+        slowmode = Slowmode.get();
+        copilotEnabled = CoPilot.get();
+
+        // Lock Interactive Init so it no longer receives inputs
         interactiveInit.lock();
     }
 
@@ -77,18 +78,12 @@ public class Manual extends RobotHardware {
     public void loop() {
         super.loop();
 
-        //Updates variables
+        // Update variables with new values
         controllerDrive.update();
         controllerArm.update();
-
         mecanumNavigation.update();
 
-        lifterSpeed = LiftSpeed.get();
-        exponential = Exponential.get();
-        slowmode = Slowmode.get();
-        copilotEnabled = CoPilot.get();
-
-        // Telemetry
+        // Display the robot's position compared to where it started
         mecanumNavigation.displayPosition();
 
         // Mecanum Drive Control
@@ -98,31 +93,27 @@ public class Manual extends RobotHardware {
 
     }
 
-
+    /**
+     * Robot controls for one or two people, customizable in the InteractiveInit
+     */
     private void nonDriveControls() {
-        // Based on copilotEnabled, sets controls for
-        // Arm, Wrist, Feeder
-        // Feeder Lift, and Lift Winch
         if (copilotEnabled) {
-            // Copilot Controls
+            // Reset the robot's current position
             if(controllerDrive.YOnce()) {
                 mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
             }
-
+            // Add claw servo controls
             if (controllerArm.leftBumper()) {
                 setAngle(ServoName.CLAW_LEFT, 0.4);
-                telemetry.addData("SERVO: ", "UP");
+                telemetry.addData("Claw: ", "DOWN");
             } else if (controllerArm.rightBumper()) {
                 setAngle(ServoName.CLAW_LEFT, 1);
-                telemetry.addData("SERVO: ", "DOWN");
+                telemetry.addData("Claw: ", "UP");
             }
 
-            // Lift Control
-            setPower(MotorName.LEFT_LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
+            // Lifter Control
+            setPower(MotorName.LIFT_WINCH, Math.pow(controllerArm.left_stick_y, exponential) * lifterSpeed);
         } else {
-            /**
-             * Pilot Controls
-             */
             if (controllerDrive.leftBumper()) {
                 setAngle(ServoName.CLAW_LEFT, 0.4);
                 telemetry.addData("SERVO: ", "UP");
@@ -130,19 +121,16 @@ public class Manual extends RobotHardware {
                 setAngle(ServoName.CLAW_LEFT, 1);
                 telemetry.addData("SERVO: ", "DOWN");
             }
-
-            // Lift Control
-            if (controllerDrive.dpadUp()) {
-                setPower(MotorName.LEFT_LIFT_WINCH, lifterSpeed);
-            } else if (controllerDrive.dpadDown()) {
-                setPower(MotorName.LEFT_LIFT_WINCH, -lifterSpeed);
-            } else {
-                setPower(MotorName.LEFT_LIFT_WINCH, 0);
-            }
         }
     }
 
-
+    /**
+     * @param motorName The motor that will be driven
+     * @param targetTicks The position where the motor will be driven. Must be in encoder Ticks
+     * @param power The power at which the robot will be driven
+     * @param rampThreshold The position when the robot will start slowing the motor down before its destination
+     * @return Returns whether or not the motor arrived to the specified position
+     */
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 0;
@@ -162,7 +150,12 @@ public class Manual extends RobotHardware {
         return Math.abs(errorSignal) <= arrivedDistance;
     }
 
-
+    /**
+     * @param motorName The motor that will be driven
+     * @param targetTicks The position where the motor will be driven. Must be in encoder Ticks
+     * @param power The power at which the robot will be driven
+     * @return Returns whether or not the motor arrived to the specified position
+     */
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
         int rampDistanceTicks = 400;
         return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);

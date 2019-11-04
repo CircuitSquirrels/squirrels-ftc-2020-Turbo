@@ -37,7 +37,6 @@ public class RobotHardware extends OpMode {
     public DecimalFormat df;
     public DecimalFormat df_prec;
 
-
     // IMU reference
     public BNO055IMU imu;
 
@@ -46,13 +45,13 @@ public class RobotHardware extends OpMode {
     private Vector<Double> pastPeriods = new Vector<Double>();
 
 
-    // The motors on the robot.
+    // The motors on the robot, must be the same names defined in the robot's Configuration file.
     public enum MotorName {
         DRIVE_FRONT_LEFT,
         DRIVE_FRONT_RIGHT,
         DRIVE_BACK_LEFT,
         DRIVE_BACK_RIGHT,
-        LEFT_LIFT_WINCH
+        LIFT_WINCH
     }
 
     /**
@@ -71,15 +70,15 @@ public class RobotHardware extends OpMode {
     }
 
     /**
-     * Get motor power
+     * Get motor power.
      *
-     * @param motor MotorName
-     * @return Motor Power, or zero if it cannot be found
+     * @param motor MotorName.
+     * @return Motor Power, or zero if it cannot be found.
      */
     public double getPower(MotorName motor) {
         DcMotor m = allMotors.get(motor.ordinal());
         if (m == null) {
-            telemetry.addData("Motor Missing", motor.name());
+            telemetry.addData("Motor Missing: ", motor.name());
             return 0;
         } else {
             return m.getPower();
@@ -95,7 +94,7 @@ public class RobotHardware extends OpMode {
     public int getEncoderValue(MotorName motor) {
         DcMotor m = allMotors.get(motor.ordinal());
         if (m == null) {
-            telemetry.addData("Motor Missing", motor.name());
+            telemetry.addData("Motor Missing: ", motor.name());
             return 0;
         } else {
             return m.getCurrentPosition();
@@ -111,11 +110,14 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Stops all motors and resets the Encoder Positions.
+     */
     public void resetAndStopAllMotors() {
         for (MotorName name : MotorName.values()) {
             DcMotor motor = allMotors.get(name.ordinal());
             if (motor == null) {
-                telemetry.addData("Motor missing" ,name.name());
+                telemetry.addData("Motor Missing: " ,name.name());
             } else {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
@@ -126,7 +128,7 @@ public class RobotHardware extends OpMode {
      * Set all four drive motors to the same runMode.
      * Options are RUN_WITHOUT_ENCODER, RUN_USING_ENCODER,
      * RUN_TO_POSITION is used with setTargetPosition()
-     * STOP_AND_RESET_ENCODER
+     * STOP_AND_RESET_ENCODER.
      *
      * @param runMode
      */
@@ -134,7 +136,7 @@ public class RobotHardware extends OpMode {
         for (MotorName motor : driveMotorNames) {
             DcMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
-                telemetry.addData("Motor Missing", motor.name());
+                telemetry.addData("Motor Missing: ", motor.name());
             } else {
                 m.setMode(runMode);
             }
@@ -144,14 +146,14 @@ public class RobotHardware extends OpMode {
     /**
      * Set zero power braking behavior for all drive wheels.
      *
-     * @param zeroPowerBraking boolean to activate or deactivate zero power braking
+     * @param zeroPowerBraking boolean to activate or deactivate zero power braking.
      */
     protected void setDriveMotorsZeroPowerBraking(boolean zeroPowerBraking) {
         DcMotor.ZeroPowerBehavior brakingMode = zeroPowerBraking ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
         for (MotorName motor : driveMotorNames) {
             DcMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
-                telemetry.addData("Motor Missing", motor.name());
+                telemetry.addData("Motor Missing: ", motor.name());
             } else {
                 m.setZeroPowerBehavior(brakingMode);
             }
@@ -173,8 +175,9 @@ public class RobotHardware extends OpMode {
     }
 
     /**
-     * Apply motor power matching the wheels object
-     * @param wheels Provides all four mecanum wheel powers, [-1, 1]
+     * Apply motor power matching the wheels object.
+     *
+     * @param wheels Provides all four mecanum wheel powers, [-1, 1].
      */
     public void setDriveForMecanumWheels(Mecanum.Wheels wheels) {
         setPower(MotorName.DRIVE_FRONT_LEFT, wheels.frontLeft);
@@ -185,6 +188,7 @@ public class RobotHardware extends OpMode {
 
     /**
      * Sets mecanum drive chain power using simplistic calculations.
+     *
      * @param leftStickX Unmodified Gamepad leftStickX inputs.
      * @param leftStickY Unmodified Gamepad leftStickY inputs.
      * @param rightStickX Unmodified Gamepad rightStickX inputs.
@@ -198,7 +202,7 @@ public class RobotHardware extends OpMode {
 
 
 
-    // The servos on the robot.
+    // The servos on the robot, names must be defined in robot Configure file
     public enum ServoName {
         CLAW_LEFT,
         CLAW_RIGHT,
@@ -226,8 +230,8 @@ public class RobotHardware extends OpMode {
     /**
      * Get the position of a servo.
      *
-     * @param servo ServoName enum to check
-     * @return double servo position [0,1]
+     * @param servo ServoName enum to check.
+     * @return double servo position [0,-1].
      */
     public double getAngle(ServoName servo) {
         Servo s = allServos.get(servo.ordinal());
@@ -239,6 +243,14 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Move a servo to a position at a specific speed.
+     *
+     * @param servo The servo that will be driven.
+     * @param targetPos The position that you want the servo to go to; Range [1-0].
+     * @param rate The speed at which the servo will move.
+     * @return Returns whether or not the servo has arrived to its targetPos.
+     */
     public boolean moveServoAtRate(ServoName servo, double targetPos, double rate) {
         boolean isMovementDone;
         double distanceThreshold = 0.05;
@@ -261,11 +273,17 @@ public class RobotHardware extends OpMode {
         return isMovementDone;
     }
 
+    /**
+     * Open the claw with the position defined in Constants.
+     */
     public void openClaw() {
         setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_OPEN);
         setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_OPEN);
     }
 
+    /**
+     * Close the claw with the position defined in Constants.
+     */
     public void closeClaw() {
         setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_CLOSED);
         setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_CLOSED);
@@ -285,7 +303,7 @@ public class RobotHardware extends OpMode {
     public int getColorSensor(ColorSensorName sensor, Color.Channel color) {
         ColorSensor s = allColorSensors.get(sensor.ordinal());
         if (s == null) {
-            telemetry.addData("Color Sensor Missing", sensor.name());
+            telemetry.addData("Color Sensor Missing: ", sensor.name());
             return 0;
         }
 
@@ -303,6 +321,12 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Check whether or not the sensor is detected on the robot.
+     *
+     * @param sensor The sensor to check.
+     * @return Returns whether or not the sensor exists.
+     */
     public boolean colorSensorExists(ColorSensorName sensor) {
         ColorSensor s = allColorSensors.get(sensor.ordinal());
         if (s == null) {
@@ -322,35 +346,11 @@ public class RobotHardware extends OpMode {
                                          boolean enabled) {
         ColorSensor s = allColorSensors.get(sensor.ordinal());
         if (s == null) {
-            telemetry.addData("Color Sensor Missing", sensor.name());
+            telemetry.addData("Color Sensor Missing: ", sensor.name());
         } else {
             s.enableLed(enabled);
         }
     }
-
-    /**
-     * Checks MINERAL_COLOR sensor and returns enum based on color detected.
-     *
-     * @return RED, BLUE, or null
-     */
-//    public Color.Mineral getMineralColor() {
-//        int red = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED);
-//        int blue = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE);
-//        if (red > blue) {
-//            return Color.Mineral.GOLD;
-//        } else if (blue > red) {
-//            return Color.Mineral.SILVER;
-//        } else {
-//            return Color.Mineral.UNKNOWN;
-//        }
-//    }
-//
-//    public void displayColorSensorTelemetry() {
-//        telemetry.addData("Color RED", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED));
-//        telemetry.addData("Color GREEN", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.GREEN));
-//        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE));
-//        telemetry.addData("Mineral Color:", getMineralColor().toString());
-//    }
 
     // Possible starting positions.
     public enum StartPosition {
@@ -402,6 +402,10 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Initialize all motors, servos, sensors, set motor direction, motor runMode
+     * Output whether or not the defined motors, servos, sensors could not be found
+     */
 
     public void init() {
 
@@ -430,7 +434,7 @@ public class RobotHardware extends OpMode {
             allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setDirection(DcMotorSimple.Direction.REVERSE);
+            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotorSimple.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Unable to set motor direction", "");
         }
@@ -443,8 +447,8 @@ public class RobotHardware extends OpMode {
 
         // Set arm motor to brake
         try {
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.LEFT_LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Unable to set arm motor to zero power brake or encoder use", "");
         }
@@ -454,16 +458,16 @@ public class RobotHardware extends OpMode {
             try {
                 allServos.add(hardwareMap.get(Servo.class, s.name()));
             } catch (Exception e) {
-                telemetry.addData("Servo Missing", s.name());
+                telemetry.addData("Servo Missing: ", s.name());
                 allServos.add(null);
             }
         }
         // Set servo direction
-//        try {
-//            allServos.get(ServoName.FLIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
-//        } catch (Exception e) {
-//            telemetry.addData("Unable to set left servo direction", "");
-//        }
+        try {
+
+        } catch (Exception e) {
+            telemetry.addData("Unable to set left servo direction", "");
+        }
 
         allColorSensors = new ArrayList<ColorSensor>();
         for (ColorSensorName s : ColorSensorName.values()) {
@@ -471,11 +475,12 @@ public class RobotHardware extends OpMode {
                 allColorSensors.add(hardwareMap.get(ColorSensor.class,
                         s.name()));
             } catch (Exception e) {
-                telemetry.addData("Color Sensor Missing", s.name());
+                telemetry.addData("Color Sensor Missing: ", s.name());
                 allColorSensors.add(null);
             }
         }
 
+        // Add Decimal Formats for easy to read telemetry
         df = new DecimalFormat("0.00");
         df_prec = new DecimalFormat("0.0000");
 
