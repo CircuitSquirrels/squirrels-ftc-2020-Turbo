@@ -40,7 +40,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
         super.loop();
         if (simpleVision != null) {
             simpleVision.updateVuMarkPose();
-            telemetry.addData("VuForia Nav2D",simpleVision.getPositionNav2D());
+            telemetry.addData("VuForia Nav2D",simpleVision.getLastAbsoluteLocation());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
         }

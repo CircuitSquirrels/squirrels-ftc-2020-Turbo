@@ -71,11 +71,16 @@ public class SimpleVision {
     // Vuforia Trackables
     private boolean useVuforiaTrackables;
     private VuforiaTrackables targetsSkystone;
+    VuforiaTrackable skystoneTarget;
     private List<VuforiaTrackable> allTrackables;
 
 
-    private OpenGLMatrix lastLocation = null;
+    // Vuforia Navigation Absolute Position
+    private OpenGLMatrix lastAbsoluteLocation = null;
     private boolean targetVisible = false;
+    // Vuforia Navigation Skystone Relative Position
+    private OpenGLMatrix lastSkystoneRelativeLocation = null;
+    private boolean skystoneVisible = false;
 
     // Vuforia Nav Geometry Properties
     private static final float mmPerInch        = 25.4f;
@@ -157,7 +162,7 @@ public class SimpleVision {
                  parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
              } catch (Exception e) {
                  useWebcam = false; this.useWebcam = false; // Default to not using webcam.
-                 opMode.telemetry.addData("Webcam"," not detected");
+                 opMode.telemetry.addData("Webcam 1"," not detected");
              }
         }
 
@@ -195,8 +200,20 @@ public class SimpleVision {
         targetsSkystone.activate();
     }
 
-    public OpenGLMatrix getLastLocation() {
-        return lastLocation;
+    public OpenGLMatrix getLastAbsoluteLocation() {
+        return lastAbsoluteLocation;
+    }
+
+    public OpenGLMatrix getLastSkystoneRelativeLocation() {
+        return lastSkystoneRelativeLocation;
+    }
+
+    public boolean isNavigationTargetVisible() {
+        return targetVisible;
+    }
+
+    public boolean isSkystoneVisible() {
+        return skystoneVisible;
     }
 
     public void activateTensorFlow() {
@@ -213,8 +230,8 @@ public class SimpleVision {
         // sets are stored in the 'assets' part of our application.
         targetsSkystone = this.vuforia.loadTrackablesFromFile("/sdcard/FIRST/Skystone");
 
-        VuforiaTrackable stoneTarget = targetsSkystone.get(0);
-        stoneTarget.setName("Stone Target");
+        skystoneTarget = targetsSkystone.get(0);
+        skystoneTarget.setName("Stone Target");
         VuforiaTrackable blueRearBridge = targetsSkystone.get(1);
         blueRearBridge.setName("Blue Rear Bridge");
         VuforiaTrackable redRearBridge = targetsSkystone.get(2);
@@ -265,7 +282,7 @@ public class SimpleVision {
         // Set the position of the Stone Target.  Since it's not fixed in position, assume it's at the field origin.
         // Rotated it to to face forward, and raised it to sit on the ground correctly.
         // This can be used for generic target-centric approach algorithms
-        stoneTarget.setLocation(OpenGLMatrix
+        skystoneTarget.setLocation(OpenGLMatrix
                 .translation(0, 0, stoneZ)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
@@ -373,32 +390,43 @@ public class SimpleVision {
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
+            skystoneVisible = false;
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                     opMode.telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
+                    if (trackable == skystoneTarget) {
+                        skystoneVisible = true;
+                    } else {
+                        targetVisible = true;
+                    }
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
                     OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
                     if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
+                        if (trackable == skystoneTarget) {
+                            lastSkystoneRelativeLocation = robotLocationTransform;
+                        } else {
+                            lastAbsoluteLocation = robotLocationTransform;
+                        }
+
                     }
-                    break;
+                    break; // Work with only the first visible navigation target.
                 }
             }
 
 
             // Provide feedback as to where the robot is located (if we know).
-            //TODO Separate detections of Skystone from all other targets, since the skystone coordinates are relative.
-            if (targetVisible) {
+            if (targetVisible || skystoneVisible) {
                 // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
+                OpenGLMatrix location = targetVisible ? lastAbsoluteLocation : lastSkystoneRelativeLocation;
+
+                VectorF translation = location.getTranslation();
                 opMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
 
                 // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                Orientation rotation = Orientation.getOrientation(location, EXTRINSIC, XYZ, DEGREES);
                 // Note that reported pitch increases downward, since Y is to the robot's left.
                 opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
             } else {
@@ -408,16 +436,25 @@ public class SimpleVision {
         }
     }
 
-    public MecanumNavigation.Navigation2D getPositionNav2D() {
-        if (lastLocation != null) {
+    private MecanumNavigation.Navigation2D getPositionNav2D(OpenGLMatrix openGLLocation) {
+        if (openGLLocation != null) {
             return new MecanumNavigation.Navigation2D(
-                    lastLocation.getTranslation().get(0)/mmPerInch,
-                    lastLocation.getTranslation().get(1)/mmPerInch,
-                    Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, RADIANS).thirdAngle);
+                    openGLLocation.getTranslation().get(0)/mmPerInch,
+                    openGLLocation.getTranslation().get(1)/mmPerInch,
+                    Orientation.getOrientation(openGLLocation, EXTRINSIC, XYZ, RADIANS).thirdAngle);
         } else {
                 return new MecanumNavigation.Navigation2D(0,0,0);
         }
     }
+
+    public MecanumNavigation.Navigation2D getPositionAbsoluteNav2d() {
+        return getPositionNav2D(lastAbsoluteLocation);
+    }
+
+    public MecanumNavigation.Navigation2D getPositionSkystoneRelative2d() {
+        return getPositionNav2D(lastSkystoneRelativeLocation);
+    }
+
 
 
     String format(OpenGLMatrix transformationMatrix) {
