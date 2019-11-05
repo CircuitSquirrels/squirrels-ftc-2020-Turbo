@@ -124,12 +124,6 @@ public class SimpleVision {
         RIGHT,
         UNKNOWN,
     }
-
-    public static enum SkystoneIdentificationLocation {
-        CENTER,
-        BOTTOM,
-    }
-
     public SkystoneSets skystonePositions = SkystoneSets.UNKNOWN;
 
 
@@ -526,7 +520,7 @@ public class SimpleVision {
         }
     }
 
-    public Color.Mineral identifyMineral(SkystoneIdentificationLocation idLocation) {
+    public Color.Mineral identifyMineral() {
         Color.Mineral detectedMineralColor = Color.Mineral.UNKNOWN;
 
         if (pastRecognitions != null && pastRecognitions.size() > 0) {
@@ -542,18 +536,9 @@ public class SimpleVision {
             double detectionX;
             double detectionY;
 
-            if (idLocation == SkystoneIdentificationLocation.CENTER) {
-                // Find image center
-                targetX = imageWidth / 2;
-                targetY = imageHeight / 2;
-            } else if (idLocation == SkystoneIdentificationLocation.BOTTOM) {
-                // Find bottom center
-                targetX = imageWidth /2;
-                targetY = imageHeight; // Bottom is max pixel value.
-            } else { // Default to image center.
-                targetX = imageWidth / 2;
-                targetY = imageHeight / 2;
-            }
+            // Default to image center.
+            targetX = imageWidth / 2;
+            targetY = imageHeight / 2;
 
             if (pastRecognitions != null && pastRecognitions.size() > 0 && tfTimer.seconds() <= 1) {
                 // Fresh detection exist:

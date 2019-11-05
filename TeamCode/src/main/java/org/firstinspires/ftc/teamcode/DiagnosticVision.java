@@ -43,7 +43,6 @@ public class DiagnosticVision extends DiagnosticOpMode {
             telemetry.addData("VuForia Nav2D",simpleVision.getPositionNav2D());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
-            simpleVision.identifyMineral(SimpleVision.SkystoneIdentificationLocation.CENTER);
         }
     }
 
