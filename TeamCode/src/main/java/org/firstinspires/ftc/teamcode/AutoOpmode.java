@@ -174,7 +174,6 @@ public class AutoOpmode extends RobotHardware {
             imuUtilities.update();
             imuUtilities.getCompensatedHeading();
             timingMonitor.checkpoint("POST imuUtilities.update()");
-            telemetry.addData("descent rotation",imuUtilities.getHeadingChange());
         }
 
         // Conditional Telemetry Recording
@@ -315,5 +314,23 @@ public class AutoOpmode extends RobotHardware {
             }
         }
 
+    }
+
+    /**
+     * Updates the mecanumNavigation heading from the imu heading.
+     * Careful, this function forces the IMU to refresh immediately, which
+     * causes up to 20ms of latency.
+     * Use this once per state in a state machine, or on a timer.
+     * Do not call this repeatedly in the main loop!
+     */
+    public void updateMecanumHeadingFromGyroNow() {
+        {
+            // Modify current position to account for rotation during descent measured by gyro.
+            imuUtilities.updateNow();
+            double gyroHeading = imuUtilities.getCompensatedHeading();
+            MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
+            currentPosition.theta = degreesToRadians(gyroHeading);
+            mecanumNavigation.setCurrentPosition(currentPosition);
+        }
     }
 }

@@ -54,6 +54,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
             opMode.imuUtilities.updateNow();
+            opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
             stateMachine.changeState(DRIVE, new Scan_Position());
         }
     }

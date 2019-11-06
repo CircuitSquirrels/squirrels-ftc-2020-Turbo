@@ -515,5 +515,13 @@ public class RobotHardware extends OpMode {
             setColorSensorLedEnabled(s, false);
         }
     }
+
+    public double degreesToRadians(double degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    public double radiansToDegrees(double radians) {
+        return radians * 180 / Math.PI;
+    }
 }
 

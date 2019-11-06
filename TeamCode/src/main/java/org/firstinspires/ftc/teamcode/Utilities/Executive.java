@@ -72,6 +72,16 @@ public class Executive {
             }
         }
 
+        /**
+         * Allows a StateBase to access a reference to another running state, primarily for
+         * reading the 'arrived' property.
+         * @param stateType
+         * @return
+         */
+        public StateBase getStateReference(StateType stateType) {
+            return stateMap.get(stateType);
+        }
+
         // Format state to only contain the class name.
         public String getCurrentState(StateType stateType) {
             StateBase state = stateMap.get(stateType);
