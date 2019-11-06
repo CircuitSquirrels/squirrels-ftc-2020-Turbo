@@ -193,9 +193,13 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.displayMaxTimes();
         timingMonitor.checkpoint("POST TELEMETRY");
 
+        telemetry.addData("State:",robotStateContext.getCurrentState());
+
         try {
             simpleVision.updateVuMarkPose();
-            telemetry.addData("Nav 2D", simpleVision.getLastAbsoluteLocation().toString());
+            telemetry.addData("Nav2D Absolute", simpleVision.getPositionAbsoluteNav2d());
+            telemetry.addData("Nav2D Skystone Relative", simpleVision.getPositionSkystoneRelativeNav2d());
+            telemetry.addData("OpenGL Navigation", simpleVision.getLastAbsoluteLocation().toString());
             simpleVision.updateTensorFlow(true);
             simpleVision.displayTensorFlowDetections();
         } catch(Exception e) {

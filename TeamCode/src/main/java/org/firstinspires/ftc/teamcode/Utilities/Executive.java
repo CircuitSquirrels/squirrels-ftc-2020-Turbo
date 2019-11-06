@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  * Provides Executive robot Control through class based state machine.
@@ -71,9 +72,16 @@ public class Executive {
             }
         }
 
+        // Format state to only contain the class name.
         public String getCurrentState(StateType stateType) {
             StateBase state = stateMap.get(stateType);
-            return state.getClass().toString();
+            try {
+                String stateString = state.getClass().toString();
+                String[] stringArray = stateString.split("\\$");
+                return stringArray[1];
+            } catch (Exception e){
+                return "";
+            }
         }
 
         public String getCurrentState() {
@@ -81,8 +89,8 @@ public class Executive {
             Set<StateType> stateTypeSet = stateMap.keySet();
             StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
             for (StateType type : stateTypeKeyArray) {
-                StateBase state = stateMap.get(type);
-                stateString += state + "  ";
+                String stateElement = getCurrentState(type);
+                stateString += stateElement + "  ";
             }
             return stateString;
         }
