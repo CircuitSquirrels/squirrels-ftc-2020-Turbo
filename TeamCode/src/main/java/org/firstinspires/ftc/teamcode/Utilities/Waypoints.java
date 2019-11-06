@@ -46,8 +46,10 @@ public class Waypoints {
      */
     double cameraOffset = -90; // extra rotation needed to point the camera in given direction
 
-    double skystoneWidth = 0;
-    double skystoneLength = 0;
+    double stoneWidth = 4;
+    double stoneLength = 8;
+    double stoneHeight = 4;
+    double stoneKnobHeight = 5;
     double tileWidth = 24;
 
     double robotWidth = 17;
@@ -57,26 +59,31 @@ public class Waypoints {
 
     double loadingStart_X = 0;
     double loadingStart_Y = 0;
-    double grabOffset_X = 0; // Forward on Robot from navigation point, center of drivetrain.
-    double grabOffset_Y = 0; // Left on Robot
+    double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
+    double grabOffset_Y_Left = 0; // Left on Robot
 
     double scanOffset_Y = 10;
+    double backupDistance = 6;
+    double buildZoneOffset = 5;
+
 
     /**
      * Blue Loading positions set and used as templates
      */
     Navigation2D blueLoading_initialPosition = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
-    Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
 
-    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_backupPosition_A = new Navigation2D(0,0, degreesToRadians(0));
-    Navigation2D blueLoading_buildZone_A = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_scanPosition_B = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_grabSkystone_B = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_backupPosition_B = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_buildZone_B = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_parkOuter = new Navigation2D(0,0,degreesToRadians(0));
-    Navigation2D blueLoading_parkInner = new Navigation2D(0,0,degreesToRadians(0));
+    Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
+    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(-72 + stoneLength * (skystoneDetectionPosition + .5),72 - 47 - stoneWidth * 0.5 + grabOffset_X_Forward,degreesToRadians(-90));
+    Navigation2D blueLoading_backupPosition_A = new Navigation2D(-72 + stoneLength * 5.5,72 - 47 - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90));
+    Navigation2D blueLoading_buildZone_A = new Navigation2D(tileWidth,tileWidth - buildZoneOffset,degreesToRadians(-90));
+
+    Navigation2D blueLoading_scanPosition_B = new Navigation2D(0,0,degreesToRadians(-90));
+    Navigation2D blueLoading_grabSkystone_B = new Navigation2D(0,0,degreesToRadians(-90));
+    Navigation2D blueLoading_backupPosition_B = new Navigation2D(0,0,degreesToRadians(-90));
+    Navigation2D blueLoading_buildZone_B = new Navigation2D(0,0,degreesToRadians(-90));
+
+    Navigation2D blueLoading_parkOuter = new Navigation2D(0,0,degreesToRadians(-90));
+    Navigation2D blueLoading_parkInner = new Navigation2D(0,0,degreesToRadians(-90));
 
     /**
      * Blue Building positions
@@ -108,26 +115,23 @@ public class Waypoints {
     void customizeWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, int skystoneDetectionPosition) {
         if(teamColor == Color.Ftc.BLUE) {
             if(startPosition == RobotHardware.StartPosition.FIELD_LOADING) {
+                // Blue Loading Zone
                 create_blue_loading_waypoints();
-
             } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
-                //Blue Depot
+                // Blue Building Zone
                 create_blue_build_waypoints();
-
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
             }
         } else if (teamColor == Color.Ftc.RED) {
             if(startPosition == RobotHardware.StartPosition.FIELD_LOADING) {
-                //Red Crater
+                // Red Building Zone
                 create_blue_loading_waypoints();
                 x_reflect_waypoints_in_place();
-
             } else if (startPosition == RobotHardware.StartPosition.FIELD_BUILD) {
-                //Red Depot
+                // Red Loading Zone
                 create_blue_build_waypoints();
                 x_reflect_waypoints_in_place();
-
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
             }
@@ -158,8 +162,11 @@ public class Waypoints {
         buildZone_B = blueLoading_buildZone_B.copy();
         parkOuter = blueLoading_parkOuter.copy();
         parkInner = blueLoading_parkInner.copy();
+    }
 
-
+    void create_blue_build_waypoints() {
+        // Blue Building Zone
+        initialPosition = blueBuilding_initialPosition.copy();
     }
 
 
@@ -178,36 +185,5 @@ public class Waypoints {
         parkOuter.reflectInX();
         parkInner.reflectInX();
 
-    }
-
-
-    void create_blue_build_waypoints() {
-
-
-
-
-        // This angle doesn't give a view of the vuforia target, which could be
-        // problematic later if that is used. In that case, this photoRotate definition can be
-        // commented out, and the state machine can be modified to skip this waypoint when
-        // a view of the vuforia target is not needed.
-//        photoRotate = new Navigation2D(-wallOffsetPosition, 0, degreesToRadians(-90));
-//        flagDrop = new Navigation2D(-wallOffsetPosition, flagDropDepth, degreesToRadians(-90));
-//        depotPush = new Navigation2D(-wallOffsetPosition,depotDepth,degreesToRadians(-90));
-//        craterPark = new Navigation2D(-craterPark_wall_offset, -craterPark_depth, degreesToRadians(-90));
-//
-//
-//        // Optional team mineral scan
-//        // For blueDepot, using same points as partner standard scan and knock.
-//        partner_scanMineral_center = blueCrater_scanMineral_center.copy();
-//        partner_scanMineral_left = blueCrater_scanMineral_left.copy();
-//        partner_scanMineral_right = blueCrater_scanMineral_right.copy();
-//
-//        partner_alignMineral_center = blueCrater_alignMineral_center.copy();
-//        partner_alignMineral_left = blueCrater_alignMineral_left.copy();
-//        partner_alignMineral_right = blueCrater_alignMineral_right.copy();
-//
-//        partner_knockMineral_center = blueCrater_knockMineral_center.copy();
-//        partner_knockMineral_left = blueCrater_knockMineral_left.copy();
-//        partner_knockMineral_right = blueCrater_knockMineral_right.copy();
     }
 }

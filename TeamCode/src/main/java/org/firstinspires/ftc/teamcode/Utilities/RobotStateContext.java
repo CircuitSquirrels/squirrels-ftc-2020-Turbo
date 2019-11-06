@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.ARM;
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
 
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
@@ -12,7 +13,13 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
     Waypoints waypoints;
+
+    double liftSpeed = 1;
     double driveSpeed = 0.8;
+
+    int liftRaised = 1000;
+
+    String set = "a";
 
 
     public RobotStateContext(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
@@ -25,7 +32,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     public void init() {
         stateMachine.changeState(DRIVE, new Start_State());
-//        stateMachine.changeState(Executive.StateMachine.StateType.ARM, new ArmLevelState());
+
         stateMachine.init();
     }
 
@@ -41,29 +48,85 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      * Define Concrete State Classes
      */
 
-
-
     class Start_State extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
-            if(stateTimer.seconds() > 1) {
-                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
-                opMode.imuUtilities.updateNow();
-                stateMachine.changeState(DRIVE, new Drive_somewhere());
+            opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
+            opMode.imuUtilities.updateNow();
+            stateMachine.changeState(DRIVE, new Scan_Position());
+        }
+    }
+
+    class Scan_Position extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanPosition_A, driveSpeed);
+            if(arrived) {
+                waypoints.setSkystoneDetectionPosition(1);
+                stateMachine.changeState(DRIVE, new Goto_Skystone_A());
+                stateMachine.changeState(ARM, new Raise_Lift());
             }
         }
     }
 
-    class Drive_somewhere extends Executive.StateBase {
+    class Goto_Skystone_A extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
-            if(stateTimer.seconds() > 1) {
-                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12, 12, degreesToRadians(180)), driveSpeed);
-                if(arrived) {
-                    stateMachine.changeState(DRIVE, new Stop_State());
-                }
+
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.grabSkystone_A, driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(ARM, new Grab_Skystone());
+            }
+        }
+    }
+
+    class Backup_A extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.backupPosition_A, driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Build_Zone_A());
+            }
+        }
+    }
+
+    class Build_Zone_A extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.buildZone_A, driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Stop_State());
+            }
+        }
+    }
+
+    class Raise_Lift extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, 1);
+        }
+    }
+
+    class Grab_Skystone extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, 1);
+            if(arrived) {
+                opMode.closeClaw();
+                if(set.equals("a")) stateMachine.changeState(DRIVE, new Backup_A());
+                else stateMachine.changeState(DRIVE, new Stop_State());
             }
         }
     }

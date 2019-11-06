@@ -101,14 +101,8 @@ public class Manual extends RobotHardware {
      * Robot controls for one or two people, customizable in the InteractiveInit
      */
     private void nonDriveControls() {
-        // Reset the robot's current position
-        if(controllerDrive.YOnce()) {
-            mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
-        }
-
-
-
         Controller clawController;
+
         if (copilotEnabled) {
             clawController = controllerArm;
             // Lifter Control
@@ -119,6 +113,10 @@ public class Manual extends RobotHardware {
             setPower(MotorName.LIFT_WINCH, Math.pow(controllerDrive.right_stick_y, 5) * lifterSpeed);
         }
 
+        // Reset the robot's current position
+        if(controllerDrive.YOnce()) {
+            mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+        }
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
         if (clawController.leftBumper()) {
             closeClaw();
