@@ -11,7 +11,7 @@ public class Color {
         UNKNOWN,
     }
 	
-	public enum Mineral {
+	public enum StoneType {
 		Skystone,
 		Stone,
         UNKNOWN,
