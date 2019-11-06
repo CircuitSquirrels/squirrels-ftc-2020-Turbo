@@ -420,25 +420,30 @@ public class SimpleVision {
                     break; // Work with only the first visible navigation target.
                 }
             }
-
-
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible || skystoneVisible) {
-                // express position (translation) of robot in inches.
-                OpenGLMatrix location = targetVisible ? lastAbsoluteLocation : lastSkystoneRelativeLocation;
-
-                VectorF translation = location.getTranslation();
-                opMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(location, EXTRINSIC, XYZ, DEGREES);
-                // Note that reported pitch increases downward, since Y is to the robot's left.
-                opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            } else {
+            if (!targetVisible && !skystoneVisible) {
                 opMode.telemetry.addData("Visible Target", "none");
             }
-            //opMode.telemetry.update();
+        }
+    }
+
+    public void displayFormattedVumarkPose() {
+        if(!useVuforiaTrackables) return; // Trackables must be enabled.
+
+        // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible || skystoneVisible) {
+            // express position (translation) of robot in inches.
+            OpenGLMatrix location = targetVisible ? lastAbsoluteLocation : lastSkystoneRelativeLocation;
+
+            VectorF translation = location.getTranslation();
+            opMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+            // express the rotation of the robot in degrees.
+            Orientation rotation = Orientation.getOrientation(location, EXTRINSIC, XYZ, DEGREES);
+            // Note that reported pitch increases downward, since Y is to the robot's left.
+            opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+        } else { // Keep visual spacing intact, even when there is nothing to display.
+            opMode.telemetry.addData("Pos (in)","").addData("Rot (deg)", "");
         }
     }
 
