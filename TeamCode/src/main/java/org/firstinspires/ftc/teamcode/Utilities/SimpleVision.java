@@ -131,6 +131,11 @@ public class SimpleVision {
     }
     public SkystoneSets skystonePositions = SkystoneSets.UNKNOWN;
 
+    public static enum TensorFlowEnabled {
+        TRUE,
+        FALSE,
+    }
+
 
     /**
      * Creates a Vuforia localizer and starts localization.
@@ -138,7 +143,7 @@ public class SimpleVision {
      */
     public SimpleVision(String vuforiaLicenseKey, RobotHardware opMode, boolean useVuforiaMonitor,
                         boolean useTensorFlowMonitor, boolean useBackCamera, boolean useVuforiaTrackables,
-                        boolean useWebcam) {
+                        boolean useWebcam,TensorFlowEnabled tensorFlowEnabled) {
         this.opMode = opMode;
         this.useBackCamera = useBackCamera;
         this.useWebcam = useWebcam;
@@ -186,11 +191,13 @@ public class SimpleVision {
         }
 
         // Initialize TensorFlow, if possible.
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initializeTensorFlow(useTensorFlowMonitor);
-            activateTensorFlow(); // Do we want to start TF on initialization?
-        } else {
-            opMode.telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        if(tensorFlowEnabled == TensorFlowEnabled.TRUE) {
+            if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+                initializeTensorFlow(useTensorFlowMonitor);
+                activateTensorFlow(); // Do we want to start TF on initialization?
+            } else {
+                opMode.telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            }
         }
 
     }
