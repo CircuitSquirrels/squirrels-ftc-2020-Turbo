@@ -193,9 +193,14 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.displayMaxTimes();
         timingMonitor.checkpoint("POST TELEMETRY");
 
+        telemetry.addData("State:",robotStateContext.getCurrentState());
+
         try {
             simpleVision.updateVuMarkPose();
-            telemetry.addData("Nav 2D", simpleVision.getLastAbsoluteLocation().toString());
+            simpleVision.displayFormattedVumarkPose();
+            telemetry.addData("Nav2D Absolute", simpleVision.getPositionAbsoluteNav2d());
+            telemetry.addData("Nav2D Skystone Relative", simpleVision.getPositionSkystoneRelativeNav2d());
+//            telemetry.addData("OpenGL Navigation", simpleVision.getLastAbsoluteLocation().toString());
             simpleVision.updateTensorFlow(true);
             simpleVision.displayTensorFlowDetections();
         } catch(Exception e) {
@@ -221,7 +226,7 @@ public class AutoOpmode extends RobotHardware {
             //TODO Might need to use trackables, the second to last boolean.
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
                     true, false,true,
-                    true, false);
+                    true, SimpleVision.UseWebcamEnum.FALSE, SimpleVision.TensorFlowEnabled.FALSE);
         }
     }
 

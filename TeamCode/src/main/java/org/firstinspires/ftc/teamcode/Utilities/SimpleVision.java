@@ -110,8 +110,8 @@ public class SimpleVision {
     // TensorFlow Properties
     public boolean tfSupported = true;
     private static final String TFOD_MODEL_ASSET = "/sdcard/FIRST/Skystone.tflite"; //For OpenRC, loaded from internal storage to reduce APK size
-    private static final String LABEL_FIRST_ELEMENT = "Stone";
-    private static final String LABEL_SECOND_ELEMENT = "Skystone";
+    private static final String LABEL_FIRST_ELEMENT_STONE = "Stone";
+    private static final String LABEL_SECOND_ELEMENT_SKYSTONE = "Skystone";
     private TFObjectDetector tfod;
     public List<Recognition> updatedRecognitions;
     public List<Recognition> pastRecognitions;
@@ -131,6 +131,14 @@ public class SimpleVision {
     }
     public SkystoneSets skystonePositions = SkystoneSets.UNKNOWN;
 
+    public static enum TensorFlowEnabled {
+        TRUE,FALSE,
+    }
+
+    public static enum UseWebcamEnum {
+        TRUE,FALSE,
+    }
+
 
     /**
      * Creates a Vuforia localizer and starts localization.
@@ -138,10 +146,10 @@ public class SimpleVision {
      */
     public SimpleVision(String vuforiaLicenseKey, RobotHardware opMode, boolean useVuforiaMonitor,
                         boolean useTensorFlowMonitor, boolean useBackCamera, boolean useVuforiaTrackables,
-                        boolean useWebcam) {
+                        UseWebcamEnum useWebcamEnum,TensorFlowEnabled tensorFlowEnabled) {
         this.opMode = opMode;
         this.useBackCamera = useBackCamera;
-        this.useWebcam = useWebcam;
+        this.useWebcam = (useWebcamEnum == UseWebcamEnum.TRUE);
 
         this.useVuforiaTrackables = useVuforiaTrackables;
         VuforiaLocalizer.Parameters parameters;
@@ -186,11 +194,13 @@ public class SimpleVision {
         }
 
         // Initialize TensorFlow, if possible.
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod(useTensorFlowMonitor);
-            activateTensorFlow(); // Do we want to start TF on initialization?
-        } else {
-            opMode.telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        if(tensorFlowEnabled == TensorFlowEnabled.TRUE) {
+            if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+                initializeTensorFlow(useTensorFlowMonitor);
+                activateTensorFlow(); // Do we want to start TF on initialization?
+            } else {
+                opMode.telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            }
         }
 
     }
@@ -216,11 +226,7 @@ public class SimpleVision {
         return skystoneVisible;
     }
 
-    public void activateTensorFlow() {
-        if (tfod != null) {
-            tfod.activate();
-        }
-    }
+
 
     /*
     *   Initializes vuforia trackables and sets the camera and field geometry.
@@ -414,25 +420,30 @@ public class SimpleVision {
                     break; // Work with only the first visible navigation target.
                 }
             }
-
-
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible || skystoneVisible) {
-                // express position (translation) of robot in inches.
-                OpenGLMatrix location = targetVisible ? lastAbsoluteLocation : lastSkystoneRelativeLocation;
-
-                VectorF translation = location.getTranslation();
-                opMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(location, EXTRINSIC, XYZ, DEGREES);
-                // Note that reported pitch increases downward, since Y is to the robot's left.
-                opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            } else {
+            if (!targetVisible && !skystoneVisible) {
                 opMode.telemetry.addData("Visible Target", "none");
             }
-            //opMode.telemetry.update();
+        }
+    }
+
+    public void displayFormattedVumarkPose() {
+        if(!useVuforiaTrackables) return; // Trackables must be enabled.
+
+        // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible || skystoneVisible) {
+            // express position (translation) of robot in inches.
+            OpenGLMatrix location = targetVisible ? lastAbsoluteLocation : lastSkystoneRelativeLocation;
+
+            VectorF translation = location.getTranslation();
+            opMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+            // express the rotation of the robot in degrees.
+            Orientation rotation = Orientation.getOrientation(location, EXTRINSIC, XYZ, DEGREES);
+            // Note that reported pitch increases downward, since Y is to the robot's left.
+            opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+        } else { // Keep visual spacing intact, even when there is nothing to display.
+            opMode.telemetry.addData("Pos (in)","").addData("Rot (deg)", "");
         }
     }
 
@@ -451,7 +462,7 @@ public class SimpleVision {
         return getPositionNav2D(lastAbsoluteLocation);
     }
 
-    public MecanumNavigation.Navigation2D getPositionSkystoneRelative2d() {
+    public MecanumNavigation.Navigation2D getPositionSkystoneRelativeNav2d() {
         return getPositionNav2D(lastSkystoneRelativeLocation);
     }
 
@@ -465,7 +476,7 @@ public class SimpleVision {
     /**
      * Initialize the Tensor Flow Object Detection engine.
      */
-    private void initTfod(boolean useTensorFlowMonitor) {
+    private void initializeTensorFlow(boolean useTensorFlowMonitor) {
         tfTimer = new ElapsedTime();
         TFObjectDetector.Parameters tfodParameters;
         if (useTensorFlowMonitor) {
@@ -477,9 +488,14 @@ public class SimpleVision {
         }
 
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromFile(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        tfod.loadModelFromFile(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT_STONE, LABEL_SECOND_ELEMENT_SKYSTONE);
     }
 
+    public void activateTensorFlow() {
+        if (tfod != null) {
+            tfod.activate();
+        }
+    }
 
     public void updateTensorFlow(boolean portrait) {
         if (tfod != null) {
@@ -489,39 +505,44 @@ public class SimpleVision {
             if (updatedRecognitions != null) {
                 pastRecognitions = updatedRecognitions;
                 tfTimer.reset();
-                if (updatedRecognitions.size() == 3) {
-                    int skystoneX1 = -1;
-                    int skystoneX2 = -1;
-                    int stone1 = -1;
-                    int stone2 = -1;
-                    int stone3 = -1;
-                    int stone4 = -1;
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT)) {
-                            skystoneX1 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
-                        } else if (stone1 == -1) {
-                            stone1 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
-                        } else {
-                            stone2 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
-                        }
-                    }
-                    if (skystoneX1 != -1 && stone1 != -1 && stone2 != -1) {
-                        if (skystoneX1 < stone1 && skystoneX1 < stone2) {
-                            setSkystonePosition(SkystoneSets.LEFT);
-                        } else if (skystoneX1 > stone1 && skystoneX1 > stone2) {
-                            setSkystonePosition(SkystoneSets.RIGHT);
-                        } else {
-                            setSkystonePosition(SkystoneSets.CENTER);
-                        }
-                    }
+                setSkystonePositionAfterTensorFlowRecognitions(portrait);
+            }
+        }
+    }
+
+    private void setSkystonePositionAfterTensorFlowRecognitions(boolean portrait) {
+        if (updatedRecognitions.size() == 3) {
+            int skystoneX1 = -1;
+            int stoneX1 = -1;
+            int stoneX2 = -1;
+            for (Recognition recognition : updatedRecognitions) {
+                if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT_STONE)) {
+                    skystoneX1 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
+                } else if (stoneX1 == -1) {
+                    stoneX1 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
+                } else {
+                    stoneX2 = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
+                }
+            }
+            if (skystoneX1 != -1 && stoneX1 != -1 && stoneX2 != -1) {
+                if (skystoneX1 < stoneX1 && skystoneX1 < stoneX2) {
+                    setSkystonePosition(SkystoneSets.LEFT);
+                } else if (skystoneX1 > stoneX1 && skystoneX1 > stoneX2) {
+                    setSkystonePosition(SkystoneSets.RIGHT);
+                } else {
+                    setSkystonePosition(SkystoneSets.CENTER);
                 }
             }
         }
-
-
     }
 
-    public void displayTensorFlowDetectionSample() {
+    public void setSkystonePosition(SkystoneSets skystonePosition) {
+        if (skystonePosition != SkystoneSets.UNKNOWN) {
+            this.skystonePositions = skystonePosition;
+        }
+    }
+
+    public void displaySkystoneDetectionSample() {
         opMode.telemetry.addData("# Object Detected", pastRecognitions.size());
 
         if (skystonePositions == SkystoneSets.LEFT) {
@@ -533,11 +554,7 @@ public class SimpleVision {
         }
     }
 
-    public void setSkystonePosition(SkystoneSets skystonePosition) {
-        if (skystonePosition != SkystoneSets.UNKNOWN) {
-            this.skystonePositions = skystonePosition;
-        }
-    }
+
 
     public void displayTensorFlowDetections() {
         if (tfod != null) {
@@ -557,8 +574,8 @@ public class SimpleVision {
         }
     }
 
-    public Color.Mineral identifyMineral() {
-        Color.Mineral detectedMineralColor = Color.Mineral.UNKNOWN;
+    public Color.StoneType identifyStoneType() {
+        Color.StoneType detectedStoneType = Color.StoneType.UNKNOWN;
 
         if (pastRecognitions != null && pastRecognitions.size() > 0) {
             int closestDetectionIndex = 0; // Assume 1st is closest.
@@ -591,30 +608,30 @@ public class SimpleVision {
                         closestDetectionIndex = detectionIndex;
                     }
                 }
-                // After finding closest mineral, identify it and return its color.
+                // After finding closest stone, identify it and return its type (Stone or Skystone).
                 String idLabel = pastRecognitions.get(closestDetectionIndex).getLabel();
-                if (idLabel == LABEL_FIRST_ELEMENT) {
-                    detectedMineralColor = Color.Mineral.Skystone;
-                } else if (idLabel == LABEL_SECOND_ELEMENT) {
-                    detectedMineralColor = Color.Mineral.Stone;
+                if (idLabel == LABEL_FIRST_ELEMENT_STONE) {
+                    detectedStoneType = Color.StoneType.Stone;
+                } else if (idLabel == LABEL_SECOND_ELEMENT_SKYSTONE) {
+                    detectedStoneType = Color.StoneType.Skystone;
                 } else {
-                    detectedMineralColor = Color.Mineral.UNKNOWN;
+                    detectedStoneType = Color.StoneType.UNKNOWN;
                 }
 
                 // Telemetry
-                if (detectedMineralColor != Color.Mineral.UNKNOWN) {
+                if (detectedStoneType != Color.StoneType.UNKNOWN) {
                     opMode.telemetry.addData("Found", idLabel);
-                    opMode.telemetry.addData("Mineral distance to target", closestDetectionDistance);
+                    opMode.telemetry.addData("Stone distance to target", closestDetectionDistance);
                 } else {
-                    opMode.telemetry.addData("No Mineral Detected in target location", "");
+                    opMode.telemetry.addData("No Stone Detected in target location", "");
                 }
 
             }
 
-            return  detectedMineralColor;
+            return detectedStoneType;
         }
 
-        return detectedMineralColor;
+        return detectedStoneType;
     }
 
     /**

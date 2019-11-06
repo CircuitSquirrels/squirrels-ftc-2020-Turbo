@@ -40,7 +40,9 @@ public class DiagnosticVision extends DiagnosticOpMode {
         super.loop();
         if (simpleVision != null) {
             simpleVision.updateVuMarkPose();
-            telemetry.addData("VuForia Nav2D",simpleVision.getLastAbsoluteLocation());
+            simpleVision.displayFormattedVumarkPose();
+            telemetry.addData("VuForia Nav2D",simpleVision.getPositionAbsoluteNav2d());
+            telemetry.addData("Vuforia Skystone Nav2D",simpleVision.getPositionSkystoneRelativeNav2d());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
         }
@@ -51,7 +53,8 @@ public class DiagnosticVision extends DiagnosticOpMode {
     class VisionLoader implements Runnable {
         public void run() {
         simpleVision = new SimpleVision(getVuforiaLicenseKey(),DiagnosticVision.this,
-        false, true,true, true, true);
+        true, false,true, true,
+                SimpleVision.UseWebcamEnum.FALSE, SimpleVision.TensorFlowEnabled.FALSE);
         }
     }
 
