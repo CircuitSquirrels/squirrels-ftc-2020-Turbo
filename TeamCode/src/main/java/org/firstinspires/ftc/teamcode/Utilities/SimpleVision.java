@@ -132,8 +132,11 @@ public class SimpleVision {
     public SkystoneSets skystonePositions = SkystoneSets.UNKNOWN;
 
     public static enum TensorFlowEnabled {
-        TRUE,
-        FALSE,
+        TRUE,FALSE,
+    }
+
+    public static enum UseWebcamEnum {
+        TRUE,FALSE,
     }
 
 
@@ -143,10 +146,10 @@ public class SimpleVision {
      */
     public SimpleVision(String vuforiaLicenseKey, RobotHardware opMode, boolean useVuforiaMonitor,
                         boolean useTensorFlowMonitor, boolean useBackCamera, boolean useVuforiaTrackables,
-                        boolean useWebcam,TensorFlowEnabled tensorFlowEnabled) {
+                        UseWebcamEnum useWebcamEnum,TensorFlowEnabled tensorFlowEnabled) {
         this.opMode = opMode;
         this.useBackCamera = useBackCamera;
-        this.useWebcam = useWebcam;
+        this.useWebcam = (useWebcamEnum == UseWebcamEnum.TRUE);
 
         this.useVuforiaTrackables = useVuforiaTrackables;
         VuforiaLocalizer.Parameters parameters;
@@ -454,7 +457,7 @@ public class SimpleVision {
         return getPositionNav2D(lastAbsoluteLocation);
     }
 
-    public MecanumNavigation.Navigation2D getPositionSkystoneRelative2d() {
+    public MecanumNavigation.Navigation2D getPositionSkystoneRelativeNav2d() {
         return getPositionNav2D(lastSkystoneRelativeLocation);
     }
 
