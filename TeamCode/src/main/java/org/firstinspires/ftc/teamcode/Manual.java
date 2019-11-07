@@ -110,7 +110,7 @@ public class Manual extends RobotHardware {
         } else {
             clawController = controllerDrive;
             // Lifter Control
-            setPower(MotorName.LIFT_WINCH, Math.pow(controllerDrive.right_stick_y, 5) * lifterSpeed);
+            setPower(MotorName.LIFT_WINCH, Math.pow(gamepad2.right_stick_y, 5) * lifterSpeed);
         }
 
         // Reset the robot's current position
@@ -118,12 +118,25 @@ public class Manual extends RobotHardware {
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
         }
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
-        if (clawController.leftBumper()) {
-            closeClaw();
-            telemetry.addData("Claw: ", "CLOSED");
-        } else if (clawController.rightBumper()) {
-            openClaw();
-            telemetry.addData("Claw: ", "OPEN");
+        if(copilotEnabled) {
+
+            if (gamepad2.left_bumper) {
+                closeClaw();
+                telemetry.addData("Claw: ", "CLOSED");
+            } else if (gamepad2.right_bumper) {
+                openClaw();
+                telemetry.addData("Claw: ", "OPEN");
+            }
+
+        } else {
+
+            if (clawController.leftBumper()) {
+                closeClaw();
+                telemetry.addData("Claw: ", "CLOSED");
+            } else if (clawController.rightBumper()) {
+                openClaw();
+                telemetry.addData("Claw: ", "OPEN");
+            }
         }
 
     }
