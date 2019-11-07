@@ -393,8 +393,7 @@ public class SimpleVision {
      */
     public void updateVuMarkPose() {
         if(useVuforiaTrackables) {
-
-            // check all the trackable target to see which one (if any) is visible.
+            // Check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
             skystoneVisible = false;
             for (VuforiaTrackable trackable : allTrackables) {
@@ -415,7 +414,6 @@ public class SimpleVision {
                         } else {
                             lastAbsoluteLocation = robotLocationTransform;
                         }
-
                     }
                     break; // Work with only the first visible navigation target.
                 }

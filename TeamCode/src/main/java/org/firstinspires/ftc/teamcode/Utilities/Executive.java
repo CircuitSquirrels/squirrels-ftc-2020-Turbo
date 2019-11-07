@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 /**
  * Provides Executive robot Control through class based state machine.
@@ -18,7 +14,7 @@ import java.util.regex.Matcher;
 public class Executive {
 
     /**
-     * Interface to be used as t he interface for the class which hosts the
+     * Interface to be used as the interface for the class which hosts the
      * state machine object as well as the concrete implementations of the required states.
      */
     public interface RobotStateMachineContextInterface {
@@ -83,7 +79,7 @@ public class Executive {
         }
 
         // Format state to only contain the class name.
-        public String getCurrentState(StateType stateType) {
+        public String getCurrentStates(StateType stateType) {
             StateBase state = stateMap.get(stateType);
             try {
                 String stateString = state.getClass().toString();
@@ -94,12 +90,12 @@ public class Executive {
             }
         }
 
-        public String getCurrentState() {
+        public String getCurrentStates() {
             String stateString = "";
             Set<StateType> stateTypeSet = stateMap.keySet();
             StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
             for (StateType type : stateTypeKeyArray) {
-                String stateElement = getCurrentState(type);
+                String stateElement = getCurrentStates(type);
                 stateString += stateElement + "  ";
             }
             return stateString;

@@ -102,8 +102,8 @@ public class AutoOpmode extends RobotHardware {
             robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
         }
         robotStateContext.init();
-        telemetry.addData("Initialization:", "Successful!");
-        System.out.println("This is a test");
+        telemetry.addData("Initialization: ", "Successful!");
+
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
@@ -118,9 +118,9 @@ public class AutoOpmode extends RobotHardware {
         super.init_loop();
         controller.update();
         if (simpleVision == null) {
-            telemetry.addData("Vision:", "LOADING...");
+            telemetry.addData("Vision: ", "LOADING...");
         } else {
-            telemetry.addData("Vision:", "INITIALIZED");
+            telemetry.addData("Vision: ", "INITIALIZED");
             simpleVision.updateVuMarkPose();
         }
         interactiveInit.update();
@@ -192,7 +192,7 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.displayMaxTimes();
         timingMonitor.checkpoint("POST TELEMETRY");
 
-        telemetry.addData("State:",robotStateContext.getCurrentState());
+        telemetry.addData("State: ",robotStateContext.getCurrentState());
 
         try {
             simpleVision.updateVuMarkPose();

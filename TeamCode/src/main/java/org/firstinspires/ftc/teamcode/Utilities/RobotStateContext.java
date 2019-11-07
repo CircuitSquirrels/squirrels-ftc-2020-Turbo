@@ -19,8 +19,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     int liftRaised = 1000;
 
-    String set = "a";
-
 
     public RobotStateContext(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
@@ -41,7 +39,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     }
 
     public String getCurrentState() {
-        return stateMachine.getCurrentState();
+        return stateMachine.getCurrentStates();
     }
 
     /**
@@ -55,11 +53,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
             opMode.imuUtilities.updateNow();
             opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
-            stateMachine.changeState(DRIVE, new Scan_Position());
+            stateMachine.changeState(DRIVE, new Scan_Position_A());
         }
     }
 
-    class Scan_Position extends Executive.StateBase {
+    class Scan_Position_A extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
@@ -68,7 +66,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(arrived) {
                 waypoints.setSkystoneDetectionPosition(1);
                 stateMachine.changeState(DRIVE, new Goto_Skystone_A());
-                stateMachine.changeState(ARM, new Raise_Lift());
+                stateMachine.changeState(ARM, new Raise_Lift_Open());
             }
         }
     }
@@ -81,6 +79,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.grabSkystone_A, driveSpeed);
             if(arrived) {
                 stateMachine.changeState(ARM, new Grab_Skystone());
+                if(stateMachine.getStateReference(ARM).arrived) stateMachine.changeState(DRIVE, new Backup_A());
             }
         }
     }
@@ -105,16 +104,18 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.buildZone_A, driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Stop_State());
+                stateMachine.changeState(ARM, new Raise_Lift_Open());
             }
         }
     }
 
-    class Raise_Lift extends Executive.StateBase {
+    class Raise_Lift_Open extends Executive.StateBase {
         @Override
         public void update() {
             super.update();
 
             arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, 1);
+            if(arrived) opMode.openClaw();
         }
     }
 
@@ -124,11 +125,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
 
             arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, 1);
-            if(arrived) {
-                opMode.closeClaw();
-                if(set.equals("a")) stateMachine.changeState(DRIVE, new Backup_A());
-                else stateMachine.changeState(DRIVE, new Stop_State());
-            }
+            if(arrived) opMode.closeClaw();
         }
     }
 
@@ -138,6 +135,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             opMode.stopAllMotors();
+            stateMachine.removeStateType(ARM);
         }
     }
 

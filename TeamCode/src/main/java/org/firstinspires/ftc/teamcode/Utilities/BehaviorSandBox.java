@@ -39,7 +39,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
     }
 
     public String getCurrentState() {
-        return stateMachine.getCurrentState();
+        return stateMachine.getCurrentStates();
     }
 
     /**
@@ -61,14 +61,14 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             opMode.telemetry.addData("---Start Menu---", "")
                     .addData("Manual: ", "A")
                     .addData("Motor Tester: ", "B")
-                    .addData("Servo Tester: ", "X");
-            if(controllerDrive.AOnce()) {
-                stateMachine.changeState(DRIVE, new Manual());
-            } else if (controllerDrive.BOnce()) {
-                stateMachine.changeState(DRIVE, new Motor_Tester());
-            } else if (controllerDrive.XOnce()) {
-                stateMachine.changeState(DRIVE, new Servo_Tester());
-            }
+                    .addData("Servo Tester: ", "X")
+                    .addData("Skystone Detector: ", "Y")
+                    .addData("Autonomous: ", "Right Bumper");
+            if(controllerDrive.AOnce()) stateMachine.changeState(DRIVE, new Manual());
+            else if (controllerDrive.BOnce()) stateMachine.changeState(DRIVE, new Motor_Tester());
+            else if (controllerDrive.XOnce()) stateMachine.changeState(DRIVE, new Servo_Tester());
+            else if (controllerDrive.YOnce()) stateMachine.changeState(DRIVE, new Skystone_Detection());
+            else if (controllerDrive.rightBumper()) stateMachine.changeState(DRIVE, new Skystone_Detection());
         }
     }
 
@@ -220,6 +220,58 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void update() {
             super.update();
+        }
+    }
+
+    class Skystone_Detection extends Executive.StateBase {
+        double skystone_absolute_x = 0;
+        double bot_absolute_x = 0;
+        double bot_relative_to_skystone_y = 0;
+        double skystone_index_double = 0;
+        int skystone_index = 0;
+
+        @Override
+        public void init(Executive.StateMachine stateMachine) {
+            super.init(stateMachine);
+            opMode.mecanumNavigation.setCurrentPosition(waypoints.scanPosition_A);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            bot_absolute_x = opMode.mecanumNavigation.currentPosition.x;
+            bot_relative_to_skystone_y = opMode.simpleVision.getPositionSkystoneRelativeNav2d().y;
+
+            skystone_absolute_x = bot_absolute_x - bot_relative_to_skystone_y;
+
+            skystone_index_double = 6.5 -(skystone_absolute_x + 72) / 8;
+
+            skystone_index = (int) Math.round(skystone_absolute_x);
+
+            opMode.telemetry.addData("Bot Absolute: ", bot_absolute_x)
+                    .addData("Bot Relative To Skystone: ", bot_relative_to_skystone_y)
+                    .addData("Skystone Index: ", skystone_index_double)
+                    .addData("Skystone Index Rounded: ", skystone_index);
+        }
+    }
+
+    class Auto extends Executive.StateBase {
+        RobotStateContext robotStateContext;
+
+        @Override
+        public void init(Executive.StateMachine stateMachine) {
+            super.init(stateMachine);
+            opMode.telemetry.clear();
+            robotStateContext = new RobotStateContext(opMode, teamColor, startPosition);
+            robotStateContext.init();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            robotStateContext.update();
+            opMode.telemetry.addData("Sub State: ", robotStateContext.getCurrentState());
+            if(controllerDrive.startOnce()) stateMachine.changeState(DRIVE, new Start_Menu());
         }
     }
 
