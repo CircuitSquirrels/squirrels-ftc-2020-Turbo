@@ -46,22 +46,29 @@ public class Waypoints {
      */
     double cameraOffset = -90; // extra rotation needed to point the camera in given direction
 
+    // Game and field elements
     double stoneWidth = 4;
     double stoneLength = 8;
     double stoneHeight = 4;
     double stoneKnobHeight = 5;
-    double tileWidth = 24;
+    double tileBody = 22.75; // Width of a tile without its tabs
+    double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
+    double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
+    double stoneStartYOffset = 47 + stoneWidth/2; // Distance from outside wall to stone center.
 
+    // Robot Dimensions
     double robotWidth = 17;
     double robotSidePadding = robotWidth/2;
     double robotFrontPadding = 5.25; //Distance from Robot front edge to wheelbase center.
     double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
-
-    double loadingStart_X = 0;
-    double loadingStart_Y = 0;
     double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
     double grabOffset_Y_Left = 0; // Left on Robot
 
+
+    double loadingStart_X = 0;
+    double loadingStart_Y = 0;
+
+    // Maneuver
     double scanOffset_Y = 10;
     double backupDistance = 6;
     double buildZoneOffset = 5;
@@ -70,12 +77,12 @@ public class Waypoints {
     /**
      * Blue Loading positions set and used as templates
      */
-    Navigation2D blueLoading_initialPosition = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueLoading_initialPosition = new Navigation2D(-tileBody -robotSidePadding,halfField-robotBackPadding,degreesToRadians(-90));
 
-    Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileWidth-robotSidePadding,72-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
-    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(-72 + stoneLength * (skystoneDetectionPosition + .5),72 - 47 - stoneWidth * 0.5 + grabOffset_X_Forward,degreesToRadians(-90));
-    Navigation2D blueLoading_backupPosition_A = new Navigation2D(-72 + stoneLength * 5.5,72 - 47 - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90));
-    Navigation2D blueLoading_buildZone_A = new Navigation2D(tileWidth,tileWidth - buildZoneOffset,degreesToRadians(-90));
+    Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileBody -robotSidePadding,halfField-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
+    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(-halfField + stoneLength * (skystoneDetectionPosition + .5),halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward,degreesToRadians(-90));
+    Navigation2D blueLoading_backupPosition_A = new Navigation2D(-halfField + stoneLength * 5.5,halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90));
+    Navigation2D blueLoading_buildZone_A = new Navigation2D(tileBody, tileBody - buildZoneOffset,degreesToRadians(-90));
 
     Navigation2D blueLoading_scanPosition_B = new Navigation2D(0,0,degreesToRadians(-90));
     Navigation2D blueLoading_grabSkystone_B = new Navigation2D(0,0,degreesToRadians(-90));
@@ -88,7 +95,7 @@ public class Waypoints {
     /**
      * Blue Building positions
      */
-    Navigation2D blueBuilding_initialPosition = new Navigation2D(+tileWidth+robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueBuilding_initialPosition = new Navigation2D(+tileBody +robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
 
 
     public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, int skystoneDetectionPosition) {

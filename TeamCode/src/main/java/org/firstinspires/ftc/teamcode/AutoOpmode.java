@@ -83,7 +83,7 @@ public class AutoOpmode extends RobotHardware {
     public static class Sandbox extends AutoOpmode {
         @Override public void init() {
             robotColor = Color.Ftc.UNKNOWN;
-            robotStartPos = StartPosition.FIELD_BUILD;
+            robotStartPos = StartPosition.FIELD_LOADING;
             super.init();
         }
     }
@@ -101,7 +101,6 @@ public class AutoOpmode extends RobotHardware {
         } else {
             robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
         }
-        robotStateContext.init();
         telemetry.addData("Initialization: ", "Successful!");
 
         // Initialization Menu
@@ -138,7 +137,7 @@ public class AutoOpmode extends RobotHardware {
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-
+        robotStateContext.init(); //After mecanum init, because state init could reference mecanumNavigation.
         interactiveInit.lock();
 
         if(RecordTelemetry.get()) {

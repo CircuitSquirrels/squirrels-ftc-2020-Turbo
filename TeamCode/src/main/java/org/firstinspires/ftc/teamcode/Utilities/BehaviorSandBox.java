@@ -239,14 +239,18 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void update() {
             super.update();
+            if(opMode.controller.startOnce()) stateMachine.changeState(DRIVE,new Start_Menu());
+
+            if(opMode.simpleVision == null) {
+                opMode.telemetry.addData("Vision: ", "Not Loaded.");
+                return;
+            }
+
             bot_absolute_x = opMode.mecanumNavigation.currentPosition.x;
             bot_relative_to_skystone_y = opMode.simpleVision.getPositionSkystoneRelativeNav2d().y;
-
             skystone_absolute_x = bot_absolute_x - bot_relative_to_skystone_y;
-
             skystone_index_double = 6.5 -(skystone_absolute_x + 72) / 8;
-
-            skystone_index = (int) Math.round(skystone_absolute_x);
+            skystone_index = (int) Math.round(skystone_index_double);
 
             opMode.telemetry.addData("Bot Absolute: ", bot_absolute_x)
                     .addData("Bot Relative To Skystone: ", bot_relative_to_skystone_y)
