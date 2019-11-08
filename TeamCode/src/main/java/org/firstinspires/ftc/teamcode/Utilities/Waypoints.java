@@ -2,15 +2,28 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Waypoints {
 
     // Start position specific parameters
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
-    double genericRotate = 0;
-
     // Value should be 1-6, where 1 is near the center of the field, and 6 is adjacent to the outer wall.
     private int skystoneDetectionPosition = 1;
+
+    public Color.Ftc getTeamColor() {
+        return teamColor;
+    }
+
+    public RobotHardware.StartPosition getStartPosition() {
+        return startPosition;
+    }
+
+    public int getSkystoneDetectionPosition() {
+        return skystoneDetectionPosition;
+    }
 
     /**
      * blueLoading waypoints arefirst defined to be used as a template.
@@ -193,4 +206,35 @@ public class Waypoints {
         parkInner.reflectInX();
 
     }
+
+
+    public List<LabeledWaypoint> getWaypointList() {
+        ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
+
+        labeledWaypoints.add(new LabeledWaypoint("initialPosition",initialPosition));
+        labeledWaypoints.add(new LabeledWaypoint("scanPosition_A",scanPosition_A));
+        labeledWaypoints.add(new LabeledWaypoint("grabSkystone_A",grabSkystone_A));
+        labeledWaypoints.add(new LabeledWaypoint("backupPosition_A",backupPosition_A));
+        labeledWaypoints.add(new LabeledWaypoint("buildZone_A",buildZone_A));
+        labeledWaypoints.add(new LabeledWaypoint("scanPosition_B",scanPosition_B));
+        labeledWaypoints.add(new LabeledWaypoint("grabSkystone_B",grabSkystone_B));
+        labeledWaypoints.add(new LabeledWaypoint("backupPosition_B",backupPosition_B));
+        labeledWaypoints.add(new LabeledWaypoint("buildZone_B",buildZone_B));
+        labeledWaypoints.add(new LabeledWaypoint("parkOuter",parkOuter));
+        labeledWaypoints.add(new LabeledWaypoint("parkInner",parkInner));
+
+        return labeledWaypoints;
+    }
+
+    public static class LabeledWaypoint {
+        public String label = "";
+        public Navigation2D waypoint_n2d = new Navigation2D(0,0,0);
+
+        LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
+            this.label = label;
+            this.waypoint_n2d = waypoint_n2d;
+        }
+    }
+
+
 }

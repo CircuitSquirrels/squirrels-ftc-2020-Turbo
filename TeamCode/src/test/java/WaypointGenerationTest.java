@@ -8,7 +8,10 @@ import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
+import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
 import org.junit.Test;
+
+import java.util.List;
 
 public class WaypointGenerationTest {
 
@@ -47,26 +50,22 @@ public class WaypointGenerationTest {
 
     @Test
     public void Display_Waypoints() {
-        System.out.println("Start Display Test");
+
+        System.out.println("\n"+"*** Start Waypoint Display **** ");
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_LOADING);
         waypoints.setSkystoneDetectionPosition(1);
-
-        System.out.println("Start Test");
-        System.out.println(waypoints.initialPosition.toString());
-        System.out.println(waypoints.scanPosition_A.toString());
-
-
-
-    }
+        System.out.println("Team Color:                     " + waypoints.getTeamColor());
+        System.out.println("Start Position:                 " + waypoints.getStartPosition());
+        System.out.println("Skystone Detection Position:    " + waypoints.getSkystoneDetectionPosition());
+        System.out.println();
 
 
-    class LabeledWaypoint {
-        String label = "";
-        Navigation2D waypoint_n2d = new Navigation2D(0,0,0);
+        List<LabeledWaypoint> waypointList = waypoints.getWaypointList();
 
-        LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
-            this.label = label;
-            this.waypoint_n2d = waypoint_n2d;
+        for(LabeledWaypoint waypoint: waypointList) {
+            System.out.println(waypoint.waypoint_n2d.toString() + "    " + waypoint.label);
         }
+
     }
+
 }
