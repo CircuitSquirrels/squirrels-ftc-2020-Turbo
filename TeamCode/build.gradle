@@ -10,6 +10,9 @@
 // Custom definitions may go here
 // Include common definitions from above.
 apply from: '../build.common.gradle'
+repositories {
+    mavenCentral()
+}
 dependencies {
     /*
      * Other Modules
@@ -23,4 +26,8 @@ dependencies {
     extremeTurboImplementation project(':Hardware')
     extremeTurboImplementation project(':RobotCore')
     extremeTurboImplementation project(':FtcCommon')
+
+    // Testing
+    testImplementation 'junit:junit:4.12'
+    testImplementation "com.google.truth:truth:1.0"
 }
