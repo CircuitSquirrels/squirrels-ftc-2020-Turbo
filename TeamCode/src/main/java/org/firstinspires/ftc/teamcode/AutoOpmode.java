@@ -224,7 +224,7 @@ public class AutoOpmode extends RobotHardware {
             //TODO Might need to use trackables, the second to last boolean.
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
                     true, false,true,
-                    true, SimpleVision.UseWebcamEnum.FALSE, SimpleVision.TensorFlowEnabled.FALSE);
+                    true, SimpleVision.UseWebcamEnum.TRUE, SimpleVision.TensorFlowEnabled.FALSE);
         }
     }
 

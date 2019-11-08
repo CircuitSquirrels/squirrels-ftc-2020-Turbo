@@ -54,7 +54,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
         public void run() {
         simpleVision = new SimpleVision(getVuforiaLicenseKey(),DiagnosticVision.this,
         true, false,true, true,
-                SimpleVision.UseWebcamEnum.FALSE, SimpleVision.TensorFlowEnabled.FALSE);
+                SimpleVision.UseWebcamEnum.TRUE, SimpleVision.TensorFlowEnabled.FALSE);
         }
     }
 
