@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
@@ -23,18 +22,21 @@ public class Manual extends RobotHardware {
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> CoPilot = new Mutable<>(false);
     private Mutable<Double> Exponential = new Mutable<>(1.0);
-    private Mutable<Double> Slowmode = new Mutable<>(1.0);
+    private Mutable<Double> DriveSpeed = new Mutable<>(1.0);
+    private Mutable<Double> RotationSpeed = new Mutable<>(1.0);
 
     // Define interactive init variable holders
     private double lifterSpeed;
     private double exponential;
     private boolean copilotEnabled;
-    private double slowmode;
+    private double driveSpeed;
 
     // Define the MecanumNav and other useful variables
     MecanumNavigation mecanumNavigation;
     private AutoDrive autoDrive;
     private double triggerThreshold = 0.1;
+    private boolean precisionMode = false;
+    private double precisionSpeed = 0.3;
 
     @Override
     public void init() {
@@ -46,7 +48,8 @@ public class Manual extends RobotHardware {
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(Slowmode, "Slow Mode Multiplier",  0.25, 0.5, 0.75, 1.0);
+        interactiveInit.addDouble(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0);
+        interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.5);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
@@ -65,19 +68,21 @@ public class Manual extends RobotHardware {
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
+        // Lock Interactive Init so it no longer receives inputs
+        interactiveInit.lock();
+
         // Assign the variables to Interactive Init values
         lifterSpeed = LiftSpeed.get();
         exponential = Exponential.get();
-        slowmode = Slowmode.get();
+        driveSpeed = DriveSpeed.get();
         copilotEnabled = CoPilot.get();
-
-        // Lock Interactive Init so it no longer receives inputs
-        interactiveInit.lock();
     }
 
     @Override
     public void loop() {
         super.loop();
+
+
 
         // Update variables with new values
         controllerDrive.update();
@@ -87,12 +92,16 @@ public class Manual extends RobotHardware {
         // Display the robot's position compared to where it started
         mecanumNavigation.displayPosition();
 
+        if(controllerDrive.AOnce()) precisionMode = !precisionMode;
+        double precisionOutput = precisionMode ? precisionSpeed : 1;
+        telemetry.addData("Precision Mode", precisionMode);
+
         // Mecanum Drive Control
         setDriveForSimpleMecanum(
-                Math.pow(controllerDrive.left_stick_x, exponential) * slowmode,
-                Math.pow(controllerDrive.left_stick_y, exponential) * slowmode,
-                Math.pow(controllerDrive.right_stick_x, exponential) * slowmode,
-                Math.pow(controllerDrive.right_stick_y, exponential) * slowmode);
+                Math.pow(controllerDrive.left_stick_x, exponential) * driveSpeed * precisionOutput,
+                Math.pow(controllerDrive.left_stick_y, exponential) * driveSpeed * precisionOutput,
+                Math.pow(controllerDrive.right_stick_x, exponential) * driveSpeed * RotationSpeed.get() * precisionOutput,
+                Math.pow(controllerDrive.right_stick_y, exponential) * driveSpeed * precisionOutput);
 
         nonDriveControls();
     }
@@ -110,7 +119,7 @@ public class Manual extends RobotHardware {
         } else {
             clawController = controllerDrive;
             // Lifter Control
-            setPower(MotorName.LIFT_WINCH, Math.pow(gamepad2.right_stick_y, 5) * lifterSpeed);
+            setPower(MotorName.LIFT_WINCH, Math.pow(controllerDrive.right_stick_y, 5) * lifterSpeed);
         }
 
         // Reset the robot's current position
@@ -118,24 +127,28 @@ public class Manual extends RobotHardware {
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
         }
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
+        telemetry.addData("CoPilot Mode", copilotEnabled);
         if(copilotEnabled) {
-
             if (gamepad2.left_bumper) {
                 closeClaw();
                 telemetry.addData("Claw: ", "CLOSED");
             } else if (gamepad2.right_bumper) {
                 openClaw();
                 telemetry.addData("Claw: ", "OPEN");
+            } else if(gamepad2.right_trigger > 0.1) {
+                verticalClaw();
+                telemetry.addData("Claw: ", "VERTICAL");
             }
-
         } else {
-
             if (clawController.leftBumper()) {
                 closeClaw();
                 telemetry.addData("Claw: ", "CLOSED");
             } else if (clawController.rightBumper()) {
                 openClaw();
                 telemetry.addData("Claw: ", "OPEN");
+            } else if(clawController.right_trigger > 0.1) {
+                verticalClaw();
+                telemetry.addData("Claw: ", "VERTICAL");
             }
         }
 
