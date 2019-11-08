@@ -2,7 +2,7 @@
 <Robot type="FirstInspires-FTC">
     <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ2EOPAW" parentModuleAddress="1">
         <LynxModule name="Expansion Hub 1" port="1">
-            <Motor name="LEFT_LIFT_WINCH" port="0" />
+            <Motor name="LIFT_WINCH" port="0" />
             <Servo name="CLAW_LEFT" port="0" />
             <Servo name="CLAW_RIGHT" port="1" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
