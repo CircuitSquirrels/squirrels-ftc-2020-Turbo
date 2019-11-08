@@ -7,7 +7,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 public class Constants {
 
     public static final double DRIVE_WHEEL_DIAMETER_INCHES = 4 / 1.04;
-    public static final double DRIVE_WHEEL_LATERAL_RATIO = 72 / 73.2;
+    public static final double DRIVE_WHEEL_LATERAL_RATIO = 72 / 73.2 * 72 / 80.87;
 
     public static final double MM_PER_IN = 25.4f;
     private static double rotationScaleIncrease = 3600 / 3635.9;
