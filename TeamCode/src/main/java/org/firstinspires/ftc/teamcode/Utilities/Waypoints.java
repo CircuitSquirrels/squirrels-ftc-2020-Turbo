@@ -55,8 +55,6 @@ public class Waypoints {
     public Navigation2D parkInner;
 
     public Navigation2D simpleAlignment_Inner;
-    public Navigation2D simplePark_Inner;
-    public Navigation2D simplePark_Outer;
 
     /**
      * Template parameter constants
@@ -105,12 +103,10 @@ public class Waypoints {
     Navigation2D blueLoading_backupPosition_B = new Navigation2D(0,0,degreesToRadians(-90));
     Navigation2D blueLoading_buildZone_B = new Navigation2D(0,0,degreesToRadians(-90));
 
-    Navigation2D blueLoading_parkOuter = new Navigation2D(0,0,degreesToRadians(-90));
-    Navigation2D blueLoading_parkInner = new Navigation2D(0,0,degreesToRadians(-90));
+    Navigation2D blueLoading_parkOuter = new Navigation2D(0, halfField-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueLoading_parkInner = new Navigation2D(0, halfField - 2 * tileBody + robotFrontPadding,degreesToRadians(-90));
 
-    Navigation2D blueSimpleAlignment_Inner = new Navigation2D(-tileBody -robotSidePadding, (tileBody + tileTabs) * 1.5, degreesToRadians(-90));
-    Navigation2D blueSimplePark_Inner = new Navigation2D(0, halfField - 2 * tileBody - tileTabs + robotFrontPadding, degreesToRadians(-90));
-    Navigation2D blueSimplePark_Outer = new Navigation2D(0, halfField-robotBackPadding, degreesToRadians(-90));
+    Navigation2D blueSimpleAlignment_Inner = new Navigation2D(-tileBody -robotSidePadding, halfField - 2 * tileBody + robotFrontPadding, degreesToRadians(-90));
 
     /**
      * Blue Building positions
@@ -191,8 +187,8 @@ public class Waypoints {
         parkInner = blueLoading_parkInner.copy();
 
         simpleAlignment_Inner = blueSimpleAlignment_Inner.copy();
-        simplePark_Inner = blueSimplePark_Inner.copy();
-        simplePark_Outer = blueSimplePark_Outer.copy();
+        parkInner = blueLoading_parkInner.copy();
+        parkOuter = blueLoading_parkOuter.copy();
     }
 
     void create_blue_build_waypoints() {
@@ -217,9 +213,6 @@ public class Waypoints {
         parkInner.reflectInX();
 
         simpleAlignment_Inner.reflectInX();
-        simplePark_Inner.reflectInX();
-        simplePark_Outer.reflectInX();
-
     }
 
 
@@ -237,11 +230,7 @@ public class Waypoints {
         labeledWaypoints.add(new LabeledWaypoint("buildZone_B",buildZone_B));
         labeledWaypoints.add(new LabeledWaypoint("parkOuter",parkOuter));
         labeledWaypoints.add(new LabeledWaypoint("parkInner",parkInner));
-
-        labeledWaypoints.add(new LabeledWaypoint("initialPosition",initialPosition));
         labeledWaypoints.add(new LabeledWaypoint("simpleAlignment_Inner",simpleAlignment_Inner));
-        labeledWaypoints.add(new LabeledWaypoint("simplePark_Inner",simplePark_Inner));
-        labeledWaypoints.add(new LabeledWaypoint("simplePark_Outer",simplePark_Outer));
 
         return labeledWaypoints;
     }

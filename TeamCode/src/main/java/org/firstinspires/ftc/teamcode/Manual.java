@@ -49,7 +49,7 @@ public class Manual extends RobotHardware {
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0);
-        interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.5);
+        interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
@@ -128,30 +128,17 @@ public class Manual extends RobotHardware {
         }
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
         telemetry.addData("CoPilot Mode", copilotEnabled);
-        if(copilotEnabled) {
-            if (gamepad2.left_bumper) {
-                closeClaw();
-                telemetry.addData("Claw: ", "CLOSED");
-            } else if (gamepad2.right_bumper) {
-                openClaw();
-                telemetry.addData("Claw: ", "OPEN");
-            } else if(gamepad2.right_trigger > 0.1) {
-                verticalClaw();
-                telemetry.addData("Claw: ", "VERTICAL");
-            }
-        } else {
-            if (clawController.leftBumper()) {
-                closeClaw();
-                telemetry.addData("Claw: ", "CLOSED");
-            } else if (clawController.rightBumper()) {
-                openClaw();
-                telemetry.addData("Claw: ", "OPEN");
-            } else if(clawController.right_trigger > 0.1) {
-                verticalClaw();
-                telemetry.addData("Claw: ", "VERTICAL");
-            }
-        }
 
+        if (clawController.leftBumper()) {
+            closeClaw();
+            telemetry.addData("Claw: ", "CLOSED");
+        } else if (clawController.rightBumper()) {
+            openClaw();
+            telemetry.addData("Claw: ", "OPEN");
+        } else if(clawController.right_trigger > 0.1) {
+            verticalClaw();
+            telemetry.addData("Claw: ", "VERTICAL");
+        }
     }
 
     /**
