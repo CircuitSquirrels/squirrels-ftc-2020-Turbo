@@ -84,7 +84,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 
 @TeleOp(name="SKYSTONE Vuforia Nav", group ="Concept")
-@Disabled
 public class ConceptVuforiaSkyStoneNavigation extends LinearOpMode {
 
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
@@ -109,7 +108,7 @@ public class ConceptVuforiaSkyStoneNavigation extends LinearOpMode {
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+            "AVFkXXL/////AAABmbZECMrRQkzRjDc4Fz5X9EwXnUQbKq9G/gERF/bpOt9TIpneSXsY3Qyv878mUAqY1coOvRiFFj/ZoK+uIs+qK3IHQUwgqJW6y9EhzwRNqcdzEHvrnttZnUJmWjBh0O93lrrC8mGzDw+/wozmT/jr1Peu4qOijWfYhgW2GGtszwl3/u6u9Pca43FcykCY52RsXcsGkM2/8z0Ini3hc/HxrWoKcYnycJf5yXLSxXWJz+vHVdnhu8Wen18HXX4ec9MA+P0psoVuUqtwZGpcXDEXSlk//Z1p9tN3vdBApm2fzdoYfGSqhLnN0gITvIPB3VMpXRUo0Zbb7QXCs0Ydh2EjPNTKlBFNGFewr+7Xhd2XVPcd";
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
