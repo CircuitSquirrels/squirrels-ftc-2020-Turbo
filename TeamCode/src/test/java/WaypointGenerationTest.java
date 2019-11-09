@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
 import org.junit.Test;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class WaypointGenerationTest {
@@ -49,7 +51,7 @@ public class WaypointGenerationTest {
     }
 
     @Test
-    public void Display_Waypoints() {
+    public void Display_Waypoints() throws IOException {
 
         System.out.println("\n"+"*** Start Waypoint Display **** ");
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_LOADING);
@@ -65,6 +67,42 @@ public class WaypointGenerationTest {
         for(LabeledWaypoint waypoint: waypointList) {
             System.out.println(waypoint.waypoint_n2d.toString() + ",    " + waypoint.label + ";");
         }
+
+        String filename_waypointCSV =
+                waypoints.getTeamColor().toString() + "_" +
+                waypoints.getStartPosition().toString() + "_" +
+                waypoints.getSkystoneDetectionPosition() + ".csv";
+        writeWaypointCSV(filename_waypointCSV,waypointList);
+
+    }
+
+    private void writeWaypointCSV(String filename,List<LabeledWaypoint> labeledWaypoints) throws IOException {
+        FileWriter csvWriter = new FileWriter(filename);
+
+        try {
+            csvWriter.append("Name,");
+            csvWriter.append("X inches,");
+            csvWriter.append("Y inches,");
+            csvWriter.append("Theta degrees;\n");
+
+            // Add data
+            for(LabeledWaypoint waypoint: labeledWaypoints) {
+                csvWriter.append(waypoint.label + ",");
+                csvWriter.append(waypoint.waypoint_n2d.toString() + ";\n");
+            }
+            System.out.println("\n"+"Wrote file:  " + filename);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } finally {
+            if (csvWriter != null) {
+                csvWriter.flush();
+                csvWriter.close();
+            }
+        }
+
+
+
+
 
     }
 
