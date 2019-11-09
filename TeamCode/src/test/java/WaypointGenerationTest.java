@@ -54,7 +54,7 @@ public class WaypointGenerationTest {
     public void Display_Waypoints() throws IOException {
 
         System.out.println("\n"+"*** Start Waypoint Display **** ");
-        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_LOADING);
+        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_BUILD);
         waypoints.setSkystoneDetectionPosition(1);
         System.out.println("Team Color:                     " + waypoints.getTeamColor());
         System.out.println("Start Position:                 " + waypoints.getStartPosition());

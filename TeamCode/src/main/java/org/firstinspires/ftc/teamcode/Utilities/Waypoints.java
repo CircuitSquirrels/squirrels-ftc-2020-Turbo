@@ -104,14 +104,18 @@ public class Waypoints {
     Navigation2D blueLoading_buildZone_B = new Navigation2D(0,0,degreesToRadians(-90));
 
     Navigation2D blueLoading_parkOuter = new Navigation2D(0, halfField-robotBackPadding,degreesToRadians(-90));
-    Navigation2D blueLoading_parkInner = new Navigation2D(0, halfField - 2 * tileBody + robotFrontPadding,degreesToRadians(-90));
+    Navigation2D blueLoading_parkInner = new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding,degreesToRadians(-90));
 
-    Navigation2D blueSimpleAlignment_Inner = new Navigation2D(-tileBody -robotSidePadding, halfField - 2 * tileBody + robotFrontPadding, degreesToRadians(-90));
+    Navigation2D blueLoadingSimpleAlignment = new Navigation2D(-tileBody -robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90));
 
     /**
      * Blue Building positions
      */
-    Navigation2D blueBuilding_initialPosition = new Navigation2D(+tileBody +robotSidePadding,72-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueBuilding_initialPosition = new Navigation2D(+tileBody +robotSidePadding,halfField-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueBuilding_parkOuter = new Navigation2D(0, halfField-robotBackPadding,degreesToRadians(-90));
+    Navigation2D blueBuilding_parkInner = new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding,degreesToRadians(-90));
+
+    Navigation2D blueBuilding_SimpleAlignmentInner = new Navigation2D(+tileBody +robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90));
 
 
     public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, int skystoneDetectionPosition) {
@@ -186,14 +190,18 @@ public class Waypoints {
         parkOuter = blueLoading_parkOuter.copy();
         parkInner = blueLoading_parkInner.copy();
 
-        simpleAlignment_Inner = blueSimpleAlignment_Inner.copy();
+        simpleAlignment_Inner = blueLoadingSimpleAlignment.copy();
         parkInner = blueLoading_parkInner.copy();
         parkOuter = blueLoading_parkOuter.copy();
     }
 
     void create_blue_build_waypoints() {
+        create_blue_loading_waypoints();
         // Blue Building Zone
         initialPosition = blueBuilding_initialPosition.copy();
+        simpleAlignment_Inner = blueBuilding_SimpleAlignmentInner.copy();
+        parkInner = blueBuilding_parkInner.copy();
+        parkOuter = blueBuilding_parkOuter.copy();
     }
 
 

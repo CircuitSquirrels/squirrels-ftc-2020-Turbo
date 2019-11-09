@@ -6,13 +6,16 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
+import org.firstinspires.ftc.teamcode.Utilities.Executive_Manual;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive_Manual.StateMachine.StateType.DRIVE;
 
 @TeleOp (name="Manual",group="Competition")
 public class Manual extends RobotHardware {
 
+    Executive_Manual.StateMachine stateMachine;
 
     // Adding interactive init variables
     private InteractiveInit interactiveInit = null;
@@ -32,6 +35,7 @@ public class Manual extends RobotHardware {
     private double triggerThreshold = 0.1;
     private boolean precisionMode = false;
     private double precisionSpeed = 0.3;
+    public Controller clawController;
 
     @Override
     public void init() {
@@ -39,6 +43,7 @@ public class Manual extends RobotHardware {
         //Changing gamepads to controllers
         controller1 = new Controller (gamepad1);
         controller2 = new Controller (gamepad2);
+        clawController = controller2;
 
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
@@ -47,6 +52,7 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
+
     }
 
     @Override
@@ -63,6 +69,10 @@ public class Manual extends RobotHardware {
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
+        stateMachine = new Executive_Manual.StateMachine(this);
+        stateMachine.changeState(DRIVE, new ManualArm());
+        stateMachine.init();
+
         // Lock Interactive Init so it no longer receives inputs
         interactiveInit.lock();
 
@@ -77,7 +87,7 @@ public class Manual extends RobotHardware {
     public void loop() {
         super.loop();
 
-
+        stateMachine.update();
 
         // Update variables with new values
         controller1.update();
@@ -105,16 +115,11 @@ public class Manual extends RobotHardware {
      * Robot controls for one or two people, customizable in the InteractiveInit
      */
     private void nonDriveControls() {
-        Controller clawController;
 
         if (copilotEnabled) {
             clawController = controller2;
-            // Lifter Control
-            setPower(MotorName.LIFT_WINCH, Math.pow(controller2.left_stick_y, exponential) * lifterSpeed);
         } else {
             clawController = controller1;
-            // Lifter Control
-            setPower(MotorName.LIFT_WINCH, Math.pow(controller1.right_stick_y, 5) * lifterSpeed);
         }
 
         // Reset the robot's current position
@@ -172,4 +177,57 @@ public class Manual extends RobotHardware {
         int rampDistanceTicks = 400;
         return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);
     }
+
+    public boolean gotoManualArmControl() {
+        double threshold = 0.1;
+        return Math.abs(clawController.left_stick_y) > threshold;
+    }
+
+    public class ManualArm extends Executive_Manual.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            if (copilotEnabled) {
+                // Lifter Control
+                setPower(MotorName.LIFT_WINCH, Math.pow(controller2.left_stick_y, exponential) * lifterSpeed);
+            } else {
+                // Lifter Control
+                setPower(MotorName.LIFT_WINCH, Math.pow(controller1.right_stick_y, 5) * lifterSpeed);
+            }
+
+            if(clawController.YOnce()) {
+                stateMachine.changeState(DRIVE, new ArmBottom());
+            } else if (clawController.XOnce()) {
+                stateMachine.changeState(DRIVE, new ArmLifted());
+            }
+        }
+    }
+
+    public class ArmBottom extends Executive_Manual.StateBase {
+        @Override
+        public void update() {
+            super.update();
+            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 0, lifterSpeed);
+            if(gotoManualArmControl()) {
+                stateMachine.changeState(DRIVE, new ManualArm());
+            } else if (clawController.XOnce()) {
+                stateMachine.changeState(DRIVE, new ArmLifted());
+            }
+        }
+    }
+
+    public class ArmLifted extends Executive_Manual.StateBase {
+        @Override
+        public void update() {
+            super.update();
+            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, -1300, lifterSpeed);
+            if(gotoManualArmControl()) {
+                stateMachine.changeState(DRIVE, new ManualArm());
+            } else if(clawController.YOnce()) {
+                stateMachine.changeState(DRIVE, new ArmBottom());
+            }
+        }
+    }
 }
+
