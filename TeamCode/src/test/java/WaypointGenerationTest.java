@@ -63,7 +63,7 @@ public class WaypointGenerationTest {
         List<LabeledWaypoint> waypointList = waypoints.getWaypointList();
 
         for(LabeledWaypoint waypoint: waypointList) {
-            System.out.println(waypoint.waypoint_n2d.toString() + "    " + waypoint.label);
+            System.out.println(waypoint.waypoint_n2d.toString() + ",    " + waypoint.label + ";");
         }
 
     }
