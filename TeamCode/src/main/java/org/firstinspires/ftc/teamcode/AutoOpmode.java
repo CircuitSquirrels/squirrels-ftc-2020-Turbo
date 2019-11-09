@@ -37,11 +37,10 @@ public class AutoOpmode extends RobotHardware {
 
     //Interactive Init menu
     private InteractiveInit interactiveInit = null;
-    private Mutable<Boolean> Simple = new Mutable<>(false);
-    private Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+    public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+    public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     private Mutable<Boolean> useIMU = new Mutable<>(false);
-    private Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Pickup", group="Auto")
     public static class AutoRedPickup extends AutoOpmode {
@@ -106,10 +105,9 @@ public class AutoOpmode extends RobotHardware {
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
+        interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
         interactiveInit.addBoolean(useIMU,"Use IMU", false, true);
-        interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
-        interactiveInit.addBoolean(earlyFlagDrop, "Drop flag early", false, true);
     }
 
     @Override
@@ -138,6 +136,7 @@ public class AutoOpmode extends RobotHardware {
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         robotStateContext.init(); //After mecanum init, because state init could reference mecanumNavigation.
+
         interactiveInit.lock();
 
         if(RecordTelemetry.get()) {
@@ -331,5 +330,9 @@ public class AutoOpmode extends RobotHardware {
             currentPosition.theta = degreesToRadians(gyroHeading);
             mecanumNavigation.setCurrentPosition(currentPosition);
         }
+    }
+
+    public boolean shouldContinue() {
+        return !PauseBeforeState.get() || controller.AOnce();
     }
 }
