@@ -20,15 +20,10 @@ import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 public class AutoOpmode extends RobotHardware {
 
     public TimingMonitor timingMonitor;
-    public MecanumNavigation mecanumNavigation;
-    public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
-    public SimpleVision simpleVision;
     public Executive.RobotStateMachineContextInterface robotStateContext;
     public Thread thread;
-    public Controller controller;
-    public IMUUtilities imuUtilities;
 
     // Telemetry Recorder
     private CSV csvWriter;
@@ -94,7 +89,7 @@ public class AutoOpmode extends RobotHardware {
         super.init();
         timingMonitor = new TimingMonitor(AutoOpmode.this);
         timingMonitor.disable();
-        controller = new Controller(gamepad1);
+        controller1 = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
         if(!robotColor.equals(Color.Ftc.UNKNOWN)) {
@@ -117,7 +112,7 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void init_loop() {
         super.init_loop();
-        controller.update();
+        controller1.update();
         if (simpleVision == null) {
             telemetry.addData("Vision: ", "LOADING...");
         } else {
@@ -163,10 +158,10 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void loop() {
         timingMonitor.loopStart();
-        if(controller.start()) { timingMonitor.reset();} // Clear with start button
+        if(controller1.start()) { timingMonitor.reset();} // Clear with start button
         super.loop();
         timingMonitor.checkpoint("POST super.loop()");
-        controller.update();
+        controller1.update();
         timingMonitor.checkpoint("POST controller.update()");
         mecanumNavigation.update();
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
@@ -250,22 +245,22 @@ public class AutoOpmode extends RobotHardware {
     private void writeControlsToFile() {
         controlWriter.addFieldToRecord("time",time);
 
-        controlWriter.addFieldToRecord("left_stick_x",controller.left_stick_x);
-        controlWriter.addFieldToRecord("left_stick_y",controller.left_stick_y);
-        controlWriter.addFieldToRecord("right_stick_x",controller.right_stick_x);
-        controlWriter.addFieldToRecord("right_stick_y",controller.right_stick_y);
-        controlWriter.addFieldToRecord("left_trigger",controller.left_trigger);
-        controlWriter.addFieldToRecord("right_trigger",controller.right_trigger);
+        controlWriter.addFieldToRecord("left_stick_x", controller1.left_stick_x);
+        controlWriter.addFieldToRecord("left_stick_y", controller1.left_stick_y);
+        controlWriter.addFieldToRecord("right_stick_x", controller1.right_stick_x);
+        controlWriter.addFieldToRecord("right_stick_y", controller1.right_stick_y);
+        controlWriter.addFieldToRecord("left_trigger", controller1.left_trigger);
+        controlWriter.addFieldToRecord("right_trigger", controller1.right_trigger);
 
-        controlWriter.addFieldToRecord("right_stick_button",controller.rightStickButton() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("left_stick_button",controller.leftStickButton() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("right_bumper",controller.rightBumper() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("left_bumper",controller.leftBumper() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("right_stick_button", controller1.rightStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_stick_button", controller1.leftStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("right_bumper", controller1.rightBumper() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_bumper", controller1.leftBumper() ? 1.0 : 0.0);
 
-        controlWriter.addFieldToRecord("a_button",controller.A() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("b_button",controller.B() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("x_button",controller.X() ? 1.0 : 0.0);
-        controlWriter.addFieldToRecord("y_button",controller.Y() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("a_button", controller1.A() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("b_button", controller1.B() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("x_button", controller1.X() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("y_button", controller1.Y() ? 1.0 : 0.0);
 
         controlWriter.completeRecord();
     }
@@ -337,6 +332,6 @@ public class AutoOpmode extends RobotHardware {
     }
 
     public boolean shouldContinue() {
-        return !PauseBeforeState.get() || controller.AOnce();
+        return !PauseBeforeState.get() || controller1.AOnce();
     }
 }

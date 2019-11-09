@@ -11,15 +11,15 @@ import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.St
 
 public class BehaviorSandBox implements Executive.RobotStateMachineContextInterface {
 
-    AutoOpmode opMode;
+    RobotHardware opMode;
     Executive.StateMachine stateMachine;
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
     Waypoints waypoints;
     double driveSpeed = 0.8;
-    Controller controllerDrive;
+    Controller controller1;
 
-    public BehaviorSandBox(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
+    public BehaviorSandBox(RobotHardware opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
         this.teamColor = teamColor;
         this.startPosition = startPosition;
@@ -31,7 +31,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         stateMachine.changeState(DRIVE, new Start_Menu());
 //        stateMachine.changeState(Executive.StateMachine.StateType.ARM, new ArmLevelState());
         stateMachine.init();
-        controllerDrive = opMode.controller;
+        controller1 = opMode.controller1;
     }
 
     public void update() {
@@ -64,11 +64,11 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
                     .addData("Servo Tester: ", "X")
                     .addData("Skystone Detector: ", "Y")
                     .addData("Autonomous: ", "Right Bumper");
-            if(controllerDrive.AOnce()) stateMachine.changeState(DRIVE, new Manual());
-            else if (controllerDrive.BOnce()) stateMachine.changeState(DRIVE, new Motor_Tester());
-            else if (controllerDrive.XOnce()) stateMachine.changeState(DRIVE, new Servo_Tester());
-            else if (controllerDrive.YOnce()) stateMachine.changeState(DRIVE, new Skystone_Detection());
-            else if (controllerDrive.rightBumper()) stateMachine.changeState(DRIVE, new Skystone_Detection());
+            if(controller1.AOnce()) stateMachine.changeState(DRIVE, new Manual());
+            else if (controller1.BOnce()) stateMachine.changeState(DRIVE, new Motor_Tester());
+            else if (controller1.XOnce()) stateMachine.changeState(DRIVE, new Servo_Tester());
+            else if (controller1.YOnce()) stateMachine.changeState(DRIVE, new Skystone_Detection());
+            else if (controller1.rightBumper()) stateMachine.changeState(DRIVE, new Skystone_Detection());
         }
     }
 
@@ -82,15 +82,15 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void update() {
             super.update();
-            if(controllerDrive.startOnce()) {
+            if(controller1.startOnce()) {
                 stateMachine.changeState(DRIVE, new Start_Menu());
             }
 
-            opMode.setDriveForSimpleMecanum(controllerDrive.left_stick_x, controllerDrive.left_stick_y, controllerDrive.right_stick_x, controllerDrive.right_stick_y);
+            opMode.setDriveForSimpleMecanum(controller1.left_stick_x, controller1.left_stick_y, controller1.right_stick_x, controller1.right_stick_y);
 
-            if(controllerDrive.rightBumper()) {
+            if(controller1.rightBumper()) {
                 opMode.openClaw();
-            } else if(controllerDrive.leftBumper()) {
+            } else if(controller1.leftBumper()) {
                 opMode.closeClaw();
             }
 
@@ -115,22 +115,22 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void update() {
             super.update();
-            if(controllerDrive.startOnce()) {
+            if(controller1.startOnce()) {
                 stateMachine.changeState(DRIVE, new Start_Menu());
-            } else if(controllerDrive.AOnce()) {
+            } else if(controller1.AOnce()) {
                 forwardSpeed = 0;
                 rotationalSpeed = 0;
                 strafeSpeed = 0;
             }
 
-            if(controllerDrive.dpadUpOnce()) forwardSpeed = forwardSpeed >= 1.0 ? 1 : forwardSpeed + 0.01;
-            else if(controllerDrive.dpadDown()) forwardSpeed = forwardSpeed <= -1 ? -1 : forwardSpeed - 0.01;
+            if(controller1.dpadUpOnce()) forwardSpeed = forwardSpeed >= 1.0 ? 1 : forwardSpeed + 0.01;
+            else if(controller1.dpadDown()) forwardSpeed = forwardSpeed <= -1 ? -1 : forwardSpeed - 0.01;
 
-            if(controllerDrive.dpadRightOnce()) strafeSpeed = strafeSpeed >= 1.0 ? 1 : strafeSpeed + 0.01;
-            else if(controllerDrive.dpadLeftOnce()) strafeSpeed = strafeSpeed <= -1 ? -1 : strafeSpeed - 0.01;
+            if(controller1.dpadRightOnce()) strafeSpeed = strafeSpeed >= 1.0 ? 1 : strafeSpeed + 0.01;
+            else if(controller1.dpadLeftOnce()) strafeSpeed = strafeSpeed <= -1 ? -1 : strafeSpeed - 0.01;
 
-            if(controllerDrive.XOnce()) rotationalSpeed = rotationalSpeed >= 1.0 ? 1 : rotationalSpeed + 0.01;
-            else if(controllerDrive.BOnce()) rotationalSpeed = rotationalSpeed <= -1 ? -1 : rotationalSpeed - 0.01;
+            if(controller1.XOnce()) rotationalSpeed = rotationalSpeed >= 1.0 ? 1 : rotationalSpeed + 0.01;
+            else if(controller1.BOnce()) rotationalSpeed = rotationalSpeed <= -1 ? -1 : rotationalSpeed - 0.01;
 
             opMode.setDriveForSimpleMecanum(strafeSpeed, -forwardSpeed, rotationalSpeed, 0);
 
@@ -175,21 +175,21 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             super.update();
 
             // Change state back to Menu
-            if(controllerDrive.startOnce()) {
+            if(controller1.startOnce()) {
                 stateMachine.changeState(DRIVE, new Start_Menu());
             }
 
             // Select Index of servo to control.
-            if(controllerDrive.dpadUpOnce() && servoIndex < maxServoIndex) ++servoIndex;
-            if(controllerDrive.dpadDownOnce() &&  servoIndex > 0) --servoIndex;
+            if(controller1.dpadUpOnce() && servoIndex < maxServoIndex) ++servoIndex;
+            if(controller1.dpadDownOnce() &&  servoIndex > 0) --servoIndex;
 
             // Add a customizable controller input divider for more precise testing.
-            if(controllerDrive.dpadRightOnce()) inputDivider *= 10;
-            if(controllerDrive.dpadLeftOnce()) inputDivider /=  10;
+            if(controller1.dpadRightOnce()) inputDivider *= 10;
+            if(controller1.dpadLeftOnce()) inputDivider /=  10;
 
             // Get the current servo that is selected and move it to the new position
             currentServo = RobotHardware.ServoName.values()[servoIndex];
-            nextServoPosition = Range.clip(-controllerDrive.left_stick_y / inputDivider + servoPositions.get(currentServo), -1, 1);
+            nextServoPosition = Range.clip(-controller1.left_stick_y / inputDivider + servoPositions.get(currentServo), -1, 1);
             servoPositions.put(currentServo, nextServoPosition);
 
             //Move Servo to position stored in servoPositions HashMap
@@ -239,7 +239,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void update() {
             super.update();
-            if(opMode.controller.startOnce()) stateMachine.changeState(DRIVE,new Start_Menu());
+            if(opMode.controller1.startOnce()) stateMachine.changeState(DRIVE,new Start_Menu());
 
             if(opMode.simpleVision == null) {
                 opMode.telemetry.addData("Vision: ", "Not Loaded.");
@@ -275,7 +275,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             super.update();
             robotStateContext.update();
             opMode.telemetry.addData("Sub State: ", robotStateContext.getCurrentState());
-            if(controllerDrive.startOnce()) stateMachine.changeState(DRIVE, new Start_Menu());
+            if(controller1.startOnce()) stateMachine.changeState(DRIVE, new Start_Menu());
         }
     }
 

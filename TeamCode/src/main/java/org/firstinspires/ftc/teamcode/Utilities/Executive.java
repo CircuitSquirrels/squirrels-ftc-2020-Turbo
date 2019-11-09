@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.AutoOpmode;
+import org.firstinspires.ftc.teamcode.RobotHardware;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class Executive {
     static public class StateMachine {
 
         private Map<StateType, StateBase> stateMap = new HashMap<>();
-        AutoOpmode opMode;
+        RobotHardware opMode;
 
         /**
          * State Machine will support one additional concurrent state for each possible StateType.
@@ -44,7 +44,7 @@ public class Executive {
             LIFT,
         }
 
-        public StateMachine(AutoOpmode opMode) {
+        public StateMachine(RobotHardware opMode) {
             this.opMode = opMode;
         }
 
@@ -156,7 +156,7 @@ public class Executive {
     static public abstract class StateBase {
 
         StateMachine stateMachine; // Reference to outer state machine, for modifying states.
-        AutoOpmode opMode;
+        RobotHardware opMode;
         ElapsedTime stateTimer; // Time how long state has been active
         ElapsedTime statePeriod; // Time how long since state has been executed.
         double lastStatePeriod = 0;

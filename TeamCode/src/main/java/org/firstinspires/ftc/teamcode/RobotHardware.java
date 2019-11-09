@@ -9,9 +9,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
+import org.firstinspires.ftc.teamcode.Utilities.Controller;
+import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
+import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 
 import java.text.DecimalFormat;
@@ -43,6 +48,13 @@ public class RobotHardware extends OpMode {
     // Execution cycle period monitor.
     private ElapsedTime period = new ElapsedTime();
     private Vector<Double> pastPeriods = new Vector<Double>();
+
+    public Controller controller1;
+    public Controller controller2;
+    public MecanumNavigation mecanumNavigation;
+    public AutoDrive autoDrive;
+    public IMUUtilities imuUtilities;
+    public SimpleVision simpleVision;
 
 
     // The motors on the robot, must be the same names defined in the robot's Configuration file.
