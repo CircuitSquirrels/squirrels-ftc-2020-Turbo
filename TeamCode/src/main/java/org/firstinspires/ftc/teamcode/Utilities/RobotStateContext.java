@@ -14,11 +14,13 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     RobotHardware.StartPosition startPosition;
     Waypoints waypoints;
     double driveSpeed;
+    boolean simple;
+    boolean parkInner;
 
     double liftSpeed = 1;
-
-
     int liftRaised = 1000;
+
+
 
 
     public RobotStateContext(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
@@ -27,7 +29,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
         waypoints = new Waypoints(teamColor, startPosition);
+        stateMachine.update();
         driveSpeed = opMode.AutoDriveSpeed.get();
+        simple = opMode.SimpleAuto.get();
+        parkInner = opMode.ParkInner.get();
     }
 
     public void init() {
@@ -36,8 +41,13 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         stateMachine.init();
     }
 
+
+
     public void update() {
         stateMachine.update();
+        driveSpeed = opMode.AutoDriveSpeed.get();
+        simple = opMode.SimpleAuto.get();
+        parkInner = opMode.ParkInner.get();
     }
 
     public String getCurrentState() {
@@ -55,7 +65,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
             opMode.imuUtilities.updateNow();
             opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
-            if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A());
+            if(stateTimer.seconds() > 1 && opMode.shouldContinue() && simple) stateMachine.changeState(DRIVE, new Simple_Start());
+            else if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A());
         }
     }
 
@@ -134,6 +145,47 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
             arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, liftSpeed);
             if(arrived) opMode.closeClaw();
+        }
+    }
+
+    class Simple_Start extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            if(opMode.shouldContinue()) {
+                stateMachine.changeState(DRIVE, new Simple_Align());
+            }
+        }
+    }
+
+    class Simple_Align extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.simpleAlignment_Inner, driveSpeed);
+            else arrived = true;
+            if(arrived) {
+                if(opMode.shouldContinue()) {
+                    stateMachine.changeState(DRIVE, new Simple_Park());
+                }
+            }
+        }
+    }
+
+    class Simple_Park extends Executive.StateBase {
+        @Override
+        public void update() {
+            super.update();
+
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.parkInner, driveSpeed);
+            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.parkOuter, driveSpeed);
+            if(arrived) {
+                if(opMode.shouldContinue()) {
+                    stateMachine.changeState(DRIVE, new Stop_State());
+                }
+            }
         }
     }
 
