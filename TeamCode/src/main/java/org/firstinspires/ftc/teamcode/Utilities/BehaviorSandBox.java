@@ -19,7 +19,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
     double driveSpeed = 0.8;
     Controller controller1;
 
-    public BehaviorSandBox(RobotHardware opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
+    public BehaviorSandBox(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
         this.teamColor = teamColor;
         this.startPosition = startPosition;

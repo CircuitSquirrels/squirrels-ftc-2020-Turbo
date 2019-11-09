@@ -8,7 +8,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.St
 
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
 
-    RobotHardware opMode;
+    AutoOpmode opMode;
     Executive.StateMachine stateMachine;
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
@@ -23,7 +23,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
 
 
-    public RobotStateContext(RobotHardware opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
+    public RobotStateContext(AutoOpmode opMode, Color.Ftc teamColor, AutoOpmode.StartPosition startPosition) {
         this.opMode = opMode;
         this.teamColor = teamColor;
         this.startPosition = startPosition;
