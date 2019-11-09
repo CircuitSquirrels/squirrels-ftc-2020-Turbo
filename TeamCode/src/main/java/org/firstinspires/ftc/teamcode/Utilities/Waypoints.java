@@ -54,6 +54,9 @@ public class Waypoints {
     public Navigation2D parkOuter;
     public Navigation2D parkInner;
 
+    public Navigation2D simpleAlignment;
+    public Navigation2D simplePark;
+
     /**
      * Template parameter constants
      */
@@ -67,7 +70,7 @@ public class Waypoints {
     double tileBody = 22.75; // Width of a tile without its tabs
     double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
     double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
-    double stoneStartYOffset = 47 + stoneWidth/2; // Distance from outside wall to stone center.
+    double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth/2; // Distance from outside wall to stone center.
 
     // Robot Dimensions
     double robotWidth = 17;
@@ -86,6 +89,9 @@ public class Waypoints {
     double backupDistance = 6;
     double buildZoneOffset = 5;
 
+    // Simple Variables
+    double simpleOffset = 10;
+
 
     /**
      * Blue Loading positions set and used as templates
@@ -93,8 +99,8 @@ public class Waypoints {
     Navigation2D blueLoading_initialPosition = new Navigation2D(-tileBody -robotSidePadding,halfField-robotBackPadding,degreesToRadians(-90));
 
     Navigation2D blueLoading_scanPosition_A = new Navigation2D(-tileBody -robotSidePadding,halfField-robotBackPadding-scanOffset_Y,degreesToRadians(-90));
-    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(-halfField + stoneLength * (skystoneDetectionPosition + .5),halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward,degreesToRadians(-90));
-    Navigation2D blueLoading_backupPosition_A = new Navigation2D(-halfField + stoneLength * 5.5,halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90));
+    Navigation2D blueLoading_grabSkystone_A = new Navigation2D(-halfField + stoneLength * (6.5 -skystoneDetectionPosition),halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward,degreesToRadians(-90));
+    Navigation2D blueLoading_backupPosition_A = new Navigation2D(-halfField + stoneLength * (6.5 -skystoneDetectionPosition),halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90));
     Navigation2D blueLoading_buildZone_A = new Navigation2D(tileBody, tileBody - buildZoneOffset,degreesToRadians(-90));
 
     Navigation2D blueLoading_scanPosition_B = new Navigation2D(0,0,degreesToRadians(-90));
@@ -104,6 +110,9 @@ public class Waypoints {
 
     Navigation2D blueLoading_parkOuter = new Navigation2D(0,0,degreesToRadians(-90));
     Navigation2D blueLoading_parkInner = new Navigation2D(0,0,degreesToRadians(-90));
+
+    Navigation2D blueSimpleAlignment = new Navigation2D(0, 0, degreesToRadians(-90));
+    Navigation2D blueSimplePark = new Navigation2D(0, 0, degreesToRadians(-90));
 
     /**
      * Blue Building positions
