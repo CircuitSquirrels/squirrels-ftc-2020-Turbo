@@ -29,10 +29,10 @@ public class Executive {
     /**
      * Robot state machine, supporting multiple named simultaneous states, expanded by adding to an enum.
      */
-    static public class StateMachine {
+    static public class StateMachine <T_opmode extends RobotHardware> {
 
         private Map<StateType, StateBase> stateMap = new HashMap<>();
-        AutoOpmode opMode;
+        T_opmode opMode;
 
         /**
          * State Machine will support one additional concurrent state for each possible StateType.
@@ -45,7 +45,7 @@ public class Executive {
             LIFT,
         }
 
-        public StateMachine(AutoOpmode opMode) {
+        public StateMachine(T_opmode opMode) {
             this.opMode = opMode;
         }
 
@@ -154,10 +154,10 @@ public class Executive {
      * State base class.
      */
     // The class is abstract, but the internal methods are not abstract so that they can be optionally implemented
-    static public abstract class StateBase {
+    static public abstract class StateBase <T_opmode extends RobotHardware> {
 
-        StateMachine stateMachine; // Reference to outer state machine, for modifying states.
-        AutoOpmode opMode;
+        StateMachine<T_opmode> stateMachine; // Reference to outer state machine, for modifying states.
+        T_opmode opMode;
         ElapsedTime stateTimer; // Time how long state has been active
         ElapsedTime statePeriod; // Time how long since state has been executed.
         double lastStatePeriod = 0;
@@ -174,7 +174,7 @@ public class Executive {
         }
 
 
-        public void init(StateMachine stateMachine) {
+        public void init(StateMachine<T_opmode> stateMachine) {
             this.stateMachine = stateMachine;
             this.opMode = stateMachine.opMode;
             stateTimer = new ElapsedTime();

@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.*;
 
 import java.util.HashMap;
 
@@ -11,8 +13,8 @@ import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.St
 
 public class BehaviorSandBox implements Executive.RobotStateMachineContextInterface {
 
-    RobotHardware opMode;
-    Executive.StateMachine stateMachine;
+    AutoOpmode opMode;
+    Executive.StateMachine<AutoOpmode> stateMachine;
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
     Waypoints waypoints;
@@ -259,7 +261,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         }
     }
 
-    class Auto extends Executive.StateBase {
+    class Auto extends Executive.StateBase<AutoOpmode> {
         RobotStateContext robotStateContext;
 
         @Override

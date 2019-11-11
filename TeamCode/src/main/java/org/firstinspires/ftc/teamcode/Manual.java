@@ -6,16 +6,16 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
-import org.firstinspires.ftc.teamcode.Utilities.Executive_Manual;
+import org.firstinspires.ftc.teamcode.Utilities.Executive;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
-import static org.firstinspires.ftc.teamcode.Utilities.Executive_Manual.StateMachine.StateType.DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
 
 @TeleOp (name="Manual",group="Competition")
 public class Manual extends RobotHardware {
 
-    Executive_Manual.StateMachine stateMachine;
+    Executive.StateMachine<Manual> stateMachine;
 
     // Adding interactive init variables
     private InteractiveInit interactiveInit = null;
@@ -69,7 +69,7 @@ public class Manual extends RobotHardware {
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
-        stateMachine = new Executive_Manual.StateMachine(this);
+        stateMachine = new Executive.StateMachine(this);
         stateMachine.changeState(DRIVE, new ManualArm());
         stateMachine.init();
 
@@ -183,7 +183,7 @@ public class Manual extends RobotHardware {
         return Math.abs(clawController.left_stick_y) > threshold;
     }
 
-    public class ManualArm extends Executive_Manual.StateBase {
+    public class ManualArm extends Executive.StateBase<Manual> {
         @Override
         public void update() {
             super.update();
@@ -204,7 +204,7 @@ public class Manual extends RobotHardware {
         }
     }
 
-    public class ArmBottom extends Executive_Manual.StateBase {
+    public class ArmBottom extends Executive.StateBase<Manual> {
         @Override
         public void update() {
             super.update();
@@ -217,7 +217,7 @@ public class Manual extends RobotHardware {
         }
     }
 
-    public class ArmLifted extends Executive_Manual.StateBase {
+    public class ArmLifted extends Executive.StateBase<Manual> {
         @Override
         public void update() {
             super.update();

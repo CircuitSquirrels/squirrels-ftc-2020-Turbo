@@ -9,7 +9,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.St
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
 
     AutoOpmode opMode;
-    Executive.StateMachine stateMachine;
+    Executive.StateMachine<AutoOpmode> stateMachine;
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
     Waypoints waypoints;
@@ -58,7 +58,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      * Define Concrete State Classes
      */
 
-    class Start_State extends Executive.StateBase {
+    class Start_State extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -70,7 +70,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Scan_Position_A extends Executive.StateBase {
+    class Scan_Position_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -86,7 +86,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Goto_Skystone_A extends Executive.StateBase {
+    class Goto_Skystone_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -101,7 +101,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Backup_A extends Executive.StateBase {
+    class Backup_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -113,7 +113,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Build_Zone_A extends Executive.StateBase {
+    class Build_Zone_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -128,7 +128,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Raise_Lift_Open extends Executive.StateBase {
+    class Raise_Lift_Open extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -138,7 +138,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Grab_Skystone extends Executive.StateBase {
+    class Grab_Skystone extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -148,7 +148,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Simple_Start extends Executive.StateBase {
+    class Simple_Start extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -159,7 +159,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Simple_Align extends Executive.StateBase {
+    class Simple_Align extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -174,7 +174,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Simple_Park extends Executive.StateBase {
+    class Simple_Park extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
@@ -190,7 +190,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     }
 
 
-    class Stop_State extends Executive.StateBase {
+    class Stop_State extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
