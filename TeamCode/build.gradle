@@ -32,5 +32,5 @@ dependencies {
     testImplementation "com.google.truth:truth:1.0"
 
     // CSV Write
-    compile group: 'com.opencsv', name: 'opencsv', version: '4.1'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '4.1'
 }
