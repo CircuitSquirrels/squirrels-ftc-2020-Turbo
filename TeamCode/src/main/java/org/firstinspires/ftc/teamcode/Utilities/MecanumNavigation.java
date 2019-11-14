@@ -179,13 +179,27 @@ public class MecanumNavigation {
             return (Navigation2D) this.clone();
         }
 
-        public void add (Navigation2D other) {
+        public void addInPlace(Navigation2D other) {
             this.x += other.x;
             this.y += other.y;
             this.theta += other.theta;
         }
 
-        public void subtract (Navigation2D other) {
+        public void addInPlace(double x, double y, double theta) {
+            this.x += x;
+            this.y += y;
+            this.theta += theta;
+        }
+
+        public Navigation2D addAndReturn(Navigation2D other) {
+            return new Navigation2D(this.x + other.x, this.y + other.y, this.theta + other.theta);
+        }
+
+        public Navigation2D addAndReturn(double x, double y, double theta) {
+            return new Navigation2D(this.x + x, this.y + y, this.theta + theta);
+        }
+
+        public void subtractInPlace(Navigation2D other) {
             this.x -= other.x;
             this.y -= other.y;
             this.theta -= other.theta;

@@ -113,6 +113,8 @@ public class Waypoints {
     private double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
     private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth/2; // Distance from outside wall to stone center.
 
+    // Foundation Initial Location
+
     // Robot Dimensions
     private double robotWidth = 17;
     private double robotSidePadding = robotWidth/2;
@@ -120,15 +122,13 @@ public class Waypoints {
     private double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
     private double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
     private double grabOffset_Y_Left = 0; // Left on Robot
-
-
-    private double loadingStart_X = 0;
-    private double loadingStart_Y = 0;
+    private double wallPadding = 1.5; // How far to stay from something you don't want to bump.
 
     // Maneuver
-    private double scanOffset_Y = 10;
-    private double backupDistance = 6;
-    private double buildZoneOffset = 5;
+    private double scanOffset_Y = 10;  // Arbitrary distance to move forward before scanning for skystones.
+    private double backupDistance = 6; // Distance to pull away from stones before going under bridge
+    private double buildZoneOffset = 5; // Arbitrary distance to move forward on the build side before dropping off skystones.
+
 
     // Skystone index is numbered from 0 to 5, startin from field center.
     public double skystoneXFromIndex(int index) {
@@ -148,8 +148,12 @@ public class Waypoints {
         /**
          * Blue Quarry Stone Positions
          */
+        List<Navigation2D> blueStonePickupLocations = new ArrayList(); // Location from which to pickup stone 0-5
+        List<Navigation2D> blueStoneAlignmentLocations = new ArrayList(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,0));
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
+            blueStoneAlignmentLocations.add(i, blueStonePickupLocations.get(i).copy().addAndReturn(0,backupDistance,0)); // Set backup/alignment/scan distance from stones.
         }
 
         /**
