@@ -1,11 +1,7 @@
-import android.util.Pair;
-
-import com.google.common.truth.Truth;
 import static com.google.common.truth.Truth.assertThat;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
@@ -14,6 +10,10 @@ import org.junit.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+
+import static org.firstinspires.ftc.teamcode.RobotHardware.StartPosition.FIELD_LOADING;
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.*;
 
 public class WaypointGenerationTest {
 
@@ -38,31 +38,43 @@ public class WaypointGenerationTest {
     @Test
     public void Waypoint_startPoint_not_null() {
         System.out.println("Start Test");
-        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_LOADING);
+        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE);
         waypoints.setSkystoneDetectionPosition(1);
 
-        Navigation2D initial_n2d = waypoints.initialPosition;
-        Navigation2D scanA_n2d = waypoints.scanPosition_A;
+        Navigation2D initial_loading_n2d = waypoints.loading.get(LocationLoading.initialPosition);
+        Navigation2D scanA_n2d = waypoints.loading.get(scanPosition_A);
 
-        assertWaypointNotNull(initial_n2d);
-        assertWaypoint_thetaEqual(initial_n2d,scanA_n2d);
-        assertWaypoint_xEqual(initial_n2d,scanA_n2d);
+        assertWaypointNotNull(initial_loading_n2d);
+        assertWaypoint_thetaEqual(initial_loading_n2d,scanA_n2d);
+        assertWaypoint_xEqual(initial_loading_n2d,scanA_n2d);
 
     }
 
+
     @Test
-    public void Display_Waypoints() throws IOException {
+    public void GenerateAllWaypoits() throws IOException {
+        for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
+            Display_Waypoints(Color.Ftc.BLUE, startPosition, 0);
+        }
+    }
+
+
+    private void Display_Waypoints(Color.Ftc color, RobotHardware.StartPosition startPosition, int skystoneIndex_0to5) throws IOException {
 
         System.out.println("\n"+"*** Start Waypoint Display **** ");
-        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE, RobotHardware.StartPosition.FIELD_BUILD);
+        Waypoints waypoints = new Waypoints(color,skystoneIndex_0to5);
         waypoints.setSkystoneDetectionPosition(1);
         System.out.println("Team Color:                     " + waypoints.getTeamColor());
-        System.out.println("Start Position:                 " + waypoints.getStartPosition());
+        System.out.println("Start Position:                 " + startPosition);
         System.out.println("Skystone Detection Position:    " + waypoints.getSkystoneDetectionPosition());
         System.out.println();
 
-
-        List<LabeledWaypoint> waypointList = waypoints.getWaypointList();
+        List<LabeledWaypoint> waypointList;
+        if(startPosition == FIELD_LOADING) {
+            waypointList = waypoints.getLabeledWaypointListForLoad();
+        } else {
+            waypointList = waypoints.getLabeledWaypointListForBuild();
+        }
 
         for(LabeledWaypoint waypoint: waypointList) {
             System.out.println(waypoint.waypoint_n2d.toString() + ",    " + waypoint.label + ";");
@@ -70,7 +82,7 @@ public class WaypointGenerationTest {
 
         String filename_waypointCSV =
                 waypoints.getTeamColor().toString() + "_" +
-                waypoints.getStartPosition().toString() + "_" +
+                startPosition.toString() + "_" +
                 waypoints.getSkystoneDetectionPosition() + ".csv";
         writeWaypointCSV(filename_waypointCSV,waypointList);
 

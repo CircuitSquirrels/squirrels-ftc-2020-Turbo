@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.Utilities;
-import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
-import java.util.Set;
 
 
 public class Waypoints {
@@ -89,51 +85,50 @@ public class Waypoints {
     }
 
     // Waypoint locations.
-    public Map<LocationLoading,Navigation2D> genericLoading = new EnumMap<>(LocationLoading.class);
-    public Map<LocationBuild,Navigation2D> genericBuild = new EnumMap<>(LocationBuild.class);
+    public Map<LocationLoading,Navigation2D> loading = new EnumMap<>(LocationLoading.class);
+    public Map<LocationBuild,Navigation2D> building = new EnumMap<>(LocationBuild.class);
 
     //Blue is used as the template.
-    Map<LocationLoading,Navigation2D> blueLoading = new EnumMap<>(LocationLoading.class);
-    Map<LocationBuild,Navigation2D> blueBuild = new EnumMap<>(LocationBuild.class);
+    private Map<LocationLoading,Navigation2D> blueLoading = new EnumMap<>(LocationLoading.class);
+    private Map<LocationBuild,Navigation2D> blueBuild = new EnumMap<>(LocationBuild.class);
 
     // Skystone locations (6 stones from field center to wall numbered from 0-5)
     // Waypoint customized by color.
     public List<Navigation2D> stoneLocations = new ArrayList();
-    List<Navigation2D> blueStoneLocations = new ArrayList();
+    private List<Navigation2D> blueStoneLocations = new ArrayList();
 
 
 
     /**
      * Template parameter constants
      */
-    double cameraOffset = -90; // extra rotation needed to point the camera in given direction
 
     // Game and field elements
-    double stoneWidth = 4;
-    double stoneLength = 8;
-    double stoneHeight = 4;
-    double stoneKnobHeight = 5;
-    double tileBody = 22.75; // Width of a tile without its tabs
-    double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
-    double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
-    double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth/2; // Distance from outside wall to stone center.
+    private double stoneWidth = 4;
+    private double stoneLength = 8;
+    private double stoneHeight = 4;
+    private double stoneKnobHeight = 5;
+    private double tileBody = 22.75; // Width of a tile without its tabs
+    private double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
+    private double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
+    private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth/2; // Distance from outside wall to stone center.
 
     // Robot Dimensions
-    double robotWidth = 17;
-    double robotSidePadding = robotWidth/2;
-    double robotFrontPadding = 5.25; //Distance from Robot front edge to wheelbase center.
-    double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
-    double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
-    double grabOffset_Y_Left = 0; // Left on Robot
+    private double robotWidth = 17;
+    private double robotSidePadding = robotWidth/2;
+    private double robotFrontPadding = 5.25; //Distance from Robot front edge to wheelbase center.
+    private double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
+    private double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
+    private double grabOffset_Y_Left = 0; // Left on Robot
 
 
-    double loadingStart_X = 0;
-    double loadingStart_Y = 0;
+    private double loadingStart_X = 0;
+    private double loadingStart_Y = 0;
 
     // Maneuver
-    double scanOffset_Y = 10;
-    double backupDistance = 6;
-    double buildZoneOffset = 5;
+    private double scanOffset_Y = 10;
+    private double backupDistance = 6;
+    private double buildZoneOffset = 5;
 
     // Skystone index is numbered from 0 to 5, startin from field center.
     public double skystoneXFromIndex(int index) {
@@ -182,8 +177,10 @@ public class Waypoints {
         blueBuild.put(LocationBuild.simpleAlignment_Inner, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
     }
 
-
-    void customizeWaypoints(Color.Ftc teamColor, int skystoneDetectionPosition) {
+    // skystoneDetectionPosition is 0-5, from field center to the front wall.
+    private void customizeWaypoints(Color.Ftc teamColor, int skystoneDetectionPosition) {
+        this.skystoneDetectionPosition = skystoneDetectionPosition; // ensure class property is set.
+        create_blue_waypoints(); // gets skystoneDetectionPosition from class property.
         if(teamColor == Color.Ftc.BLUE) {
             activate_blue_waypoints();
         } else if (teamColor == Color.Ftc.RED) {
@@ -195,14 +192,14 @@ public class Waypoints {
 
 
     void activate_blue_waypoints() {
-        genericLoading.putAll(blueLoading);
-        genericBuild.putAll(blueBuild);
+        loading.putAll(blueLoading);
+        building.putAll(blueBuild);
         stoneLocations.addAll(blueStoneLocations);
     }
 
     void activate_red_waypoints() {
-        genericLoading.putAll(blueLoading);
-        genericBuild.putAll(blueBuild);
+        loading.putAll(blueLoading);
+        building.putAll(blueBuild);
         stoneLocations.addAll(blueStoneLocations);
         x_reflectGenericWaypointsAndStoneLocationsInPlace();
     }
@@ -211,12 +208,12 @@ public class Waypoints {
     void x_reflectGenericWaypointsAndStoneLocationsInPlace() {
         // reflect the generic waypoints around x axis, storing
         // back into the generic waypoints.
-        for(Navigation2D waypoint: genericLoading.values()) {
+        for(Navigation2D waypoint: loading.values()) {
             waypoint.reflectInX(); // Reflects in place, by reference.
         }
 
         // for Building
-        for(Navigation2D waypoint: genericBuild.values()) {
+        for(Navigation2D waypoint: building.values()) {
             waypoint.reflectInX(); // Reflects in place, by reference.
         }
 
@@ -229,7 +226,7 @@ public class Waypoints {
     public List<LabeledWaypoint> getLabeledWaypointListForLoad() {
         ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
         for(LocationLoading locationLoading: LocationLoading.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationLoading.toString(), genericLoading.get(locationLoading)));
+            labeledWaypoints.add(new LabeledWaypoint(locationLoading.toString(), loading.get(locationLoading)));
         }
         return labeledWaypoints;
     }
@@ -237,7 +234,7 @@ public class Waypoints {
     public List<LabeledWaypoint> getLabeledWaypointListForBuild() {
         ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
         for(LocationBuild locationBuild: LocationBuild.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationBuild.toString(), genericLoading.get(locationBuild)));
+            labeledWaypoints.add(new LabeledWaypoint(locationBuild.toString(), building.get(locationBuild)));
         }
         return labeledWaypoints;
     }

@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.*;
+
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
 
 import java.util.HashMap;
 
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
 
 public class BehaviorSandBox implements Executive.RobotStateMachineContextInterface {
 
@@ -26,7 +26,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         this.teamColor = teamColor;
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
-        waypoints = new Waypoints(teamColor, startPosition);
+        waypoints = new Waypoints(teamColor);
     }
 
     public void init() {
@@ -235,7 +235,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void init(Executive.StateMachine stateMachine) {
             super.init(stateMachine);
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.scanPosition_A);
+            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(scanPosition_A));
         }
 
         @Override

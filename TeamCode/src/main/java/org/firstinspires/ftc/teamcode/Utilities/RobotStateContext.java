@@ -2,9 +2,10 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.ARM;
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
 
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
 
@@ -28,7 +29,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.teamColor = teamColor;
         this.startPosition = startPosition;
         stateMachine = new Executive.StateMachine(opMode);
-        waypoints = new Waypoints(teamColor, startPosition);
+        waypoints = new Waypoints(teamColor);
         stateMachine.update();
         driveSpeed = opMode.AutoDriveSpeed.get();
         simple = opMode.SimpleAuto.get();
@@ -58,13 +59,37 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      * Define Concrete State Classes
      */
 
+    // Fork between Build and Load side starting positions.
     class Start_State extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            Navigation2D initialPosition;
+            switch (startPosition) {
+                case FIELD_LOADING:
+                    setupInitialPosition(waypoints.loading.get(Waypoints.LocationLoading.initialPosition));
+                    stateMachine.changeState(DRIVE, new Start_Loading_Side());
+                    break;
+                case FIELD_BUILD:
+                    setupInitialPosition(waypoints.building.get(Waypoints.LocationBuild.initialPosition));
+                    stateMachine.changeState(DRIVE, new Start_Building_Side());
+                    break;
+                default:
+                   throw new IllegalStateException("Field Position must be either FIELD_LOADING or FIELD_BUILD");
+            }
+        }
+
+        private void setupInitialPosition(Navigation2D initialPosition) {
+            opMode.mecanumNavigation.setCurrentPosition(initialPosition);
+            opMode.imuUtilities.updateNow();
+            opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(initialPosition.theta));
+        }
+    }
+
+    class Start_Loading_Side extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
-            opMode.imuUtilities.updateNow();
-            opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
             if(stateTimer.seconds() > 1 && opMode.shouldContinue() && simple) stateMachine.changeState(DRIVE, new Simple_Start());
             else if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A());
         }
@@ -75,7 +100,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanPosition_A, driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(scanPosition_A), driveSpeed);
             if(arrived) {
                 waypoints.setSkystoneDetectionPosition(1);
                 if(opMode.shouldContinue()) {
@@ -91,7 +116,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.grabSkystone_A, driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(grabSkystone_A), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(ARM, new Grab_Skystone());
@@ -106,7 +131,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.backupPosition_A, driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(backupPosition_A), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Build_Zone_A());
             }
@@ -117,8 +142,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.buildZone_A, driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(buildZone_A), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(DRIVE, new Stop_State());
@@ -163,8 +187,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.simpleAlignment_Inner, driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(simpleAlignment_Inner), driveSpeed);
             else arrived = true;
             if(arrived) {
                 if(opMode.shouldContinue()) {
@@ -179,8 +202,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.parkInner, driveSpeed);
-            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.parkOuter, driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(parkInner), driveSpeed);
+            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(parkOuter), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(DRIVE, new Stop_State());
@@ -199,6 +222,15 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
+
+    class Start_Building_Side extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            // TODO: Provide real building side routine. Move the foundation?
+            nextState(DRIVE, new Simple_Park());
+        }
+    }
 
 
     private double degreesToRadians(double degrees) {
