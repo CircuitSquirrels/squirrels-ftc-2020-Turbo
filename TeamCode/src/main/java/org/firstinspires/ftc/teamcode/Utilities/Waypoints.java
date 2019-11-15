@@ -156,7 +156,7 @@ public class Waypoints {
         List<Navigation2D> blueStoneAlignmentLocations = new ArrayList(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,degreesToRadians(-90)));
-            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,degreesToRadians(-90))); // setup grabOffset from stones.
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
             blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y, degreesToRadians(-90)));
         }
 

@@ -31,9 +31,14 @@ public class WaypointGenerationTest {
     }
 
     private void assertWaypoint_thetaEqual(Navigation2D first_n2d, Navigation2D second_n2d) {
-        assertThat(first_n2d.theta).isEqualTo(second_n2d.theta);
+        // Convert theta radians to degrees to make debugging easier.
+        assertThat(Math.toDegrees(first_n2d.theta)).isEqualTo(Math.toDegrees(second_n2d.theta));
     }
 
+    @Test
+    public void WaypointsDefinedForAllCases() {
+        // Check RED and BLUE, BUILD AND LOAD, skystone 0,1,2, false skystone 3,4,5,6, -1 for errors.
+    }
 
     @Test
     public void Waypoint_startPoint_not_null() {
@@ -41,12 +46,12 @@ public class WaypointGenerationTest {
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE);
         waypoints.setSkystoneDetectionPosition(1);
 
-        Navigation2D initial_loading_n2d = waypoints.loading.get(LocationLoading.INITIAL_POSITION);
-        Navigation2D scanA_n2d = waypoints.loading.get(SCAN_POSITION_A);
+        Navigation2D alignmentA_n2d = waypoints.loading.get(ALIGNMENT_POSITION_A);
+        Navigation2D pickupA_n2d = waypoints.loading.get(GRAB_SKYSTONE_A);
 
-        assertWaypointNotNull(initial_loading_n2d);
-        assertWaypoint_thetaEqual(initial_loading_n2d,scanA_n2d);
-        assertWaypoint_xEqual(initial_loading_n2d,scanA_n2d);
+        assertWaypointNotNull(alignmentA_n2d);
+        assertWaypoint_thetaEqual(alignmentA_n2d,pickupA_n2d);
+        assertWaypoint_xEqual(alignmentA_n2d,pickupA_n2d);
 
     }
 
