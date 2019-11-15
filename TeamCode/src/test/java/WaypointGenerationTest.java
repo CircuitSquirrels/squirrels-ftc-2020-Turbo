@@ -41,8 +41,8 @@ public class WaypointGenerationTest {
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE);
         waypoints.setSkystoneDetectionPosition(1);
 
-        Navigation2D initial_loading_n2d = waypoints.loading.get(LocationLoading.initialPosition);
-        Navigation2D scanA_n2d = waypoints.loading.get(scanPosition_A);
+        Navigation2D initial_loading_n2d = waypoints.loading.get(LocationLoading.INITIAL_POSITION);
+        Navigation2D scanA_n2d = waypoints.loading.get(SCAN_POSITION_A);
 
         assertWaypointNotNull(initial_loading_n2d);
         assertWaypoint_thetaEqual(initial_loading_n2d,scanA_n2d);

@@ -63,25 +63,28 @@ public class Waypoints {
       */
 
     public enum LocationLoading {
-        initialPosition,
-        scanPosition_A,
-        grabSkystone_A,
-        backupPosition_A,
-        buildZone_A,
-        scanPosition_B,
-        grabSkystone_B,
-        backupPosition_B,
-        buildZone_B,
-        parkOuter,
-        parkInner,
-        simpleAlignment_Inner,
+        INITIAL_POSITION,
+        SCAN_POSITION_A,
+        GRAB_SKYSTONE_A,
+        ALIGNMENT_POSITION_A,
+        BUILD_ZONE,
+        SCAN_POSITION_B,
+        GRAB_SKYSTONE_B,
+        ALIGNMENT_POSITION_B,
+        FOUNDATION_ALIGNMENT,
+        FOUNDATION_DROP_OFF,
+        BRIDGE_ALIGNMENT_OUTER,
+        BRIDGE_ALIGNMENT_INNER,
+        PARK_OUTER,
+        PARK_INNER,
+        SIMPLE_ALIGNMENT_INNER,
     }
 
     public enum LocationBuild {
-        initialPosition,
-        parkOuter,
-        parkInner,
-        simpleAlignment_Inner,
+        INITIAL_POSITION,
+        PARK_OUTER,
+        PARK_INNER,
+        SIMPLE_ALIGNMENT_INNER,
     }
 
     // Waypoint locations.
@@ -111,7 +114,7 @@ public class Waypoints {
     private double tileBody = 22.75; // Width of a tile without its tabs
     private double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
     private double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
-    private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth/2; // Distance from outside wall to stone center.
+    private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth / 2; // Distance from outside wall to stone center.
 
     // Foundation Initial Location
 
@@ -128,6 +131,7 @@ public class Waypoints {
     private double scanOffset_Y = 10;  // Arbitrary distance to move forward before scanning for skystones.
     private double backupDistance = 6; // Distance to pull away from stones before going under bridge
     private double buildZoneOffset = 5; // Arbitrary distance to move forward on the build side before dropping off skystones.
+    private double innerTileAlignment_Y = halfField - tileBody - tileTabs - robotSidePadding;
 
 
     // Skystone index is numbered from 0 to 5, startin from field center.
@@ -151,34 +155,37 @@ public class Waypoints {
         List<Navigation2D> blueStonePickupLocations = new ArrayList(); // Location from which to pickup stone 0-5
         List<Navigation2D> blueStoneAlignmentLocations = new ArrayList(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
-            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,0));
-            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
-            blueStoneAlignmentLocations.add(i, blueStonePickupLocations.get(i).copy().addAndReturn(0,backupDistance,0)); // Set backup/alignment/scan distance from stones.
+            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,degreesToRadians(-90)));
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,degreesToRadians(-90))); // setup grabOffset from stones.
+            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y, degreesToRadians(-90)));
         }
 
         /**
          * Blue Loading Waypoints
          */
-        blueLoading.put(LocationLoading.initialPosition,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.scanPosition_A, new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding - scanOffset_Y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.grabSkystone_A, new Navigation2D(-halfField + stoneLength * (5.5 - skystoneDetectionPosition), halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.backupPosition_A, new Navigation2D(-halfField + stoneLength * (5.5 - skystoneDetectionPosition), halfField - stoneStartYOffset - stoneWidth * 0.5 + grabOffset_X_Forward + backupDistance, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.buildZone_A, new Navigation2D(tileBody, tileBody - buildZoneOffset, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.scanPosition_B, new Navigation2D(0, 0, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.grabSkystone_B, new Navigation2D(0, 0, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.backupPosition_B, new Navigation2D(0, 0, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.buildZone_B, new Navigation2D(0, 0, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.parkOuter, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.parkInner, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.simpleAlignment_Inner, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.SCAN_POSITION_A, blueStoneAlignmentLocations.get(1));
+        blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition));
+        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition));
+        blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody, tileBody - buildZoneOffset, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.SCAN_POSITION_B, blueStoneAlignmentLocations.get(4));
+        blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3));
+        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3));
+        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(0, 0, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(0, 0, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, 0, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, 0, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.SIMPLE_ALIGNMENT_INNER, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
 
         /**
          * Blue Build positions
          */
-        blueBuild.put(LocationBuild.initialPosition, new Navigation2D(+tileBody + robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.parkOuter, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.parkInner, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.simpleAlignment_Inner, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.INITIAL_POSITION, new Navigation2D(+tileBody + robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.PARK_INNER, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.SIMPLE_ALIGNMENT_INNER, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
     }
 
     // skystoneDetectionPosition is 0-5, from field center to the front wall.

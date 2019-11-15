@@ -35,7 +35,6 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(true);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
-    private Mutable<Boolean> useIMU = new Mutable<>(false);
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
 
@@ -92,6 +91,8 @@ public class AutoOpmode extends RobotHardware {
         controller1 = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
+        // Only initialize the imu if it is going to be used.
+        imuUtilities = new IMUUtilities(this,"IMU_1");
         if(!robotColor.equals(Color.Ftc.UNKNOWN)) {
             robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
         } else {
@@ -106,7 +107,6 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
-        interactiveInit.addBoolean(useIMU,"Use IMU", false, true);
     }
 
     @Override
@@ -148,11 +148,6 @@ public class AutoOpmode extends RobotHardware {
             }
             recordConstantsToFile();
         }
-
-        if ( useIMU.get() ) {
-            // Only initialize the imu if it is going to be used.
-            imuUtilities = new IMUUtilities(this,"IMU_1");
-        }
     }
 
     @Override
@@ -167,7 +162,7 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
         robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
-        if ( useIMU.get() ) {
+        if ( imuUtilities != null ) {
             imuUtilities.update();
             imuUtilities.getCompensatedHeading();
             timingMonitor.checkpoint("POST imuUtilities.update()");
@@ -285,7 +280,7 @@ public class AutoOpmode extends RobotHardware {
         csvWriter.addFieldToRecord("x_in",mecanumNavigation.currentPosition.x);
         csvWriter.addFieldToRecord("y_in",mecanumNavigation.currentPosition.y);
         csvWriter.addFieldToRecord("theta_rad",mecanumNavigation.currentPosition.theta);
-        if(useIMU.get()) {
+        if(imuUtilities != null) {
             csvWriter.addFieldToRecord("IMU_heading",imuUtilities.getCompensatedHeading());
         }
 

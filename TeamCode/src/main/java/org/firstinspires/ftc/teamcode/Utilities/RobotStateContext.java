@@ -64,14 +64,13 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
-            Navigation2D initialPosition;
             switch (startPosition) {
                 case FIELD_LOADING:
-                    setupInitialPosition(waypoints.loading.get(Waypoints.LocationLoading.initialPosition));
+                    setupInitialPosition(waypoints.loading.get(Waypoints.LocationLoading.INITIAL_POSITION));
                     stateMachine.changeState(DRIVE, new Start_Loading_Side());
                     break;
                 case FIELD_BUILD:
-                    setupInitialPosition(waypoints.building.get(Waypoints.LocationBuild.initialPosition));
+                    setupInitialPosition(waypoints.building.get(Waypoints.LocationBuild.INITIAL_POSITION));
                     stateMachine.changeState(DRIVE, new Start_Building_Side());
                     break;
                 default:
@@ -100,7 +99,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(scanPosition_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A), driveSpeed);
             if(arrived) {
                 waypoints.setSkystoneDetectionPosition(1);
                 if(opMode.shouldContinue()) {
@@ -116,7 +115,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(grabSkystone_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_A), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(ARM, new Grab_Skystone());
@@ -131,7 +130,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(backupPosition_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Build_Zone_A());
             }
@@ -142,7 +141,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(buildZone_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(DRIVE, new Stop_State());
@@ -187,7 +186,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(simpleAlignment_Inner), driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SIMPLE_ALIGNMENT_INNER), driveSpeed);
             else arrived = true;
             if(arrived) {
                 if(opMode.shouldContinue()) {
@@ -202,8 +201,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(parkInner), driveSpeed);
-            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(parkOuter), driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), driveSpeed);
+            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_OUTER), driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(DRIVE, new Stop_State());
