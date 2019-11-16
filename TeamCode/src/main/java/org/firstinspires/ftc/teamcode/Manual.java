@@ -190,10 +190,10 @@ public class Manual extends RobotHardware {
 
             if (copilotEnabled) {
                 // Lifter Control
-                setPower(MotorName.LIFT_WINCH, Math.pow(controller2.left_stick_y, exponential) * lifterSpeed);
+                setPower(MotorName.LIFT_WINCH, Math.pow(-controller2.left_stick_y, exponential) * lifterSpeed);
             } else {
                 // Lifter Control
-                setPower(MotorName.LIFT_WINCH, Math.pow(controller1.right_stick_y, 5) * lifterSpeed);
+                setPower(MotorName.LIFT_WINCH, Math.pow(-controller1.right_stick_y, 5) * lifterSpeed);
             }
 
             if(clawController.YOnce()) {
@@ -221,7 +221,7 @@ public class Manual extends RobotHardware {
         @Override
         public void update() {
             super.update();
-            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, -1300, lifterSpeed);
+            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 1300, lifterSpeed);
             if(gotoManualArmControl()) {
                 stateMachine.changeState(DRIVE, new ManualArm());
             } else if(clawController.YOnce()) {

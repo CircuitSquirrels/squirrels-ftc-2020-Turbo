@@ -68,7 +68,6 @@ public class WaypointGenerationTest {
 
         System.out.println("\n"+"*** Start Waypoint Display **** ");
         Waypoints waypoints = new Waypoints(color,skystoneIndex_0to5);
-        waypoints.setSkystoneDetectionPosition(1);
         System.out.println("Team Color:                     " + waypoints.getTeamColor());
         System.out.println("Start Position:                 " + startPosition);
         System.out.println("Skystone Detection Position:    " + waypoints.getSkystoneDetectionPosition());

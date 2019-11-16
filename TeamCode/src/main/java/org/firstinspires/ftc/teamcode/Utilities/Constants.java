@@ -26,6 +26,13 @@ public class Constants {
     public static final double RIGHT_CLAW_VERTICAL = 0.88;
     public static final double RIGHT_CLAW_OPEN = 0.39;
     public static final double RIGHT_CLAW_CLOSED = 0.15;
+
+    // Arm Lift Encoders
+    public static final double LIFT_TICKS_PER_INCH = 335;
+    public static final double LIFT_FOUNDATION_HEIGHT_TICKS = 360;
+    public static final double LIFT_KNOB_HEIGHT_TICKS = 330 * 1.5;
+
+
     
     // Simplify initializing mecanum navigation.
     public static MecanumNavigation.DriveTrainMecanum getDriveTrainMecanum() {
