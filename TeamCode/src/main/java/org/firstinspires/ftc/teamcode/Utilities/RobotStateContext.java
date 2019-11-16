@@ -85,6 +85,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
+    /**
+     * Loading Drive State
+     * The initial start state
+     */
     class Start_Loading_Side extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -93,81 +97,135 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             else if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A());
         }
     }
-
+    /**
+     * Loading Drive State
+     * The state for scanning the first 3 stones to identify the skystone
+     */
     class Scan_Position_A extends Executive.StateBase<AutoOpmode> {
         @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.imuUtilities.updateNow();
+        }
+
+        @Override
         public void update() {
             super.update();
-
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A), driveSpeed);
             if(arrived) {
-                waypoints.setSkystoneDetectionPosition(1);
-                if(opMode.shouldContinue()) {
-                    stateMachine.changeState(DRIVE, new Goto_Skystone_A());
-                    stateMachine.changeState(ARM, new Raise_Lift_Open());
-                }
+                stateMachine.changeState(DRIVE, new Align_Skystone_A());
             }
         }
     }
-
-    class Goto_Skystone_A extends Executive.StateBase<AutoOpmode> {
+    /**
+     * Loading Drive State
+     * The state for aligning in-front of the detected skystone
+     */
+    class Align_Skystone_A extends Executive.StateBase<AutoOpmode> {
         @Override
-        public void update() {
-            super.update();
-
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_A), driveSpeed);
-            if(arrived) {
-                if(opMode.shouldContinue()) {
-                    stateMachine.changeState(ARM, new Grab_Skystone());
-                    if (stateMachine.getStateReference(ARM).arrived && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Backup_A());
-                }
-            }
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.imuUtilities.updateNow();
+            waypoints.setSkystoneDetectionPosition(0);
         }
-    }
 
-    class Backup_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
-
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
             if(arrived) {
-                if(opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Build_Zone_A());
+                stateMachine.changeState(DRIVE, new Grab_Skystone_A());
             }
         }
     }
+    /**
+     * Loading Drive State
+     * The state for grabbing the detected skystone
+     */
+    class Grab_Skystone_A extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.imuUtilities.updateNow();
+        }
 
-    class Build_Zone_A extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_A), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(ARM, new Raise_Open_Claw());
+                if(stateMachine.getStateReference(ARM).arrived) {
+                    stateMachine.changeState(DRIVE, new Backup_Skystone_A());
+                }
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for backing up from the detected skystone to avoid knocking other stones over
+     */
+    class Backup_Skystone_A extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.imuUtilities.updateNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            stateMachine.changeState(ARM, new Lower_Close_Claw());
+            if(stateMachine.getStateReference(ARM).arrived) {
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
+                if(arrived) {
+                    stateMachine.changeState(DRIVE, new Build_Zone());
+                }
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for driving to the build zone
+     */
+    class Build_Zone extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.imuUtilities.updateNow();
+        }
+
         @Override
         public void update() {
             super.update();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
             if(arrived) {
-                if(opMode.shouldContinue()) {
-                    stateMachine.changeState(DRIVE, new Stop_State());
-                    stateMachine.changeState(ARM, new Raise_Lift_Open());
-                }
+                stateMachine.changeState(DRIVE, new Stop_State());
             }
         }
     }
 
-    class Raise_Lift_Open extends Executive.StateBase<AutoOpmode> {
+    class Raise_Open_Claw extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, liftSpeed);
-            if(arrived) opMode.openClaw();
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised,liftSpeed);
+            if(arrived) {
+                opMode.openClaw();
+            }
         }
     }
 
-    class Grab_Skystone extends Executive.StateBase<AutoOpmode> {
+    class Lower_Close_Claw extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftRaised, liftSpeed);
-            if(arrived) opMode.closeClaw();
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, 0,liftSpeed);
+            if(arrived) {
+                opMode.closeClaw();
+            }
         }
     }
 
