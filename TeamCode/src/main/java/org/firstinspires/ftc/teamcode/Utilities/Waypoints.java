@@ -171,8 +171,8 @@ public class Waypoints {
         blueLoading.put(LocationLoading.SCAN_POSITION_B, blueStoneAlignmentLocations.get(4));
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3));
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3));
-        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(0, 0, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(0, 0, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(37.32, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(37.32, 25.74, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, 0, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, 0, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));

@@ -190,7 +190,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 if (stateMachine.getStateReference(ARM).arrived) {
                     arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
                     if (arrived) {
-                        stateMachine.changeState(DRIVE, new Build_Zone());
+                        stateMachine.changeState(DRIVE, new Build_Zone_A());
                     }
                 }
             }
@@ -200,7 +200,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      * Loading Drive State
      * The state for driving to the build zone
      */
-    class Build_Zone extends Executive.StateBase<AutoOpmode> {
+    class Build_Zone_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
@@ -213,12 +213,29 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
 
             if(arrived) {
-                stateMachine.changeState(DRIVE, new Place_Foundation());
+                stateMachine.changeState(DRIVE, new Align_Foundation_A());
             }
         }
     }
 
-    class Place_Foundation extends Executive.StateBase<AutoOpmode> {
+    class Align_Foundation_A extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Place_Foundation_A());
+            }
+        }
+    }
+
+    class Place_Foundation_A extends Executive.StateBase<AutoOpmode> {
         boolean armStateExists = false;
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -229,10 +246,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new Navigation2D(37.32, 25.74, degreesToRadians(-90)), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), driveSpeed);
             if(arrived) {
-                if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation")) {
-                    stateMachine.changeState(ARM, new Place_On_Foundation());
+                if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_A")) {
+                    stateMachine.changeState(ARM, new Place_On_Foundation_A());
                     armStateExists = true;
                 }
                 if(stateMachine.getStateReference(ARM).arrived) {
@@ -241,6 +258,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
         }
     }
+
 
     class Raise_Open_Claw extends Executive.StateBase<AutoOpmode> {
         @Override
@@ -278,14 +296,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Place_On_Foundation extends Executive.StateBase<AutoOpmode> {
+    class Place_On_Foundation_A extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, 800,liftSpeed);
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(1, true, true),liftSpeed);
             if(arrived) {
-                opMode.closeClaw();
+                opMode.openClaw();
             }
         }
     }
