@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
@@ -124,13 +126,16 @@ public class Executive {
             StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
             for (StateType type : stateTypeKeyArray) {
                 StateBase state = stateMap.get(type);
-
-                if (!state.isInitialized()) {
-                    throw new RuntimeException("ERROR: state called in StateMachine update() was never initialized") ;
-                }
-                // Delete or update state
-                if (state.isDeleteRequested() == false) {
-                    state.update();
+                if(state != null) {
+                    if (!state.isInitialized()) {
+                        throw new RuntimeException("ERROR: state called in StateMachine update() was never initialized");
+                    }
+                    // Delete or update state
+                    if (state.isDeleteRequested() == false) {
+                        state.update();
+                    }
+                } else {
+                    Log.w("Statemap null key", "");
                 }
             }
             clearDeletedStates();

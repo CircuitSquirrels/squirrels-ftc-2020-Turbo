@@ -103,7 +103,7 @@ public class AutoOpmode extends RobotHardware {
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
-        interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", false, true);
+        interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
