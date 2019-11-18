@@ -74,6 +74,45 @@ public class Mecanum {
         }
     }
 
+    public static class Command {
+        public double vx; // forward
+        public double vy; // left
+        public double av; // angular velocity CCW
+
+        public Command(double vx, double vy, double av) {
+            this.vx = vx;
+            this.vy = vy;
+            this.av = av;
+        }
+
+        /**
+         * No single field can have a magnitude greater than 1.0
+         */
+        public void normalizeSeparately() {
+            List<Double> powers = Arrays.asList(vx,vy,av);
+            clampPowers(powers);
+            this.vx = powers.get(0);
+            this.vy = powers.get(1);
+            this.av = powers.get(2);
+        }
+
+        /**
+         * The sums of the magnitudes of the fields may not be greater than 1.0
+         */
+        public void normalizeJointly() {
+            double sumOfMagnitudes = Math.abs(vx) + Math.abs(vy) + Math.abs(av);
+            double scalar = 1.0;
+            if(sumOfMagnitudes > 1.0) {
+                scalar /= sumOfMagnitudes;
+                this.vx *= scalar;
+                this.vy *= scalar;
+                this.av *= scalar;
+            }
+
+        }
+
+    }
+
     /**
      * Clamps the motor powers while maintaining power ratios.
      * @param powers The motor powers to clamp.
@@ -90,6 +129,31 @@ public class Mecanum {
       }
     }
 
+    public static Wheels commandToWheels(Command command) {
+        double forward = command.vx;
+        double leftStrafe = command.vy;
+        double rotateCCW = command.av;
+
+        double frontLeft = forward - leftStrafe - rotateCCW;
+        double frontRight = forward + leftStrafe + rotateCCW;
+        double backLeft = forward + leftStrafe - rotateCCW;
+        double backRight = forward - leftStrafe + rotateCCW;
+
+        return new Wheels(frontLeft, frontRight,
+                backLeft, backRight);
+    }
+
+    public static Command simpleJoystickToCommand(double leftStickX, double leftStickY,
+                                                  double rightStickX, double rightStickY) {
+        double forward = -leftStickY;
+        double leftStrafe = -leftStickX;
+        double rotateCCW = -rightStickX;
+
+        return new Command(forward,leftStrafe,rotateCCW);
+    }
+
+
+
     /**
      * Calculates mecanum Wheels power using simplistic calculations.
      * @param leftStickX Unmodified Gamepad leftStickX inputs.
@@ -98,8 +162,9 @@ public class Mecanum {
      * @param rightStickY Unmodified Gamepad rightStickY inputs.
      * @return Wheels object with calculated drive powers.
      */
-    public static Wheels simpleJoystickToWheels(double leftStickX, double leftStickY,
+    public static Wheels old_simpleJoystickToWheels(double leftStickX, double leftStickY,
                                                 double rightStickX, double rightStickY) {
+
         double forward = -leftStickY;
         double leftStrafe = -leftStickX;
         double rotateCCW = -rightStickX;
@@ -112,4 +177,14 @@ public class Mecanum {
         return new Wheels(frontLeft, frontRight,
                 backLeft, backRight);
     }
+
+    public static Wheels simpleJoystickToWheels (double leftStickX, double leftStickY,
+                                                double rightStickX, double rightStickY) {
+        Command command = simpleJoystickToCommand(leftStickX, leftStickY,rightStickX, rightStickY);
+        return commandToWheels(command);
+    }
+
+
+
+
 }

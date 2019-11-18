@@ -238,6 +238,11 @@ public class RobotHardware extends OpMode {
         setPower(MotorName.DRIVE_BACK_RIGHT, wheels.backRight);
     }
 
+    public void setDriveForMecanumCommand(Mecanum.Command command) {
+        Mecanum.Wheels wheels = Mecanum.commandToWheels(command);
+        setDriveForMecanumWheels(wheels);
+    }
+
     /**
      * Sets mecanum drive chain power using simplistic calculations.
      *
@@ -460,6 +465,10 @@ public class RobotHardware extends OpMode {
         } else {
             return 0;
         }
+    }
+
+    public double getTime() {
+        return time;
     }
 
     /**
