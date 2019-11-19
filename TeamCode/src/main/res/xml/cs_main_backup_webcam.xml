@@ -13,7 +13,8 @@
             <Motor name="DRIVE_BACK_LEFT" port="2" />
             <Motor name="DRIVE_BACK_RIGHT" port="3" />
             <Servo name="AUTO_ARM" port="5" />
-            <LynxEmbeddedIMU name="imu 1" port="0" bus="0" />
+            <LynxEmbeddedIMU name="IMU_1" port="0" bus="0" />
         </LynxModule>
     </LynxUsbDevice>
+    <Webcam name="Webcam 1" serialNumber="2AB0BF1F" />
 </Robot>

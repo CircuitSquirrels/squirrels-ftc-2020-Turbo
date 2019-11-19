@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 
@@ -70,7 +72,11 @@ public class IMUUtilities {
 
     public void update() {
         // If IMU is missing, do nothing.
-        if (imu == null) {return;}
+        if (imu == null) {
+            opMode.telemetry.addData("", "IMU Missing");
+            Log.e("IMUUtilities", "IMU Missing");
+            return;
+        }
 
         // Update rate is limited by minUpdateDelay to prevent too many costly operations.
         // Updating this data is quite expensive.

@@ -253,12 +253,201 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     armStateExists = true;
                 }
                 if(stateMachine.getStateReference(ARM).arrived) {
-                    stateMachine.changeState(DRIVE, new A_Manual());
+                    stateMachine.changeState(DRIVE, new Backup_Foundation_A());
                 }
             }
         }
     }
 
+    class Backup_Foundation_A extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Scan_Position_B());
+            }
+        }
+    }
+
+    class Scan_Position_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+            stateMachine.changeState(ARM, new Lower_Open_Claw());
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_B), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Align_Skystone_B());
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for aligning in-front of the detected skystone
+     */
+    class Align_Skystone_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Grab_Skystone_B());
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for grabbing the detected skystone
+     */
+    class Grab_Skystone_B extends Executive.StateBase<AutoOpmode> {
+        boolean armStateCreated = false;
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_B), driveSpeed);
+            if(arrived) {
+                if(!armStateCreated) {
+                    stateMachine.changeState(ARM, new Lower_Close_Claw());
+                    armStateCreated = true;
+                }
+                if(stateMachine.getStateReference(ARM).arrived) {
+                    stateMachine.changeState(DRIVE, new Backup_Skystone_B());
+                }
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for backing up from the detected skystone to avoid knocking other stones over
+     */
+    class Backup_Skystone_B extends Executive.StateBase<AutoOpmode> {
+        boolean armStateCreated = false;
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if (stateTimer.seconds() > 1) {
+                if(!armStateCreated) {
+                    stateMachine.changeState(ARM, new Raise_Close_Claw());
+                    armStateCreated = true;
+                }
+                if (stateMachine.getStateReference(ARM).arrived) {
+                    arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), driveSpeed);
+                    if (arrived) {
+                        stateMachine.changeState(DRIVE, new Build_Zone_B());
+                    }
+                }
+            }
+        }
+    }
+
+    class Build_Zone_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
+
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Align_Foundation_B());
+            }
+        }
+    }
+
+    class Align_Foundation_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_B")) {
+                stateMachine.changeState(ARM, new Place_On_Foundation_B());
+            }
+            if(stateMachine.getStateReference(ARM).arrived) {
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+                if (arrived) {
+                    stateMachine.changeState(DRIVE, new Place_Foundation_B());
+                }
+            }
+        }
+    }
+
+    class Place_Foundation_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), driveSpeed);
+            if(arrived) {
+                if(!stateMachine.getCurrentStates(ARM).equals("openClaw")) {
+                    stateMachine.changeState(ARM, new openClaw());
+                }
+                if(stateMachine.getStateReference(ARM).arrived) {
+                    stateMachine.changeState(DRIVE, new Backup_Foundation_B());
+                }
+            }
+        }
+    }
+
+    class Backup_Foundation_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new A_Manual());
+            }
+        }
+    }
 
     class Raise_Open_Claw extends Executive.StateBase<AutoOpmode> {
         @Override
@@ -305,6 +494,23 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(arrived) {
                 opMode.openClaw();
             }
+        }
+    }
+
+    class Place_On_Foundation_B extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(2, true, true),liftSpeed);
+        }
+    }
+
+    class openClaw extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            opMode.openClaw();
         }
     }
 

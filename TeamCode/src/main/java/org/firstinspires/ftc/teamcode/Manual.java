@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.Executive;
+import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
@@ -73,6 +74,8 @@ public class Manual extends RobotHardware {
         stateMachine.changeState(DRIVE, new ManualArm());
         stateMachine.init();
 
+        imuUtilities = new IMUUtilities(this,"IMU_1");
+        imuUtilities.setCompensatedHeading(0);
         // Lock Interactive Init so it no longer receives inputs
         interactiveInit.lock();
 
@@ -101,6 +104,9 @@ public class Manual extends RobotHardware {
         double precisionOutput = precisionMode ? precisionSpeed : 1;
         telemetry.addData("Precision Mode", precisionMode);
 
+        imuUtilities.update();
+        telemetry.addData("IMU Heading: ", imuUtilities.getCompensatedHeading());
+
         // Mecanum Drive Control
         setDriveForSimpleMecanum(
                 Math.pow(controller1.left_stick_x, exponential) * driveSpeed * precisionOutput,
@@ -124,6 +130,7 @@ public class Manual extends RobotHardware {
 
         // Reset the robot's current position
         if(controller1.YOnce()) {
+            imuUtilities.setCompensatedHeading(0);
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
         }
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
