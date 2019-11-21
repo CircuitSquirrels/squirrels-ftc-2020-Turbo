@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
+import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -541,6 +542,22 @@ public class RobotHardware extends OpMode {
         if(withFoundation) liftTicks += Constants.LIFT_FOUNDATION_HEIGHT_TICKS;
         if(withKnob) liftTicks += Constants.LIFT_KNOB_HEIGHT_TICKS;
         return (int) liftTicks;
+    }
+
+    public double getSkystoneIndex(Waypoints waypoints) {
+        double skystone_absolute_x;
+        double bot_absolute_x;
+        double bot_relative_to_skystone_y;
+        double botOffset;
+
+        bot_absolute_x = mecanumNavigation.currentPosition.x;
+        bot_relative_to_skystone_y = simpleVision.getPositionSkystoneRelativeNav2d().y;
+        if (waypoints.getTeamColor() == Color.Ftc.BLUE) {
+            skystone_absolute_x = bot_absolute_x - bot_relative_to_skystone_y - 5;
+        } else {
+            skystone_absolute_x = bot_absolute_x + bot_relative_to_skystone_y + 5;
+        }
+        return waypoints.skystoneIndexFromX(skystone_absolute_x);
     }
 }
 

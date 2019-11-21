@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
+import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 
 
 /**
@@ -15,14 +17,21 @@ public class DiagnosticVision extends DiagnosticOpMode {
 
     SimpleVision simpleVision;
     private Thread thread;
+    Waypoints waypoints;
 
     @Override
     public void init() {
         super.init();
-
+        waypoints = new Waypoints(Color.Ftc.RED);
         thread = new Thread(new VisionLoader());
         thread.start();
         telemetry.addData("Diagnostic Vision Mode ", " Initialized");
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        mecanumNavigation.setCurrentPosition(waypoints.loading.get(Waypoints.LocationLoading.INITIAL_POSITION));
     }
 
     @Override
@@ -45,9 +54,9 @@ public class DiagnosticVision extends DiagnosticOpMode {
             telemetry.addData("Vuforia Skystone Nav2D",simpleVision.getPositionSkystoneRelativeNav2d());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
+            telemetry.addData("Skystone Index: ", getSkystoneIndex(waypoints));
         }
     }
-
 
     // Initialize vision in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
