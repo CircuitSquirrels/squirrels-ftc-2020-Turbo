@@ -548,7 +548,8 @@ public class RobotHardware extends OpMode {
         double skystone_absolute_x;
         double bot_absolute_x;
         double bot_relative_to_skystone_y;
-        double botOffset;
+
+        if(simpleVision == null) return 0;
 
         bot_absolute_x = mecanumNavigation.currentPosition.x;
         bot_relative_to_skystone_y = simpleVision.getPositionSkystoneRelativeNav2d().y;

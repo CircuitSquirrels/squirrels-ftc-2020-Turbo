@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 @TeleOp(name="Diagnostic Vision", group="Diagnostic")
 public class DiagnosticVision extends DiagnosticOpMode {
 
-    SimpleVision simpleVision;
     private Thread thread;
     Waypoints waypoints;
 
