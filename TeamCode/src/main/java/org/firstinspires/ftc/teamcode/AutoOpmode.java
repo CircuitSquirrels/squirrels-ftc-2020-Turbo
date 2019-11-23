@@ -33,6 +33,7 @@ public class AutoOpmode extends RobotHardware {
     //Interactive Init menu
     private InteractiveInit interactiveInit = null;
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+    public Mutable<Boolean> DropStones = new Mutable<>(true);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(true);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
@@ -102,7 +103,8 @@ public class AutoOpmode extends RobotHardware {
 
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
-        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
+        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
+        interactiveInit.addBoolean(DropStones, "Drop Stones",false, true);
         interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
