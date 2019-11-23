@@ -43,7 +43,7 @@ public class WaypointGenerationTest {
     @Test
     public void Waypoint_startPoint_not_null() {
         System.out.println("Start Test");
-        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE);
+        Waypoints waypoints = new Waypoints(Color.Ftc.RED);
         waypoints.setSkystoneDetectionPosition(1);
 
         Navigation2D alignmentA_n2d = waypoints.loading.get(ALIGNMENT_POSITION_A);
@@ -59,7 +59,7 @@ public class WaypointGenerationTest {
     @Test
     public void GenerateAllWaypoits() throws IOException {
         for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
-            Display_Waypoints(Color.Ftc.BLUE, startPosition, 0);
+            Display_Waypoints(Color.Ftc.RED, startPosition, 0);
         }
     }
 

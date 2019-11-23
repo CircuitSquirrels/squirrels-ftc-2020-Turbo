@@ -104,7 +104,7 @@ public class AutoOpmode extends RobotHardware {
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
-        interactiveInit.addBoolean(DropStones, "Drop Stones",false, true);
+        interactiveInit.addBoolean(DropStones, "Drop Stones",true, false);
         interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
