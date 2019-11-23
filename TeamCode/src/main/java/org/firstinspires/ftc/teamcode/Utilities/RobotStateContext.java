@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
@@ -114,7 +116,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_0), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_0), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if (!timerReset) {
                     stateTimer.reset();
@@ -147,7 +149,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_1), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_1), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if (!timerReset) {
                     stateTimer.reset();
@@ -180,7 +182,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Grab_Skystone_A());
             }
@@ -201,7 +203,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_A), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!armStateCreated) {
                     stateMachine.changeState(ARM, new Lower_Close_Claw());
@@ -234,7 +236,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     armStateCreated = true;
                 }
                 if (stateMachine.getStateReference(ARM).arrived) {
-                    arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), driveSpeed);
+                    arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed);
                     if (arrived) {
                         stateMachine.changeState(DRIVE, new Build_Zone_A());
                     }
@@ -256,7 +258,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), getDriveScale(stateTimer) * driveSpeed);
 
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Align_Foundation_A());
@@ -274,7 +276,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Place_Foundation_A());
             }
@@ -292,7 +294,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_A")) {
                     stateMachine.changeState(ARM, new Place_On_Foundation_A());
@@ -315,7 +317,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(ARM, new Lower_Open_Claw());
                 stateMachine.changeState(DRIVE, new Align_Skystone_B());
@@ -337,7 +339,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Grab_Skystone_B());
             }
@@ -358,7 +360,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_B), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(GRAB_SKYSTONE_B), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!armStateCreated) {
                     stateMachine.changeState(ARM, new Lower_Close_Claw());
@@ -391,7 +393,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     armStateCreated = true;
                 }
                 if (stateMachine.getStateReference(ARM).arrived) {
-                    arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), driveSpeed);
+                    arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
                     if (arrived) {
                         stateMachine.changeState(DRIVE, new Build_Zone_B());
                     }
@@ -410,7 +412,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(BUILD_ZONE), getDriveScale(stateTimer) * driveSpeed);
 
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Align_Foundation_B());
@@ -432,7 +434,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 stateMachine.changeState(ARM, new Place_On_Foundation_B());
             }
             if(stateMachine.getStateReference(ARM).arrived) {
-                arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
                 if (arrived) {
                     stateMachine.changeState(DRIVE, new Place_Foundation_B());
                 }
@@ -450,7 +452,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!stateMachine.getCurrentStates(ARM).equals("openClaw")) {
                     stateMachine.changeState(ARM, new openClaw());
@@ -473,7 +475,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new Park_Inner());
             }
@@ -490,7 +492,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new A_Manual());
             }
@@ -586,7 +588,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SIMPLE_ALIGNMENT_INNER), driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SIMPLE_ALIGNMENT_INNER), getDriveScale(stateTimer) * driveSpeed);
             else arrived = true;
             if(arrived) {
                 if(opMode.shouldContinue()) {
@@ -601,8 +603,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), driveSpeed);
-            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_OUTER), driveSpeed);
+            if(parkInner) arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), getDriveScale(stateTimer) * driveSpeed);
+            else arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_OUTER), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(DRIVE, new Stop_State());
@@ -655,6 +657,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             // TODO: Provide real building side routine. Move the foundation?
             nextState(DRIVE, new Simple_Park());
         }
+    }
+
+    public double getDriveScale(ElapsedTime stateTimer) {
+        double driveScale;
+        double speedDivider = 2.0; // No idea what a good name is
+        driveScale = stateTimer.seconds() / speedDivider;
+        driveScale = driveScale < 1.0 ? driveScale : 1.0;
+        return driveScale;
     }
 
 
