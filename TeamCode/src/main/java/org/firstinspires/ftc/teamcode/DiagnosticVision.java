@@ -51,9 +51,8 @@ public class DiagnosticVision extends DiagnosticOpMode {
             simpleVision.displayFormattedVumarkPose();
             telemetry.addData("VuForia Nav2D",simpleVision.getPositionAbsoluteNav2d());
             telemetry.addData("Vuforia Skystone Nav2D",simpleVision.getPositionSkystoneRelativeNav2d());
-            simpleVision.updateTensorFlow(false);
-            simpleVision.displayTensorFlowDetections();
-            telemetry.addData("Skystone Index: ", getSkystoneIndex(waypoints));
+            telemetry.addData("Skystone Index: ", getSkystoneIndex(waypoints))
+                    .addData("Skystone Index Rounded: ", Math.round(getSkystoneIndex(waypoints)));
         }
     }
 

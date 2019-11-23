@@ -235,7 +235,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         @Override
         public void init(Executive.StateMachine stateMachine) {
             super.init(stateMachine);
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(SCAN_POSITION_A));
+            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(SCAN_POSITION_A_0));
         }
 
         @Override

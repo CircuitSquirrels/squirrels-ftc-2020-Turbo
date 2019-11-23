@@ -95,27 +95,73 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             if(stateTimer.seconds() > 1 && opMode.shouldContinue() && simple) stateMachine.changeState(DRIVE, new Simple_Start());
-            else if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A());
+            else if(stateTimer.time() > 1 && opMode.shouldContinue()) stateMachine.changeState(DRIVE, new Scan_Position_A_0());
         }
     }
     /**
      * Loading Drive State
      * The state for scanning the first 3 stones to identify the skystone
      */
-    class Scan_Position_A extends Executive.StateBase<AutoOpmode> {
+    class Scan_Position_A_0 extends Executive.StateBase<AutoOpmode> {
+        boolean timerReset = false;
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
             opMode.updateMecanumHeadingFromGyroNow();
-            stateMachine.changeState(ARM, new Lower_Open_Claw());
+            stateMachine.changeState(ARM, new Raise_Open_Claw());
         }
 
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A), driveSpeed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_0), driveSpeed);
             if(arrived) {
-                stateMachine.changeState(DRIVE, new Align_Skystone_A());
+                if (!timerReset) {
+                    stateTimer.reset();
+                    timerReset = true;
+                }
+
+                if(stateTimer.seconds() > 2) {
+                    if (opMode.simpleVision.isSkystoneVisible()) {
+                        waypoints.setSkystoneDetectionPosition(2);
+                        stateMachine.changeState(DRIVE, new Align_Skystone_A());
+                    }
+                    stateMachine.changeState(DRIVE, new Scan_Position_A_1());
+                }
+            }
+        }
+    }
+    /**
+     * Loading Drive State
+     * The state for scanning the first 3 stones to identify the skystone
+     */
+    class Scan_Position_A_1 extends Executive.StateBase<AutoOpmode> {
+        boolean timerReset = false;
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+            stateMachine.changeState(ARM, new Raise_Open_Claw());
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_A_1), driveSpeed);
+            if(arrived) {
+                if (!timerReset) {
+                    stateTimer.reset();
+                    timerReset = true;
+                }
+
+                if(stateTimer.seconds() > 2) {
+                    if(opMode.simpleVision.isSkystoneVisible()) {
+                        waypoints.setSkystoneDetectionPosition(1);
+                    } else {
+                        waypoints.setSkystoneDetectionPosition(0);
+                    }
+                    stateMachine.changeState(DRIVE, new Align_Skystone_A());
+                }
             }
         }
     }
@@ -128,7 +174,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
             opMode.updateMecanumHeadingFromGyroNow();
-            waypoints.setSkystoneDetectionPosition(0);
+            stateMachine.changeState(ARM, new Lower_Open_Claw());
         }
 
         @Override
@@ -271,28 +317,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
             if(arrived) {
-                stateMachine.changeState(DRIVE, new Scan_Position_B());
-            }
-        }
-    }
-
-    class Scan_Position_B extends Executive.StateBase<AutoOpmode> {
-        @Override
-        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
-            super.init(stateMachine);
-            opMode.updateMecanumHeadingFromGyroNow();
-            stateMachine.changeState(ARM, new Lower_Open_Claw());
-        }
-
-        @Override
-        public void update() {
-            super.update();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(SCAN_POSITION_B), driveSpeed);
-            if(arrived) {
+                stateMachine.changeState(ARM, new Lower_Open_Claw());
                 stateMachine.changeState(DRIVE, new Align_Skystone_B());
             }
         }
     }
+
     /**
      * Loading Drive State
      * The state for aligning in-front of the detected skystone
@@ -424,8 +454,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(arrived) {
                 if(!stateMachine.getCurrentStates(ARM).equals("openClaw")) {
                     stateMachine.changeState(ARM, new openClaw());
+                    stateTimer.reset();
                 }
-                if(stateMachine.getStateReference(ARM).arrived) {
+                if(stateTimer.seconds() > 1) {
                     stateMachine.changeState(DRIVE, new Backup_Foundation_B());
                 }
             }
@@ -443,6 +474,23 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(FOUNDATION_ALIGNMENT), driveSpeed);
+            if(arrived) {
+                stateMachine.changeState(DRIVE, new Park_Inner());
+            }
+        }
+    }
+
+    class Park_Inner extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            opMode.updateMecanumHeadingFromGyroNow();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.loading.get(PARK_INNER), driveSpeed);
             if(arrived) {
                 stateMachine.changeState(DRIVE, new A_Manual());
             }
