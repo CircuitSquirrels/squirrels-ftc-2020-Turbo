@@ -31,7 +31,7 @@ For the curious: the cause of the incompatibility is the result of a bug in the 
      - Vuforia/TF datasets loaded dynamically
      - OnBotJava removed
 
- - **Ultra Turbo - 4MB APK** *(10x smaller!)*
+ - **Extreme Turbo - 4MB APK** *(10x smaller!)*
      - Vuforia native library loaded dynamically
      - Vuforia/TF datasets loaded dynamically
      - OnBotJava removed
@@ -109,6 +109,12 @@ tfod.loadModelFromFile("/sdcard/FIRST/DatasetName.tflite");
 
 
 ## Release Notes:
+
+### 5.3B
+
+Released on 22 November 2019
+
+ - Fix TFOD crash on stock due to incorrect version of TFOD library being used (which conflicted with pre-compiled official FTC SDK AARs)
 
 ### 5.3A
 
