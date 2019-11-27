@@ -27,3 +27,8 @@ dependencies {
     // CSV Write
     implementation group: 'com.opencsv', name: 'opencsv', version: '4.1'
 }
+
+dependencies {
+    //NOTE: this is the correct version, the below screenshot is outdated
+    compile 'org.openftc:rev-extensions-2:1.2'
+}
