@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -562,6 +563,32 @@ public class RobotHardware extends OpMode {
             setColorSensorLedEnabled(s, false);
         }
     }
+
+
+    public static double K_P = 2.5;
+    public static double K_I = 0.1;
+    public static double K_D = 0.2;
+    public static double K_F = 0.0;
+
+    public void initializePID() {
+        PIDFCoefficients pidfOrig = allMotors.get(driveMotorNames.get(0).ordinal()).getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        K_P = pidfOrig.p;
+        K_I = pidfOrig.i;
+        K_D = pidfOrig.d;
+        K_F = pidfOrig.f;
+    }
+
+    public void configureDriveMotorVelocityPID(double K_P, double K_I, double K_D, double K_F) {
+        for(MotorName motorName: driveMotorNames) {
+            configureMotorVelocityPID(motorName,K_P,K_I,K_D,K_F);
+        }
+    }
+
+    public void configureMotorVelocityPID(MotorName motorName, double K_P, double K_I, double K_D, double K_F) {
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(K_P,K_I,K_D,K_F);
+        allMotors.get(motorName.ordinal()).setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+    }
+
 
     public double degreesToRadians(double degrees) {
         return degrees * Math.PI / 180;
