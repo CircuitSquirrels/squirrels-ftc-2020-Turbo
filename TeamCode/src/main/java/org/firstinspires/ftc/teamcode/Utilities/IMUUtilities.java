@@ -43,9 +43,23 @@ public class IMUUtilities {
     private double lastUpdateSec = 0;
     private double minUpdateDelay = 1.0; // Seconds
 
+    private ImuMode imuMode;
+
+    public enum ImuMode {
+        FAST_HEADING_ONLY,
+        SLOW_ALL_MEASUREMENTS,
+    }
+
+
+    // Default to Fast, Heading only mode when not specified.
     public IMUUtilities(RobotHardware opMode, String imu_name) {
+        this(opMode,imu_name, ImuMode.FAST_HEADING_ONLY);
+    }
+
+    public IMUUtilities(RobotHardware opMode, String imu_name, ImuMode imuMode) {
         this.opMode = opMode;
-        imu = initializeIMU(this.opMode, imu_name);
+        this.imuMode = imuMode;
+        imu = initializeIMU(this.opMode, imu_name, imuMode);
         startIMU(imu);
     }
 
@@ -57,21 +71,24 @@ public class IMUUtilities {
         if (imu == null) {return;}
         lastUpdateSec = opMode.time;
 
-        imuSystemStatus = imu.getSystemStatus();
-        imuCalibrationStatus = imu.getCalibrationStatus();
-
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        gravity = imu.getGravity();
-        acceleration = imu.getLinearAcceleration();
         heading = angles.firstAngle;
         roll = angles.secondAngle;
         pitch = angles.thirdAngle;
-        xAccel = acceleration.xAccel;
-        yAccel = acceleration.yAccel;
-        zAccel = acceleration.zAccel;
-        headingChange = heading - previousHeading;
-        previousHeading = angles.firstAngle;
 
+        // Only grab non-heading info if running in slow mode.
+        if(imuMode == ImuMode.SLOW_ALL_MEASUREMENTS) {
+            imuSystemStatus = imu.getSystemStatus();
+            imuCalibrationStatus = imu.getCalibrationStatus();
+            gravity = imu.getGravity();
+
+            acceleration = imu.getLinearAcceleration();
+            xAccel = acceleration.xAccel;
+            yAccel = acceleration.yAccel;
+            zAccel = acceleration.zAccel;
+        }
+
+        // Unwrap compensated heading.
         headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
 
 //       if(headingChange > 180) {
@@ -105,7 +122,18 @@ public class IMUUtilities {
         // Uses class data from most recent update.
         // If IMU is missing, do nothing.
         if (imu == null) {return;}
-        displayIMUTelemetry(imuSystemStatus, imuCalibrationStatus, angles, gravity, acceleration, opMode);
+        switch (imuMode) {
+            case SLOW_ALL_MEASUREMENTS:
+                displayIMUTelemetry(imuSystemStatus, imuCalibrationStatus, angles, gravity, acceleration, opMode);
+                break;
+            case FAST_HEADING_ONLY:
+                opMode.telemetry.addLine()
+                        .addData("heading", formatAngle(angles.angleUnit, angles.firstAngle))
+                        .addData("roll", formatAngle(angles.angleUnit, angles.secondAngle))
+                        .addData("pitch", formatAngle(angles.angleUnit, angles.thirdAngle));
+                break;
+        }
+
         opMode.telemetry.addData("IMU data age", dataAge());
     }
 
@@ -117,7 +145,7 @@ public class IMUUtilities {
      * @param imu_name
      * @return
      */
-    static public BNO055IMU initializeIMU(RobotHardware opMode, String imu_name) {
+    static public BNO055IMU initializeIMU(RobotHardware opMode, String imu_name, ImuMode imuMode) {
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
         // provide positional information.
@@ -125,7 +153,11 @@ public class IMUUtilities {
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
+        if( imuMode == ImuMode.FAST_HEADING_ONLY) {
+            parameters.loggingEnabled = false;
+        } else {
+            parameters.loggingEnabled = true;
+        }
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
