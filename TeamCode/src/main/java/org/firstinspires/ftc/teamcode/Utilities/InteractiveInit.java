@@ -208,9 +208,7 @@ public class InteractiveInit {
     public void update() {
         displayMenu();
         telemetry.update();
-        if (interactiveMode) {
-            updateInputs();
-        }
+        updateInputs(); // Inputs active even when locked, to allow unlocking.
     }
 
     // Lock our selection and apply our selected settings
@@ -248,21 +246,24 @@ public class InteractiveInit {
         // Loop exits if gamepad not detected or opMode started.
         controller.update();
         if(gamepad1 != null) {
-            if (controller.dpadDownOnce()) {
-                ++cursor_location;
-                if (cursor_location >= numOptions())
-                    cursor_location = numOptions() - 1;
-            } else if (controller.dpadUpOnce()) {
-                --cursor_location;
-                if (cursor_location < 0)
-                    cursor_location = 0;
-            } else if (controller.dpadRightOnce()) {
-                nextOption();
-            } else if (controller.dpadLeftOnce()) {
-                prevOption();
-            } else if (controller.AOnce()) {
-                interactiveMode = false;
-            } else if (controller.BOnce()) {
+            if (interactiveMode == true) {
+                if (controller.dpadDownOnce()) {
+                    ++cursor_location;
+                    if (cursor_location >= numOptions())
+                        cursor_location = numOptions() - 1;
+                } else if (controller.dpadUpOnce()) {
+                    --cursor_location;
+                    if (cursor_location < 0)
+                        cursor_location = 0;
+                } else if (controller.dpadRightOnce()) {
+                    nextOption();
+                } else if (controller.dpadLeftOnce()) {
+                    prevOption();
+                } else if (controller.AOnce()) {
+                    interactiveMode = false;
+                }
+            } else // controls available while locked.
+                if (controller.BOnce()) {
                 interactiveMode = true;
             }
         }
