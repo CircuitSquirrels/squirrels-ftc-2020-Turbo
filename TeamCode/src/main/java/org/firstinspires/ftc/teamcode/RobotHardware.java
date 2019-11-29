@@ -19,6 +19,9 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
+import org.openftc.revextensions2.ExpansionHubEx;
+import org.openftc.revextensions2.ExpansionHubMotor;
+import org.openftc.revextensions2.RevBulkData;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -28,7 +31,14 @@ import java.util.Vector;
 public class RobotHardware extends OpMode {
 
     // All motors on the robot, in order of MotorName.
-    private ArrayList<DcMotor> allMotors;
+    private ArrayList<ExpansionHubMotor> allMotors;
+
+    // Expansion hubs and bulk reads
+    private ExpansionHubEx expansionHubDrive;
+    private ExpansionHubEx expansionHubArm;
+    private RevBulkData bulkDataDrive;
+    private RevBulkData bulkDataArm;
+
 
     // All servos on the robot, in order of ServoName.
     private ArrayList<Servo> allServos;
@@ -74,7 +84,7 @@ public class RobotHardware extends OpMode {
      * @param power The power to set [-1, 1].
      */
     public void setPower(MotorName motor, double power) {
-        DcMotor m = allMotors.get(motor.ordinal());
+        ExpansionHubMotor m = allMotors.get(motor.ordinal());
         if (m == null) {
             telemetry.addData("Motor Missing", motor.name() + ": " + df.format(power));
         } else {
@@ -89,7 +99,7 @@ public class RobotHardware extends OpMode {
      * @return Motor Power, or zero if it cannot be found.
      */
     public double getPower(MotorName motor) {
-        DcMotor m = allMotors.get(motor.ordinal());
+        ExpansionHubMotor m = allMotors.get(motor.ordinal());
         if (m == null) {
             telemetry.addData("Motor Missing: ", motor.name());
             return 0;
@@ -105,7 +115,7 @@ public class RobotHardware extends OpMode {
      * @return integer encoder position in ticks.
      */
     public int getEncoderValue(MotorName motor) {
-        DcMotor m = allMotors.get(motor.ordinal());
+        ExpansionHubMotor m = allMotors.get(motor.ordinal());
         if (m == null) {
             telemetry.addData("Motor Missing: ", motor.name());
             return 0;
@@ -128,7 +138,7 @@ public class RobotHardware extends OpMode {
      */
     public void resetAndStopAllMotors() {
         for (MotorName name : MotorName.values()) {
-            DcMotor motor = allMotors.get(name.ordinal());
+            ExpansionHubMotor motor = allMotors.get(name.ordinal());
             if (motor == null) {
                 telemetry.addData("Motor Missing: " ,name.name());
             } else {
@@ -147,7 +157,7 @@ public class RobotHardware extends OpMode {
      */
     protected void setDriveMotorsRunMode(DcMotor.RunMode runMode) {
         for (MotorName motor : driveMotorNames) {
-            DcMotor m = allMotors.get(motor.ordinal());
+            ExpansionHubMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
                 telemetry.addData("Motor Missing: ", motor.name());
             } else {
@@ -164,7 +174,7 @@ public class RobotHardware extends OpMode {
     protected void setDriveMotorsZeroPowerBraking(boolean zeroPowerBraking) {
         DcMotor.ZeroPowerBehavior brakingMode = zeroPowerBraking ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
         for (MotorName motor : driveMotorNames) {
-            DcMotor m = allMotors.get(motor.ordinal());
+            ExpansionHubMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
                 telemetry.addData("Motor Missing: ", motor.name());
             } else {
@@ -430,10 +440,10 @@ public class RobotHardware extends OpMode {
 
     public void init() {
 
-        allMotors = new ArrayList<DcMotor>();
+        allMotors = new ArrayList<ExpansionHubMotor>();
         for (MotorName m : MotorName.values()) {
             try {
-                allMotors.add(hardwareMap.get(DcMotor.class, m.name()));
+                allMotors.add(hardwareMap.get(ExpansionHubMotor.class, m.name()));
             } catch (Exception e) {
                 telemetry.addData("Motor Missing", m.name());
                 allMotors.add(null);
