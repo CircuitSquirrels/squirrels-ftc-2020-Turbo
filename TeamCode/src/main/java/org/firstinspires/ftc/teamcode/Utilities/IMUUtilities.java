@@ -49,8 +49,10 @@ public class IMUUtilities {
         startIMU(imu);
     }
 
-
+    private double previousHeading = 0;
+    private double headingChange = 0;
     public void updateNow() {
+
         // If IMU is missing, do nothing.
         if (imu == null) {return;}
         lastUpdateSec = opMode.time;
@@ -61,13 +63,14 @@ public class IMUUtilities {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         gravity = imu.getGravity();
         acceleration = imu.getLinearAcceleration();
-
         heading = angles.firstAngle;
         roll = angles.secondAngle;
         pitch = angles.thirdAngle;
         xAccel = acceleration.xAccel;
         yAccel = acceleration.yAccel;
         zAccel = acceleration.zAccel;
+        headingChange = heading - previousHeading;
+        previousHeading = angles.firstAngle;
     }
 
     public void update() {
@@ -250,6 +253,13 @@ public class IMUUtilities {
     private double finalHeading = 0;
 
    public void setCompensatedHeading(double compensatedHeadingDegrees) {
+       headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
+
+//       if(headingChange > 180) {
+//           headingCompensation -= 360;
+//       } else if(headingChange < -180) {
+//           headingCompensation += 360;
+//       }
        headingCompensation = compensatedHeadingDegrees - heading;
    }
 
