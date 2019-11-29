@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -120,7 +122,16 @@ public class RobotHardware extends OpMode {
             telemetry.addData("Motor Missing: ", motor.name());
             return 0;
         } else {
-            return m.getCurrentPosition();
+            if( bulkDataDrive != null &&
+                    (motor == MotorName.DRIVE_FRONT_LEFT || motor == MotorName.DRIVE_FRONT_RIGHT ||
+                     motor == MotorName.DRIVE_BACK_LEFT  || motor == MotorName.DRIVE_BACK_RIGHT)) {
+                return bulkDataDrive.getMotorCurrentPosition(m);
+            } else if( bulkDataArm != null && motor == MotorName.LIFT_WINCH) {
+                return bulkDataArm.getMotorCurrentPosition(m);
+            } else {
+                Log.w("RobotHardware","Not using bulk reads for motor: " + motor.toString());
+                return m.getCurrentPosition();
+            }
         }
     }
 
@@ -440,6 +451,10 @@ public class RobotHardware extends OpMode {
 
     public void init() {
 
+        // Setup expansion hubs for bulk reads.
+        expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+        expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+
         allMotors = new ArrayList<ExpansionHubMotor>();
         for (MotorName m : MotorName.values()) {
             try {
@@ -519,13 +534,22 @@ public class RobotHardware extends OpMode {
         period.reset(); // Reset timer
     }
 
+    public void init_loop() {
+        bulkDataDrive = expansionHubDrive.getBulkInputData();
+        bulkDataArm = expansionHubArm.getBulkInputData();
+    }
+
     public void start() {
         stopAllMotors();
+        bulkDataDrive = expansionHubDrive.getBulkInputData();
+        bulkDataArm = expansionHubArm.getBulkInputData();
         period.reset(); // Reset timer
     }
 
     public void loop() {
         updatePeriodTime();
+        bulkDataDrive = expansionHubDrive.getBulkInputData();
+        bulkDataArm = expansionHubArm.getBulkInputData();
     }
 
     public void stop() {
