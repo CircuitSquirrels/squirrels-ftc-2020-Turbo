@@ -71,6 +71,14 @@ public class IMUUtilities {
         zAccel = acceleration.zAccel;
         headingChange = heading - previousHeading;
         previousHeading = angles.firstAngle;
+
+        headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
+
+//       if(headingChange > 180) {
+//           headingCompensation -= 360;
+//       } else if(headingChange < -180) {
+//           headingCompensation += 360;
+//       }
     }
 
     public void update() {
@@ -253,13 +261,6 @@ public class IMUUtilities {
     private double finalHeading = 0;
 
    public void setCompensatedHeading(double compensatedHeadingDegrees) {
-       headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
-
-//       if(headingChange > 180) {
-//           headingCompensation -= 360;
-//       } else if(headingChange < -180) {
-//           headingCompensation += 360;
-//       }
        headingCompensation = compensatedHeadingDegrees - heading;
    }
 
