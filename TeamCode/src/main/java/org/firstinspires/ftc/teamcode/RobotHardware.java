@@ -470,6 +470,7 @@ public class RobotHardware extends OpMode {
         // Setup expansion hubs for bulk reads.
         expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
         expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+        initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
 
         allMotors = new ArrayList<ExpansionHubMotor>();
         for (MotorName m : MotorName.values()) {
@@ -602,6 +603,37 @@ public class RobotHardware extends OpMode {
     public void configureMotorVelocityPID(MotorName motorName, double K_P, double K_I, double K_D, double K_F) {
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(K_P,K_I,K_D,K_F);
         allMotors.get(motorName.ordinal()).setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        this.K_P = K_P;
+        this.K_I = K_I;
+        this.K_D = K_D;
+        this.K_F = K_F;
+    }
+
+    public enum ControlParameter {
+        P,I,D,F,
+    }
+
+    public void changeDriveControlParameterByFactor(ControlParameter controlParameter, double scaleFactor) {
+        if(scaleFactor < 0) return; // Error prevention.
+        double P,I,D,F;
+        P = this.K_P;
+        I = this.K_I;
+        D = this.K_D;
+        F = this.K_F;
+        switch (controlParameter) {
+            case P:
+                P *= scaleFactor;
+                break;
+            case I:
+                I *= scaleFactor;
+                break;
+            case D:
+                D *= scaleFactor;
+                break;
+            case F:
+                F *= scaleFactor;
+        }
+        configureDriveMotorVelocityPID(P,I,D,F);
     }
 
 

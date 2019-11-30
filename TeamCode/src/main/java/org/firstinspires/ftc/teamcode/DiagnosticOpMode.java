@@ -43,6 +43,9 @@ public class DiagnosticOpMode extends Manual {
         telemetry.addLine();
         showPIDFTelemetry();
         timingMonitor.checkpoint("Telemetry Displayed");
+
+        // Control Tuning
+        manualControlTuning();
     }
 
 
@@ -71,5 +74,21 @@ public class DiagnosticOpMode extends Manual {
                 .addData("I", K_I)
                 .addData("D", K_D)
                 .addData("F", K_F);
+    }
+
+    private void manualControlTuning() {
+        // Controls Damping factor with dpad up and down.  Sets to 0.1 if at 0.
+        // Every 10 presses of upDpad increases K_D by a factor of 10.
+        double adjustmentFactor = Math.pow(10,1/10); // 10 steps per decade
+        if(controller1.dpadUpOnce()) {
+            if(K_D == 0.0) {
+                configureDriveMotorVelocityPID(K_P,K_I,0.1,K_F);
+            } else {
+                changeDriveControlParameterByFactor(ControlParameter.D, adjustmentFactor);
+            }
+        }
+        if(controller1.dpadDownOnce()) {
+            changeDriveControlParameterByFactor(ControlParameter.D,1/adjustmentFactor);
+        }
     }
 }
