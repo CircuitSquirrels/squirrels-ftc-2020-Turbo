@@ -21,7 +21,7 @@ public class DiagnosticOpMode extends Manual {
     @Override
     public void init() {
         super.init();
-        imuHelper = new IMUUtilities(this, "IMU_1");
+        imuHelper = new IMUUtilities(this, "IMU_1", IMUUtilities.ImuMode.FAST_HEADING_ONLY);
         telemetry.addData("Diagnostic Mode ", " Initialized");
         timingMonitor = new TimingMonitor(this);
     }
@@ -31,7 +31,7 @@ public class DiagnosticOpMode extends Manual {
         timingMonitor.loopStart();
         super.loop();
         timingMonitor.checkpoint("Main Loop");
-        if (imuHelper.imu != null) imuHelper.update();
+        if (imuHelper.imu != null) imuHelper.updateNow();
         timingMonitor.checkpoint("IMU update");
         showDiagnosticTelemetry();
         telemetry.addLine();
