@@ -89,6 +89,8 @@ public class IMUUtilities {
         }
 
         // Unwrap compensated heading.
+        headingChange = heading - previousHeading;
+        previousHeading = angles.firstAngle;
         headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
 
 //       if(headingChange > 180) {
