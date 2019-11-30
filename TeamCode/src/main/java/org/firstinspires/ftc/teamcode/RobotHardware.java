@@ -80,6 +80,17 @@ public class RobotHardware extends OpMode {
         LIFT_WINCH
     }
 
+    public enum DriveMotors {
+        DRIVE_FRONT_LEFT,
+        DRIVE_FRONT_RIGHT,
+        DRIVE_BACK_LEFT,
+        DRIVE_BACK_RIGHT
+    }
+
+    public enum ArmMotors {
+        LIFT_WINCH
+    }
+
     /**
      * Sets the power of the motor.
      *
@@ -119,20 +130,24 @@ public class RobotHardware extends OpMode {
      */
     public int getEncoderValue(MotorName motor) {
         ExpansionHubMotor m = allMotors.get(motor.ordinal());
-        if (m == null) {
+        if(m != null) {
+            for (DriveMotors driveMotors : DriveMotors.values()) {
+                if(bulkDataDrive == null) break;
+                if(driveMotors.name().equals(motor.name())) {
+                    return bulkDataDrive.getMotorCurrentPosition(m);
+                }
+            }
+            for (ArmMotors armMotors : ArmMotors.values()) {
+                if(bulkDataArm == null) break;
+                if(armMotors.name().equals(motor.name())) {
+                    return bulkDataArm.getMotorCurrentPosition(m);
+                }
+            }
+            Log.w("RobotHardware","Not using bulk reads for motor: " + motor.toString());
+            return m.getCurrentPosition();
+        } else {
             telemetry.addData("Motor Missing: ", motor.name());
             return 0;
-        } else {
-            if( bulkDataDrive != null &&
-                    (motor == MotorName.DRIVE_FRONT_LEFT || motor == MotorName.DRIVE_FRONT_RIGHT ||
-                     motor == MotorName.DRIVE_BACK_LEFT  || motor == MotorName.DRIVE_BACK_RIGHT)) {
-                return bulkDataDrive.getMotorCurrentPosition(m);
-            } else if( bulkDataArm != null && motor == MotorName.LIFT_WINCH) {
-                return bulkDataArm.getMotorCurrentPosition(m);
-            } else {
-                Log.w("RobotHardware","Not using bulk reads for motor: " + motor.toString());
-                return m.getCurrentPosition();
-            }
         }
     }
 

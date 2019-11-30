@@ -31,43 +31,33 @@ public class DiagnosticOpMode extends Manual {
         timingMonitor.loopStart();
         super.loop();
         timingMonitor.checkpoint("Main Loop");
-        if (imuHelper.imu != null) imuHelper.updateNow();
-        timingMonitor.checkpoint("IMU update");
         showDiagnosticTelemetry();
-        telemetry.addLine();
-        if (imuHelper.imu != null) imuHelper.displayTelemetry();
-        telemetry.addData("IMU Rotation",imuHelper.heading);
+        if (imuHelper.imu != null) {
+            telemetry.addLine("****IMU Telemetry****");
+            imuHelper.updateNow();
+            timingMonitor.checkpoint("IMU update");
+            imuHelper.displayTelemetry();
+        }
         telemetry.addLine();
         timingMonitor.displayMaxTimes();
         telemetry.addLine();
+        showPIDFTelemetry();
         timingMonitor.checkpoint("Telemetry Displayed");
     }
 
 
-    public void showDiagnosticTelemetry() {
-
+    private void showDiagnosticTelemetry() {
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
-
-        // Show color sensor telemetry only if sensor is attached
-//        if (colorSensorExists(ColorSensorName.MINERAL_COLOR)) {
-//            displayColorSensorTelemetry();
-//        }
-
-        // Display all ODS sensor light levels
-//        for (OpticalDistanceSensorName o : OpticalDistanceSensorName.values()) {
-//            telemetry.addData(o.name(), df_prec.format(getOpticalDistanceSensorLightLevel(o)));
-//        }
-
-        telemetry.addLine(); // Create Space
+        telemetry.addLine();
 
         // Display all servo positions
         for (ServoName s : ServoName.values()) {
             telemetry.addData(s.name(), df.format(getAngle(s)));
         }
 
-        telemetry.addLine(); // Create Space
+        telemetry.addLine();
 
         // Display all motor encoder values
         for (MotorName m : MotorName.values()) {
@@ -75,5 +65,11 @@ public class DiagnosticOpMode extends Manual {
         }
     }
 
-
+    private void showPIDFTelemetry() {
+        telemetry.addLine()
+                .addData("P", K_P)
+                .addData("I", K_I)
+                .addData("D", K_D)
+                .addData("F", K_F);
+    }
 }

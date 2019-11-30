@@ -87,18 +87,23 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void init() {
         super.init();
-        timingMonitor = new TimingMonitor(AutoOpmode.this);
-        timingMonitor.disable();
+
         controller1 = new Controller(gamepad1);
+
         thread = new Thread(new VisionLoader());
         thread.start();
-        // Only initialize the imu if it is going to be used.
+
         imuUtilities = new IMUUtilities(this,"IMU_1");
+
         if(!robotColor.equals(Color.Ftc.UNKNOWN)) {
             robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
         } else {
             robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
         }
+
+        timingMonitor = new TimingMonitor(AutoOpmode.this);
+        timingMonitor.disable();
+
         telemetry.addData("Initialization: ", "Successful!");
 
         // Initialization Menu
@@ -156,17 +161,21 @@ public class AutoOpmode extends RobotHardware {
     public void loop() {
         timingMonitor.loopStart();
         if(controller1.start()) { timingMonitor.reset();} // Clear with start button
+
         super.loop();
         timingMonitor.checkpoint("POST super.loop()");
+
         controller1.update();
         timingMonitor.checkpoint("POST controller.update()");
+
         mecanumNavigation.update();
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
+
         robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
+
         if ( imuUtilities != null ) {
             imuUtilities.update();
-            imuUtilities.getCompensatedHeading();
             timingMonitor.checkpoint("POST imuUtilities.update()");
         }
 
@@ -200,7 +209,6 @@ public class AutoOpmode extends RobotHardware {
             telemetry.addData("Vision Not Loaded", "");
         }
         timingMonitor.checkpoint("POST Vision");
-        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LIFT_WINCH));
     }
 
     @Override
@@ -215,7 +223,6 @@ public class AutoOpmode extends RobotHardware {
     // Initialize vuforia in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
         public void run() {
-
             //TODO Might need to use trackables, the second to last boolean.
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
                     true, false,true,
@@ -233,7 +240,7 @@ public class AutoOpmode extends RobotHardware {
         constantsWriter.addFieldToRecord("wheelbase_length_in", Constants.WHEELBASE_LENGTH_IN);
         constantsWriter.addFieldToRecord("wheelbase_k", Math.abs(Constants.WHEELBASE_LENGTH_IN/2.0)
                 + Math.abs(Constants.WHEELBASE_WIDTH_IN/2.0));
-        constantsWriter.addFieldToRecord("drive_wheel_steps_per_rotation", (double)Constants.DRIVE_WHEEL_STEPS_PER_ROT);
+        constantsWriter.addFieldToRecord("drive_wheel_steps_per_rotation", (double) Constants.DRIVE_WHEEL_STEPS_PER_ROT);
         constantsWriter.completeRecord();
         constantsWriter.close();
     }
