@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
-import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
+import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
 
 public class AutoOpmode extends RobotHardware {
 

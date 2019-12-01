@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
-import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
+import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
 
 
 /**
