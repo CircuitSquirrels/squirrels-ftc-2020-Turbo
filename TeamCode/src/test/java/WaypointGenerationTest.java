@@ -6,7 +6,9 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
 import org.junit.Test;
+import org.opencv.imgcodecs.Imgcodecs;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -34,6 +36,8 @@ public class WaypointGenerationTest {
         // Convert theta radians to degrees to make debugging easier.
         assertThat(Math.toDegrees(first_n2d.theta)).isEqualTo(Math.toDegrees(second_n2d.theta));
     }
+
+    String WAYPOINT_OUTPUT_PATH = "./TestData/waypoint_output/";
 
     @Test
     public void WaypointsDefinedForAllCases() {
@@ -85,6 +89,7 @@ public class WaypointGenerationTest {
         }
 
         String filename_waypointCSV =
+                WAYPOINT_OUTPUT_PATH +
                 waypoints.getTeamColor().toString() + "_" +
                 startPosition.toString() + "_" +
                 waypoints.getSkystoneDetectionPosition() + ".csv";
@@ -93,6 +98,13 @@ public class WaypointGenerationTest {
     }
 
     private void writeWaypointCSV(String filename,List<LabeledWaypoint> labeledWaypoints) throws IOException {
+        File file = new File(filename);
+        File directory = new File(file.getParent());
+//        System.out.println(directory.getPath());
+        if(!directory.exists()) {
+            directory.mkdir();
+        }
+
         FileWriter csvWriter = new FileWriter(filename);
 
         try {
