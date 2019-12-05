@@ -79,7 +79,7 @@ public class DiagnosticOpMode extends Manual {
     private void manualControlTuning() {
         // Controls Damping factor with dpad up and down.  Sets to 0.1 if at 0.
         // Every 10 presses of upDpad increases K_D by a factor of 10.
-        double adjustmentFactor = Math.pow(10,1/10); // 10 steps per decade
+        double adjustmentFactor = Math.pow(10.0,1.0/10.0); // 10 steps per decade
         if(controller1.dpadUpOnce()) {
             if(K_D == 0.0) {
                 configureDriveMotorVelocityPID(K_P,K_I,0.1,K_F);
@@ -88,7 +88,7 @@ public class DiagnosticOpMode extends Manual {
             }
         }
         if(controller1.dpadDownOnce()) {
-            changeDriveControlParameterByFactor(ControlParameter.D,1/adjustmentFactor);
+            changeDriveControlParameterByFactor(ControlParameter.D,1.0/adjustmentFactor);
         }
     }
 }

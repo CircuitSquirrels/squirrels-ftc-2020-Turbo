@@ -8,6 +8,6 @@
 /captures
 .externalNativeBuild
 
-/TeamCode/*.csv
-
-*.xlsx
+/TeamCode/TestData/**/*.xlsx
+/TeamCode/TestData/**/*.csv
+/TeamCode/TestData/openCV_output/*
