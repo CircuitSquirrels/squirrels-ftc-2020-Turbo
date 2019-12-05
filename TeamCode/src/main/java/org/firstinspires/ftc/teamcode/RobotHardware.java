@@ -615,6 +615,13 @@ public class RobotHardware extends OpMode {
 
     public void changeDriveControlParameterByFactor(ControlParameter controlParameter, double scaleFactor) {
         if(scaleFactor < 0) return; // Error prevention.
+        double currentValue = getSingleDriveControlParameter(controlParameter);
+        setSingleDriveControlParameter(controlParameter, currentValue * scaleFactor);
+    }
+
+
+    public void setSingleDriveControlParameter(ControlParameter controlParameter, double newValue) {
+        if(newValue < 0) return; // Error prevention.
         double P,I,D,F;
         P = this.K_P;
         I = this.K_I;
@@ -622,18 +629,32 @@ public class RobotHardware extends OpMode {
         F = this.K_F;
         switch (controlParameter) {
             case P:
-                P *= scaleFactor;
+                P = newValue;
                 break;
             case I:
-                I *= scaleFactor;
+                I = newValue;
                 break;
             case D:
-                D *= scaleFactor;
+                D = newValue;
                 break;
             case F:
-                F *= scaleFactor;
+                F = newValue;
         }
         configureDriveMotorVelocityPID(P,I,D,F);
+    }
+
+    public double getSingleDriveControlParameter(ControlParameter controlParameter) {
+        switch (controlParameter) {
+            case P:
+                return this.K_P;
+            case I:
+                return this.K_I;
+            case D:
+                return this.K_D;
+            case F:
+            default:
+                return this.K_F;
+        }
     }
 
 

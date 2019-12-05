@@ -7,6 +7,10 @@ import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
+import java.util.function.BinaryOperator;
+import java.util.function.BooleanSupplier;
+import java.util.function.IntBinaryOperator;
+
 
 /**
  * Created by Ashley on 12/14/2017.
@@ -80,15 +84,42 @@ public class DiagnosticOpMode extends Manual {
         // Controls Damping factor with dpad up and down.  Sets to 0.1 if at 0.
         // Every 10 presses of upDpad increases K_D by a factor of 10.
         double adjustmentFactor = Math.pow(10.0,1.0/10.0); // 10 steps per decade
-        if(controller1.dpadUpOnce()) {
-            if(K_D == 0.0) {
-                configureDriveMotorVelocityPID(K_P,K_I,0.1,K_F);
+
+        // Hold left trigger to modify the PIDF parameters.
+        if(controller1.left_trigger > 0.5) {
+            singlePIDFParameterTuning(ControlParameter.P, controller1.dpadUpOnce(), controller1.dpadDownOnce(),0.1, adjustmentFactor);
+            singlePIDFParameterTuning(ControlParameter.I, controller1.dpadRightOnce(), controller1.dpadLeftOnce  (),0.1, adjustmentFactor);
+            singlePIDFParameterTuning(ControlParameter.D, controller1.rightBumperOnce(), controller1.leftBumperOnce(),0.1, adjustmentFactor);
+            singlePIDFParameterTuning(ControlParameter.F, controller1.YOnce(), controller1.XOnce(),0.1, adjustmentFactor);
+        }
+        telemetry.addData("Tune P:","Dpad Up/Down")
+                .addData("Tune I:","Dpad Right/Left")
+                .addData("Tune D:","Bumpers Right/Left")
+                .addData("Tune F:","Increase Y / Decrease X");
+    }
+
+
+    private void singlePIDFParameterTuning(ControlParameter controlParameter,
+                                           boolean upOp, boolean downOp,
+                                           double minNonZeroValue, double adjustmentFactor) {
+        double currentValue = getSingleDriveControlParameter(controlParameter);
+        if(upOp) {
+            if (currentValue == 0.0) {
+                setSingleDriveControlParameter(controlParameter,minNonZeroValue);
             } else {
-                changeDriveControlParameterByFactor(ControlParameter.D, adjustmentFactor);
+                changeDriveControlParameterByFactor(controlParameter,adjustmentFactor);
+            }
+        } else if (downOp) {
+            if (currentValue <= minNonZeroValue) {
+                setSingleDriveControlParameter(controlParameter,0.0);
+            } else {
+                changeDriveControlParameterByFactor(controlParameter,1.0/adjustmentFactor);
             }
         }
-        if(controller1.dpadDownOnce()) {
-            changeDriveControlParameterByFactor(ControlParameter.D,1.0/adjustmentFactor);
-        }
+    }
+
+
+    public interface BooleanFunction {
+         boolean getBoolean();
     }
 }
