@@ -77,12 +77,24 @@ public class opencvSkystoneDetector extends LinearOpMode {
             telemetry.addData("Height", rows);
             telemetry.addData("Width", cols);
 
+            telemetry.addData("Skystone Position: ", returnSkystoneIndex());
+
             telemetry.update();
             sleep(100);
             //call movement functions
 //            strafe(0.4, 200);
 //            moveDistance(0.4, 700);
 
+        }
+    }
+
+    public int returnSkystoneIndex() {
+        if(valLeft == 0) {
+            return 0;
+        } else if(valMid == 0) {
+            return 1;
+        } else {
+            return 2;
         }
     }
 

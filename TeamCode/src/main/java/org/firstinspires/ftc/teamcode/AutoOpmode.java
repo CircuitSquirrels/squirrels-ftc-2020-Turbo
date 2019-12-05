@@ -141,9 +141,10 @@ public class AutoOpmode extends RobotHardware {
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-        robotStateContext.init(); //After mecanum init, because state init could reference mecanumNavigation.
 
         interactiveInit.lock();
+
+        robotStateContext.init(); //After mecanum init, because state init could reference mecanumNavigation.
 
         if(RecordTelemetry.get()) {
             csvWriter = new CSV(this);

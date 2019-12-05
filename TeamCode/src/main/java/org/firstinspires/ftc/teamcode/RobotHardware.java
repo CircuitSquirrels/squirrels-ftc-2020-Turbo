@@ -470,7 +470,6 @@ public class RobotHardware extends OpMode {
         // Setup expansion hubs for bulk reads.
         expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
         expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
-        initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
 
         allMotors = new ArrayList<ExpansionHubMotor>();
         for (MotorName m : MotorName.values()) {
@@ -490,6 +489,7 @@ public class RobotHardware extends OpMode {
         driveMotorNames.add(MotorName.DRIVE_BACK_RIGHT);
 
         resetAndStopAllMotors();
+        initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
 
         // Set motor directions.
         try {
