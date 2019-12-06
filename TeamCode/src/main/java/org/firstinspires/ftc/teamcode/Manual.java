@@ -49,7 +49,7 @@ public class Manual extends RobotHardware {
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0);
+        interactiveInit.addDouble(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
         interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
@@ -187,7 +187,7 @@ public class Manual extends RobotHardware {
 
     public boolean gotoManualArmControl() {
         double threshold = 0.1;
-        return Math.abs(clawController.left_stick_y) > threshold;
+        return Math.abs(clawController.right_stick_y) > threshold;
     }
 
     public class ManualArm extends Executive.StateBase<Manual> {
