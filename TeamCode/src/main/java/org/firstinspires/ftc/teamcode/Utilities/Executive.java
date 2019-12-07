@@ -51,9 +51,14 @@ public class Executive {
             this.opMode = opMode;
         }
 
-        public void changeState(StateType stateType, StateBase state) {
+        public void changeState(boolean isActive, StateType stateType, StateBase state) {
+            if (!isActive) return;
             stateMap.put(stateType, state);
             state.init(this);
+        }
+
+        public void changeState(StateType stateType, StateBase state) {
+            changeState(true, stateType, state);
         }
 
         public void removeStateType(StateType stateType) {
