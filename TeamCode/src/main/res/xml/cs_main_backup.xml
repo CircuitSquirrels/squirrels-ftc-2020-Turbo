@@ -8,10 +8,10 @@
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
         </LynxModule>
         <LynxModule name="Expansion Hub 2" port="2">
-            <goBILDA5202SeriesMotor name="DRIVE_FRONT_LEFT" port="0" />
-            <goBILDA5202SeriesMotor name="DRIVE_FRONT_RIGHT" port="1" />
-            <goBILDA5202SeriesMotor name="DRIVE_BACK_LEFT" port="2" />
-            <goBILDA5202SeriesMotor name="DRIVE_BACK_RIGHT" port="3" />
+            <Motor name="DRIVE_FRONT_LEFT" port="0" />
+            <Motor name="DRIVE_FRONT_RIGHT" port="1" />
+            <Motor name="DRIVE_BACK_LEFT" port="2" />
+            <Motor name="DRIVE_BACK_RIGHT" port="3" />
             <Servo name="AUTO_ARM" port="5" />
             <LynxEmbeddedIMU name="IMU_1" port="0" bus="0" />
         </LynxModule>
