@@ -103,7 +103,7 @@ public class Manual extends RobotHardware {
         if(controller1.AOnce()) precisionMode = !precisionMode;
         double precisionOutput = precisionMode ? precisionSpeed : 1;
         telemetry.addData("Precision Mode", precisionMode);
-
+        
         imuUtilities.update();
         telemetry.addData("IMU Heading: ", imuUtilities.getCompensatedHeading());
 
@@ -187,9 +187,10 @@ public class Manual extends RobotHardware {
 
     public boolean gotoManualArmControl() {
         double threshold = 0.1;
-        return Math.abs(clawController.right_stick_y) > threshold;
+        if(copilotEnabled) return Math.abs(clawController.right_stick_y) > threshold;
+        else return Math.abs(clawController.left_stick_y) > threshold;
     }
-
+    boolean arrived = false;
     public class ManualArm extends Executive.StateBase<Manual> {
         @Override
         public void update() {
@@ -215,8 +216,8 @@ public class Manual extends RobotHardware {
         @Override
         public void update() {
             super.update();
-            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 0, lifterSpeed);
-            if(gotoManualArmControl()) {
+            arrived = autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 0, lifterSpeed);
+            if(gotoManualArmControl() || arrived) {
                 stateMachine.changeState(DRIVE, new ManualArm());
             } else if (clawController.XOnce()) {
                 stateMachine.changeState(DRIVE, new ArmLifted());
@@ -228,8 +229,8 @@ public class Manual extends RobotHardware {
         @Override
         public void update() {
             super.update();
-            autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 1300, lifterSpeed);
-            if(gotoManualArmControl()) {
+            arrived = autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 1300, lifterSpeed);
+            if(gotoManualArmControl() || arrived) {
                 stateMachine.changeState(DRIVE, new ManualArm());
             } else if(clawController.YOnce()) {
                 stateMachine.changeState(DRIVE, new ArmBottom());
