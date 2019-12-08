@@ -40,7 +40,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     }
 
     public void init() {
-        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Start_State());
+        stateMachine.changeState(DRIVE, new Start_State());
 
         stateMachine.init();
 
