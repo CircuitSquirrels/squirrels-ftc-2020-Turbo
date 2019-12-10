@@ -89,6 +89,8 @@ public class SinglePixelPipeline extends TernarySkystonePipeline
     @Override
     public Mat processFrame(Mat input)
     {
+        lastInputImage = input.clone();
+
         contoursList.clear();
         /*
          * This pipeline finds the contours of yellow blobs such as the Gold Mineral

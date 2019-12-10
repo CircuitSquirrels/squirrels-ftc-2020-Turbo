@@ -110,8 +110,28 @@ public class VisionTest {
         Imgcodecs.imwrite(IMAGE_WRITE_PATH + "pipeline.jpg",outputMat);
         testPipeline.getStatus();
         System.out.println(testPipeline.getSkystoneRelativeLocation());
+//        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
     }
 
+
+    public void createFolders() {
+        Integer imageNumber = 0;
+        File directory = new File(IMAGE_WRITE_PATH +"/folderTest/");
+        if(!directory.exists()) {
+            directory.mkdir();
+        }
+
+        File writeLocation = new File(directory.getPath() + "/" + "img_" + imageNumber.toString() + ".jpg");
+        while(writeLocation.exists()) {
+            ++imageNumber;
+            writeLocation = new File(directory.getPath() + "/" + "img_" + imageNumber.toString() + ".jpg");
+
+        }
+        System.out.println(directory.getPath());
+        System.out.println(writeLocation.getPath());
+        Imgcodecs.imwrite(writeLocation.getPath(),input);
+
+    }
 
 
     private Mat cropAndResize(Mat input, int fx, int fy) {

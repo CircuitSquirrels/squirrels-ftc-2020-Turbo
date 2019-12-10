@@ -4,13 +4,38 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.io.File;
 
 public abstract class TernarySkystonePipeline extends OpenCvPipeline {
 
     public abstract SkystoneRelativeLocation getSkystoneRelativeLocation();
 
     public abstract void getStatus();
+
+    public Mat lastInputImage;
+
+    Integer imageNumber = 0;
+    public void saveInputImage(String folderPath) {
+
+        File directory = new File(folderPath);
+        if(!directory.exists()) {
+            directory.mkdir();
+        }
+
+        File writeLocation;
+        do {
+            ++imageNumber;
+            writeLocation = new File(directory.getPath() + "/" + "capturedImage_" +
+                    imageNumber.toString() + ".jpg");
+        } while(writeLocation.exists());
+        Imgcodecs.imwrite(writeLocation.getPath(), lastInputImage);
+    }
+
+
+
 
     /**
      * Data Class for storing the normalized sizes and locations

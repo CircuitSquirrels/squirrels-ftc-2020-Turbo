@@ -22,7 +22,7 @@ public class SkystoneDetector {
     HardwareMap hardwareMap;
     Color.Ftc teamColor;
     public OpenCvCamera webcam;
-    TernarySkystonePipeline ternarySkystonePipeline;
+    public TernarySkystonePipeline ternarySkystonePipeline;
 
     private final int rows = 640;
     private final int cols = 480;

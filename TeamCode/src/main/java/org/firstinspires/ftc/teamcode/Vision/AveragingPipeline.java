@@ -98,6 +98,7 @@ public class AveragingPipeline extends TernarySkystonePipeline
     @Override
     public Mat processFrame(Mat input)
     {
+        lastInputImage = input.clone();
         // Ensure that pixel locations are scaled to the current input image resolution.
         sampleLocationsPx.scaleSamplingPixelsToImageSizeAndNormalizedLocations(input,normalizedLocations);
 
