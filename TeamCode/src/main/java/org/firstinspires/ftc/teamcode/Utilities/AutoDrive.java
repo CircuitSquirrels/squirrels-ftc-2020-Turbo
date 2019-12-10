@@ -86,6 +86,33 @@ public class AutoDrive {
 
     }
 
+    public boolean driveToPositionTranslateOnly(MecanumNavigation.Navigation2D targetPosition, double rate) {
+        double distanceThresholdInches = 0.5;
+        rate = Range.clip(rate,0,1);
+        MecanumNavigation.Navigation2D currentPosition =
+                (MecanumNavigation.Navigation2D)mecanumNavigation.currentPosition.clone();
+        MecanumNavigation.Navigation2D deltaPosition = targetPosition.minusEquals(currentPosition);
+        double deltaDistance = Math.sqrt( Math.pow(deltaPosition.x,2) + Math.pow(deltaPosition.y,2));
+
+        double rateScale;
+        // Not Close enough to target, keep moving
+        if (Math.abs(deltaPosition.x) > distanceThresholdInches ||
+                Math.abs(deltaPosition.y) > distanceThresholdInches) {
+            MecanumNavigation.Navigation2D translationTarget = (MecanumNavigation.Navigation2D)currentPosition.clone();
+            translationTarget.x = targetPosition.x;
+            translationTarget.y = targetPosition.y;
+            Mecanum.Wheels wheels = mecanumNavigation.deltaWheelsFromPosition(targetPosition);
+            rateScale = rampDown(deltaDistance, 10, 1, 0.05);
+            wheels = wheels.scaleWheelPower(rateScale * rate);
+            opMode.setDriveForMecanumWheels(wheels);
+            return false;
+        } else {  // Close enough
+            opMode.setDriveForMecanumWheels(new Mecanum.Wheels(0,0,0,0));
+            return true;
+        }
+
+    }
+
     static public double rampDown(double errSignal, double signalRampDownThreshold, double maxRatio, double minRatio) {
         // Error Check: Swap values to ensure max >= min
         if (maxRatio < minRatio) {
