@@ -185,7 +185,6 @@ public class SinglePixelPipeline extends TernarySkystonePipeline
         }
     }
 
-    @Override
     public SkystoneRelativeLocation getSkystoneRelativeLocation() {
         int maxValue = Math.max(Math.max(valLeft,valMid),valLeft);
         if(valLeft == maxValue) {

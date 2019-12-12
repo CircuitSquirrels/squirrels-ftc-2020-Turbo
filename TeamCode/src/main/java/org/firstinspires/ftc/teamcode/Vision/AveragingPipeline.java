@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.Vision;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 /*
- * An example image processing pipeline to be run upon receipt of each frame from the camera.
+ * An image processing pipeline to be run upon receipt of each frame from the camera.
  * Note that the processFrame() method is called serially from the frame worker thread -
  * that is, a new camera frame will not come in while you're still processing a previous one.
  * In other words, the processFrame() method will never be called multiple times simultaneously.
@@ -27,33 +29,53 @@ public class AveragingPipeline extends TernarySkystonePipeline
 {
 
     // Relative Sampling locations. Values normalized to image size, from [0,1].
-    private SampleLocationsNormalized normalizedLocations;
+    public ArrayList<NormalizedRectangle> scanRegions = new ArrayList<>();
+    NormalizedRectangle backgroundRegion = new NormalizedRectangle();
+    public NormalizedValue lineThickness = new NormalizedValue(0.01);
+    public NormalizedValue markerSize = new NormalizedValue(0.03);
 
-    public SampleLocationsNormalized getNormalizedLocations() {
-        return normalizedLocations;
-    }
-
-    public void setNormalizedLocations(SampleLocationsNormalized sampleLocationsNormalized) {
-        this.normalizedLocations = sampleLocationsNormalized;
-    }
 
     public AveragingPipeline() {
-        double height = 0.55;
-        SampleLocationsNormalized sampleLocationsNormalized =
-                new SampleLocationsNormalized();
-        sampleLocationsNormalized.leftPosition = new Point(0.25,height);
-        sampleLocationsNormalized.centerPosition = new Point(0.5,height);
-        sampleLocationsNormalized.rightPosition = new Point(0.75,height);
-        sampleLocationsNormalized.blockSize = new Point(0.12, 0.12);
-        sampleLocationsNormalized.backgroundSize = new Point(0.7, 0.12);
-        sampleLocationsNormalized.lineThickness = 0.01;
-        sampleLocationsNormalized.markerSize = 0.03;
-        this.normalizedLocations = sampleLocationsNormalized;
-
+        double yPosition = 0.55;
+        double[] normalizedSize = {0.10,0.08};
+        double[] backgroundSize = {0.7,0.12};
+        scanRegions.add(new NormalizedRectangle(0.25,yPosition,normalizedSize[0],normalizedSize[1]));
+        scanRegions.add(new NormalizedRectangle(0.5,yPosition,normalizedSize[0],normalizedSize[1]));
+        scanRegions.add(new NormalizedRectangle(0.75,yPosition,normalizedSize[0],normalizedSize[1]));
+        backgroundRegion = new NormalizedRectangle(0.5,yPosition,backgroundSize[0],backgroundSize[1]);
+        this.lineThickness = new NormalizedValue(0.005);
+        this.markerSize = new NormalizedValue(0.03);
     }
 
-    public AveragingPipeline(SampleLocationsNormalized sampleLocationsNormalized) {
-        this.normalizedLocations = sampleLocationsNormalized;
+    public AveragingPipeline(ArrayList<NormalizedRectangle> scanRegions, NormalizedRectangle backgroundRegion, NormalizedValue lineThickness, NormalizedValue markerSize) {
+        // Warning: these are copied by reference
+        this.scanRegions = (ArrayList) scanRegions.clone();
+        this.backgroundRegion = (NormalizedRectangle) backgroundRegion.clone();
+        this.lineThickness = (NormalizedValue) lineThickness.clone();
+        this.markerSize = (NormalizedValue) markerSize.clone();
+    }
+
+    // Infer background size from normalized regions.
+    public AveragingPipeline(ArrayList<NormalizedRectangle> scanRegions) {
+        // Warning: these are copied by reference
+        this.scanRegions = (ArrayList<NormalizedRectangle>) scanRegions.clone();
+        // Default values for line and marker sizes.
+        this.lineThickness = new NormalizedValue(0.005);
+        this.markerSize = new NormalizedValue(0.03);
+
+        // Calculate a background rectangle which will overlap the sample regions.
+        Double[] minXY = {1.0,1.0};
+        Double[] maxXY = {0.0,0.0};
+        for(NormalizedRectangle scanRegion: scanRegions) {
+            minXY[0] = Math.min(minXY[0],scanRegion.centerXY.getNormalizedX()-scanRegion.sizeXY.getNormalizedX()/2.0);
+            maxXY[0] = Math.max(maxXY[0],scanRegion.centerXY.getNormalizedX()+scanRegion.sizeXY.getNormalizedX()/2.0);
+            minXY[1] = Math.min(minXY[1],scanRegion.centerXY.getNormalizedY()-scanRegion.sizeXY.getNormalizedY()/2.0);
+            maxXY[1] = Math.max(maxXY[1],scanRegion.centerXY.getNormalizedY()+scanRegion.sizeXY.getNormalizedY()/2.0);
+        }
+        // Calculate average x,y center position:
+        double[] averageCenterXY = {(maxXY[0] + minXY[0]) / 2.0, (maxXY[1] + minXY[1]) / 2.0};
+        double[] sizeXY = {maxXY[0] - minXY[0],maxXY[1] - minXY[1]};
+        this.backgroundRegion = new NormalizedRectangle(averageCenterXY[0], averageCenterXY[1], sizeXY[0], sizeXY[1]);
     }
 
     /*
@@ -68,39 +90,48 @@ public class AveragingPipeline extends TernarySkystonePipeline
     // CV intermediate products
     private Mat YCrCb = new Mat();
     private Mat Cb = new Mat();
-    private Mat subMat1;
-    private Mat subMat2;
-    private Mat subMat3;
-    private Mat subMatBackground;
+    private Mat subMat;
+
     private int min;
-    private int avg1;
-    private int avg2;
-    private int avg3;
-    private int avgBackground;
+    private int minIndex;
+    private ArrayList<Integer> avgArray = new ArrayList<>();
+    private int backgroundAvg = 0;
+
+
 
     public void getStatus() {
-        System.out.println(avg1 + " , " + avg2 + " , " + avg3 + " , " + avgBackground);
+        System.out.print("Scans: ");
+        for(Integer thisAvg : avgArray) {
+            System.out.print(thisAvg.toString() + ", ");
+        }
+        System.out.println("Background: " + backgroundAvg);
         //return new ArrayList<>(avg1,avg2,avg3,avgBackground);
     }
 
-    // Sampling pixel locations
-    private SampleLocationsPx sampleLocationsPx = new SampleLocationsPx();
+    public ArrayList<Integer> getData() {
+        ArrayList<Integer> tempArray = (ArrayList)avgArray.clone();
+        return tempArray;
+    }
 
-    // Output
-    private SkystoneRelativeLocation skystoneRelativeLocation = SkystoneRelativeLocation.UNKNOWN;
-    private int position = 0; // output position
-    public int getPosition() {
-        return position;
+    public Integer getBackground() {
+        return backgroundAvg;
+    }
+
+    public ArrayList<Integer> getAllData() {
+        ArrayList<Integer> tempArray = (ArrayList)avgArray.clone();
+        tempArray.add(backgroundAvg);
+        return tempArray;
     }
 
 
+    public int getMinIndex() {
+        return minIndex;
+    }
 
     @Override
     public Mat processFrame(Mat input)
     {
         lastInputImage = input.clone();
-        // Ensure that pixel locations are scaled to the current input image resolution.
-        sampleLocationsPx.scaleSamplingPixelsToImageSizeAndNormalizedLocations(input,normalizedLocations);
 
 
         // Convert the image from RGB to YCrCb
@@ -109,77 +140,60 @@ public class AveragingPipeline extends TernarySkystonePipeline
         // Extract the Cb channel from the image
         Core.extractChannel(YCrCb, Cb, 2);
 
-        // The the sample areas from the Cb channel
-        subMat1 = Cb.submat(sampleLocationsPx.leftRect);
-        subMat2 = Cb.submat(sampleLocationsPx.centerRect);
-        subMat3 = Cb.submat(sampleLocationsPx.rightRect);
-        subMatBackground = Cb.submat(sampleLocationsPx.backgroundRect);
+        // Colors for drawing regions
+        Scalar scanRectangleColor = new Scalar(0, 0, 255);
+        Scalar backgroundRectangleColor = new Scalar(255, 0, 0);
 
-        // Average the sample areas
-        avg1 = (int)Core.mean(subMat1).val[0];
-        avg2 = (int)Core.mean(subMat2).val[0];
-        avg3 = (int)Core.mean(subMat3).val[0];
-        avgBackground = (int)Core.mean(subMatBackground).val[0];
+        ArrayList<Integer> tempAvgArray = new ArrayList<>();
+        for(NormalizedRectangle normalizedRectangle: scanRegions) {
+            // Select Sample Area
+            subMat = Cb.submat(normalizedRectangle.getOpenCVRectangle(input));
+            // Average the sample areas and store in array
+            tempAvgArray.add((int)Core.mean(subMat).val[0]);
+            // Draw rectangles around the sample areas
+            Imgproc.rectangle(input, normalizedRectangle.getOpenCVRectangle(input), scanRectangleColor, (int) Math.ceil(lineThickness.getPixelScaledValue(input)));
+        }
+        avgArray = tempAvgArray;
 
-        // Draw rectangles around the sample areas
-        Scalar rectangleColor = new Scalar(0, 0, 255);
-        Scalar backgroundColor = new Scalar(255, 0, 0);
-        Imgproc.rectangle(input, sampleLocationsPx.leftRect, rectangleColor, sampleLocationsPx.lineThickness);
-        Imgproc.rectangle(input, sampleLocationsPx.centerRect, rectangleColor, sampleLocationsPx.lineThickness);
-        Imgproc.rectangle(input, sampleLocationsPx.rightRect, rectangleColor, sampleLocationsPx.lineThickness);
-        Imgproc.rectangle(input, sampleLocationsPx.backgroundRect, backgroundColor, sampleLocationsPx.lineThickness/3);
+        // Repeat above steps for the background area
+        subMat = Cb.submat(backgroundRegion.getOpenCVRectangle(input));
+        backgroundAvg = (int)Core.mean(subMat).val[0];
+        Imgproc.rectangle(input, backgroundRegion.getOpenCVRectangle(input), backgroundRectangleColor, (int) Math.ceil(lineThickness.getPixelScaledValue(input)/3.0));
 
         // Figure out which sample zone had the lowest contrast from blue (lightest color)
-        min = Math.min(avg1, Math.min(avg2, avg3));
+        min = Collections.min(avgArray);
+
+        minIndex = 0;
+        for(Integer average: avgArray) {
+            if(min == average) {
+                break;
+            } else {
+                ++minIndex;
+            }
+        }
 
         // Draw a circle on the detected skystone
         Scalar markerColor = new Scalar(255,52,235);
-        if(min == avg1) {
-            sampleLocationsPx.skystone = sampleLocationsPx.leftPosition;
-            position = 1;
-        } else if(min == avg2) {
-            sampleLocationsPx.skystone = sampleLocationsPx.centerPosition;
-            position = 2;
-        } else if(min == avg3) {
-            sampleLocationsPx.skystone = sampleLocationsPx.rightPosition;
-            position = 3;
+
+        boolean singleRegion = false;
+        if(singleRegion) {
+            Imgproc.circle(input, scanRegions.get(minIndex).centerXY.getOpenCvPoint(input),
+                    (int) Math.ceil(markerSize.getPixelScaledValue(input)), markerColor, -1);
         } else {
-            position = 1;
+           for(int i = 0; i < avgArray.size(); ++i)  {
+              if (avgArray.get(i) < backgroundAvg) {
+                  Imgproc.circle(input, scanRegions.get(i).centerXY.getOpenCvPoint(input),
+                          (int) Math.ceil(markerSize.getPixelScaledValue(input)), markerColor, -1);
+              }
+           }
         }
-        Imgproc.circle(input, sampleLocationsPx.skystone, sampleLocationsPx.markerSize, markerColor, -1);
+
 
         // Free the allocated submat memory
-        subMat1.release();
-        subMat1 = null;
-        subMat2.release();
-        subMat2 = null;
-        subMat3.release();
-        subMat3 = null;
-        subMatBackground.release();
-        subMatBackground = null;
+        subMat.release();
+        subMat = null;
 
         return input;
     }
 
-    @Override
-    public SkystoneRelativeLocation getSkystoneRelativeLocation() {
-        // TODO: Ensure the enum locations are correct, based on the positions.
-        switch (position) {
-            case 0:
-                skystoneRelativeLocation = SkystoneRelativeLocation.UNKNOWN;
-                break;
-            case 1:
-                skystoneRelativeLocation = SkystoneRelativeLocation.LEFT;
-                break;
-            case 2:
-            default:
-                skystoneRelativeLocation = SkystoneRelativeLocation.CENTER;
-                break;
-            case 3:
-                skystoneRelativeLocation = SkystoneRelativeLocation.RIGHT;
-                break;
-        }
-
-        return skystoneRelativeLocation;
-    }
 }

@@ -12,9 +12,8 @@ import java.io.File;
 
 public abstract class TernarySkystonePipeline extends OpenCvPipeline {
 
-    public abstract SkystoneRelativeLocation getSkystoneRelativeLocation();
-
     public abstract void getStatus();
+
 
     public Mat lastInputImage;
 
@@ -49,163 +48,187 @@ public abstract class TernarySkystonePipeline extends OpenCvPipeline {
 
 
 
-    /**
-     * Data Class for storing the normalized sizes and locations
-     * of regions to scan for the skystone.
-     * Measurements are normalized to the height and width of the input image.
-      */
-    public static class SampleLocationsNormalized {
-
-        // Center locations of 3 sample regions
-        public Point leftPosition;
-        public Point centerPosition;
-        public Point rightPosition;
-        // Sample region size
-        public Point blockSize;
-        public Point backgroundSize;
-        public double lineThickness = -1;
-        public double markerSize = -1;
-
-        public boolean pixelScaleApplied = false;
-
-        SampleLocationsNormalized() {
-
-        }
-
-
-        SampleLocationsNormalized(Point leftPosition, Point centerPosition, Point rightPosition,
-                                  Point blockSize, Point backgroundSize,
-                                  double lineThickness, double markerSize) {
-            this.leftPosition = leftPosition;
-            this.centerPosition = centerPosition;
-            this.rightPosition = rightPosition;
-            this.blockSize = blockSize;
-            this.backgroundSize = backgroundSize;
-            this.lineThickness = lineThickness;
-            this.markerSize = markerSize;
-        }
-
-        /**
-         * Validate all data values.
-         * None should be null, all should be [0,1],
-         * and half the sizes plus any position should not be outside [0,1]
-          * @return
-         */
-        public boolean isValid() {
-            boolean notNull;
-            boolean withinRange;
-            boolean compoundRange;
-
-            // Not null
-            notNull =
-                    (leftPosition != null) &&
-                    (centerPosition != null) &&
-                    (rightPosition != null) &&
-                    (blockSize != null) &&
-                    (backgroundSize != null) &&
-                    (lineThickness > 0) &&
-                    (markerSize > 0);
-
-            // Verify range of values, including compound ranges.
-            withinRange = (leftPosition.x >= 0) && (leftPosition.x <= 1) && (leftPosition.y >= 0) && (leftPosition.y <=1) &&
-            (rightPosition.x >= 0) && (rightPosition.x <= 1) && (rightPosition.y >= 0) && (rightPosition.y <=1) &&
-            (blockSize.x >= 0) && (blockSize.x <= 1) && (blockSize.y >= 0) && (blockSize.y <=1) &&
-            (backgroundSize.x >= 0) && (backgroundSize.x <= 1) && (backgroundSize.y >= 0) && (backgroundSize.y <=1) &&
-            lineThickness >= 0 && lineThickness <=1 &&
-            markerSize >= 0 && markerSize <=1;
-
-
-            // Compound sizes
-            double minX = Math.min(Math.min(leftPosition.x,centerPosition.x),rightPosition.x);
-            double minY = Math.min(Math.min(leftPosition.y,centerPosition.y),rightPosition.y);
-            double maxX = Math.max(Math.max(leftPosition.x,centerPosition.x),rightPosition.x);
-            double maxY = Math.max(Math.max(leftPosition.y,centerPosition.y),rightPosition.y);
-            double maxOffsetX = Math.max(blockSize.x,backgroundSize.x);
-            double maxOffsetY = Math.max(blockSize.y,backgroundSize.y);
-
-            compoundRange =
-                ((minX - blockSize.x/2) >= 0) &&
-                ((maxX + blockSize.x/2) <= 1) &&
-                ((minY - blockSize.y/2) >= 0) &&
-                ((maxY + blockSize.y/2) <= 1) &&
-                ((centerPosition.x - backgroundSize.x/2) >= 0) &&
-                ((centerPosition.x + backgroundSize.x/2) <= 1) &&
-                ((centerPosition.y - backgroundSize.y/2) >= 0) &&
-                ((centerPosition.y + backgroundSize.y/2) <= 1);
-
-            return notNull && withinRange && compoundRange;
-        }
-    }
-
-    /**
-     * Pixel based locations of sample regions
+    /*
+    Functions for handling normalized values, scaling them, and converting them to openCv Rectangles
      */
-    class SampleLocationsPx {
-
-        private Size imageSizeScaling = new Size(0,0); // Not scaled by default.
-        private boolean pixelsScaled = false;
-
-        // New System
-        Point leftPosition;
-        Point centerPosition;
-        Point rightPosition;
-        Size blockSize;
-        Size backgroundSize;
-
-        // Rectangles for regions of interest
-        Rect leftRect;
-        Rect centerRect;
-        Rect rightRect;
-        Rect backgroundRect;
-
-        public Point skystone = new Point();
-
-        public int lineThickness = 1;
-        public int markerSize = 10;
 
 
-        SampleLocationsPx() {
+    /**
+     * A single value in the range [0.0,1.0], which is scaled to pixelSize of an image.
+     */
+    static public class NormalizedValue implements Cloneable{
+        private double normalizedValue = 0.0;
+
+        public NormalizedValue() {
         }
 
-        SampleLocationsPx(Mat input,SampleLocationsNormalized sampleLocationsNormalized) {
-            scaleSamplingPixelsToImageSizeAndNormalizedLocations(input,sampleLocationsNormalized);
+        public NormalizedValue(double normalizedValue) {
+            // Throw an exception if input value is not between 0.0 and 1.0, inclusive.
+            setNormalizedValue(normalizedValue);
         }
 
-
-
-        public void scaleSamplingPixelsToImageSizeAndNormalizedLocations(Mat input, SampleLocationsNormalized sampleLocationsNormalized) {
-            Size currentSize = new Size(input.width(),input.height());
-            if(currentSize.equals(imageSizeScaling) && pixelsScaled && sampleLocationsNormalized.pixelScaleApplied) return;
-            // else, resize as needed.
-            assert(sampleLocationsNormalized.isValid());
-
-            int imageWidth = input.width();
-            int imageHeight = input.height();
-            int maxLength = Math.max(imageHeight,imageWidth);
-            leftPosition = new Point(imageWidth * sampleLocationsNormalized.leftPosition.x, imageHeight * sampleLocationsNormalized.leftPosition.y);
-            centerPosition = new Point(imageWidth * sampleLocationsNormalized.centerPosition.x, imageHeight * sampleLocationsNormalized.centerPosition.y);
-            rightPosition = new Point(imageWidth * sampleLocationsNormalized.rightPosition.x, imageHeight * sampleLocationsNormalized.rightPosition.y);
-            blockSize = new Size(imageWidth * sampleLocationsNormalized.blockSize.x, imageHeight * sampleLocationsNormalized.blockSize.y);
-            backgroundSize = new Size(imageWidth * sampleLocationsNormalized.backgroundSize.x, imageHeight * sampleLocationsNormalized.backgroundSize.y);
-
-            leftRect = getCenteredRect(leftPosition,blockSize);
-            centerRect = getCenteredRect(centerPosition,blockSize);
-            rightRect = getCenteredRect(rightPosition,blockSize);
-            backgroundRect = getCenteredRect(centerPosition,backgroundSize);
-
-            this.lineThickness = (int) Math.ceil(maxLength * sampleLocationsNormalized.lineThickness);
-            this.markerSize = (int) Math.ceil(maxLength * sampleLocationsNormalized.markerSize);
-
-            pixelsScaled = true;
-            imageSizeScaling = new Size(input.width(), input.height());
-            sampleLocationsNormalized.pixelScaleApplied = true;
+        void setNormalizedValue(double normalizedValue) {
+            // Throw an exception if input value is not between 0.0 and 1.0, inclusive.
+            if(normalizedValue < 0.0 || normalizedValue > 1.0) {
+                throw new RuntimeException("NormalizedValue out of bounds: " + String.valueOf(normalizedValue));
+            }
+            this.normalizedValue = normalizedValue;
         }
 
+        public double getNormalizedValue() {
+            return normalizedValue;
+        }
+
+        public double getPixelScaledValue(int pixelSizeMax) {
+            return normalizedValue * (double) pixelSizeMax;
+        }
+
+        public double getPixelScaledValue(Mat input) {
+            int pixelSizeMax = Math.max(input.height(),input.width());
+            return getPixelScaledValue(pixelSizeMax);
+        }
+
+        @Override
+        public Object clone()
+        {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
-    public Rect getCenteredRect(Point point, Size size) {
-        Point topLeftCorner = new Point(point.x - size.width/2, point.y - size.height/2);
-        return new Rect(topLeftCorner,size);
+    /**
+     * A ordered pair of normalized values, suitable for use as XY
+     */
+    static public class NormalizedPair implements Cloneable{
+        private NormalizedValue x = new NormalizedValue();
+        private NormalizedValue y = new NormalizedValue();
+
+        public NormalizedPair() {
+        }
+
+        public NormalizedPair(double x, double y) {
+            this.x.setNormalizedValue(x);
+            this.y.setNormalizedValue(y);
+        }
+
+        public NormalizedPair(NormalizedValue x, NormalizedValue y) {
+            this.x.setNormalizedValue(x.getNormalizedValue());
+            this.y.setNormalizedValue(y.getNormalizedValue());
+        }
+
+        public void setX(double x) {
+            this.x.setNormalizedValue(x);
+        }
+
+        public void setY(double y) {
+            this.y.setNormalizedValue(y);
+        }
+
+        public void setXY(double x, double y) {
+            this.x.setNormalizedValue(x);
+            this.y.setNormalizedValue(y);
+        }
+
+        public double getNormalizedX() {
+            return this.x.getNormalizedValue();
+        }
+
+        public double getNormalizedY() {
+            return this.y.getNormalizedValue();
+        }
+
+        public double getPixelScaledX(int pixelMax) {
+            return this.x.getPixelScaledValue(pixelMax);
+        }
+
+        public double getPixelScaledX(Mat input) {
+            int pixelMax = input.width();
+            return this.x.getPixelScaledValue(pixelMax);
+        }
+
+        public double getPixelScaledY(int pixelMax) {
+            return this.y.getPixelScaledValue(pixelMax);
+        }
+
+        public double getPixelScaledY(Mat input) {
+            int pixelMax = input.height();
+            return this.y.getPixelScaledValue(pixelMax);
+        }
+
+        public Point getOpenCvPoint(Mat input) {
+            return new Point(getPixelScaledX(input), getPixelScaledY(input));
+        }
+
+        public Size getOpenCvSize(Mat input) {
+            return new Size(getPixelScaledX(input), getPixelScaledY(input));
+        }
+
+
+        @Override
+        public Object clone()
+        {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Stores the center position and size of a rectangle as normalized values, and returns them
+     * either pixel scaled, or as relevant openCV objects.
+     */
+    static public class NormalizedRectangle implements Cloneable{
+        public NormalizedPair centerXY = new NormalizedPair(0.5,0.5);
+        public NormalizedPair sizeXY = new NormalizedPair(0.0,0.0);
+
+        public NormalizedRectangle() {}
+
+        public NormalizedRectangle(double center_x_normalized, double center_y_normalized,
+                                   double size_x_normalized, double size_y_normalized) {
+            centerXY.setXY(center_x_normalized,center_y_normalized);
+            sizeXY.setXY(size_x_normalized,size_y_normalized);
+            //errorChecking();
+        }
+
+        public NormalizedRectangle(double[] center_xy_normalized, double[] size_xy_normalized) {
+            this(center_xy_normalized[0], center_xy_normalized[1],size_xy_normalized[0],size_xy_normalized[1]);
+        }
+
+        private void errorChecking() {
+            assert(centerXY.getNormalizedX() - sizeXY.getNormalizedX()/2.0 >= 0.0);
+            assert(centerXY.getNormalizedX() + sizeXY.getNormalizedX()/2.0 <= 1.0);
+            assert(centerXY.getNormalizedY() - sizeXY.getNormalizedY()/2.0 >= 0.0);
+            assert(centerXY.getNormalizedY() + sizeXY.getNormalizedY()/2.0 <= 1.0);
+        }
+
+        public Rect getOpenCVRectangle(Mat input) {
+            Rect leftRect = getCenteredRect(centerXY.getOpenCvPoint(input),sizeXY.getOpenCvSize(input));
+            return leftRect;
+        }
+
+        public Rect getCenteredRect(Point point, Size size) {
+            Point topLeftCorner = new Point(point.x - size.width/2, point.y - size.height/2);
+            return new Rect(topLeftCorner,size);
+        }
+
+
+        @Override
+        public Object clone()
+        {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
 
