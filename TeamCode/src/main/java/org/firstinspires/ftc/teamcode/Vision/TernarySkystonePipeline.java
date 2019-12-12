@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Vision;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -30,6 +31,17 @@ public abstract class TernarySkystonePipeline extends OpenCvPipeline {
             ++imageNumber;
             writeLocation = new File(directory.getPath() + "/" + "capturedImage_" +
                     imageNumber.toString() + ".jpg");
+        } while(writeLocation.exists());
+        Imgcodecs.imwrite(writeLocation.getPath(), lastInputImage);
+    }
+
+    // Save using settings file folder.
+    public void saveInputImage() {
+        File writeLocation;
+        do {
+            ++imageNumber;
+            String imageFilename = "capturedImage_" + imageNumber.toString() + ".jpg";
+            writeLocation = AppUtil.getInstance().getSettingsFile(imageFilename);
         } while(writeLocation.exists());
         Imgcodecs.imwrite(writeLocation.getPath(), lastInputImage);
     }

@@ -2,11 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
 import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
+
+import java.io.File;
+
 
 
 /**
@@ -19,6 +24,8 @@ public class DiagnosticVision extends DiagnosticOpMode {
     private Thread thread;
     Waypoints waypoints;
     SkystoneDetector skystoneDetector;
+    boolean useSettingsDirectory = false;
+    boolean settingsDirectoryTriedAndFailed = false;
 
     @Override
     public void init() {
@@ -54,8 +61,36 @@ public class DiagnosticVision extends DiagnosticOpMode {
                     .addData("Press A"," to save an image")
                     .addData("Image Number", skystoneDetector.ternarySkystonePipeline.lastInputImage);
 
+
+
+
+            try {
+                File whatever = AppUtil.getInstance().getSettingsFile("whatever.txt");
+                File settingsDirectory = new File(whatever.getParent());
+                telemetry.addData("Settings Directory:", settingsDirectory.getAbsoluteFile());
+                useSettingsDirectory = true;
+                if(settingsDirectoryTriedAndFailed) {
+                    telemetry.addData("Settings Write: ", "Tried and failed, attempting appData");
+                }
+            } catch (Exception e) {
+                telemetry.addData("Exception: ", "Unable to get settings file directory");
+            }
+
+
             if(controller1.AOnce()) {
-                skystoneDetector.ternarySkystonePipeline.saveInputImage("/sdcard/FIRST/images/");
+                if (useSettingsDirectory && !settingsDirectoryTriedAndFailed) {
+                    // Save into settings directory
+                    try {
+                        skystoneDetector.ternarySkystonePipeline.saveInputImage();
+                    } catch (Exception e) {
+                        settingsDirectoryTriedAndFailed = true;
+                        skystoneDetector.ternarySkystonePipeline.saveInputImage(".");
+                    }
+                } else {
+                    // Lack permissions for: "/sdcard/FIRST/images/" so this should save to appdata.
+                    // attempting to save to the current folder, which may be appdata.
+                    skystoneDetector.ternarySkystonePipeline.saveInputImage(".");
+                }
             }
         }
 

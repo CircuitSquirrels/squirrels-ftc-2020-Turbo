@@ -113,10 +113,9 @@ public class VisionTest {
 //        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
     }
 
-
     public void createFolders() {
         Integer imageNumber = 0;
-        File directory = new File(IMAGE_WRITE_PATH +"/folderTest/");
+        File directory = new File(IMAGE_WRITE_PATH);
         if(!directory.exists()) {
             directory.mkdir();
         }
