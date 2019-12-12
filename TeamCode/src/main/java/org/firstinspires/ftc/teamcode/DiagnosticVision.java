@@ -98,6 +98,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
     // Initialize vision in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
         public void run() {
+            skystoneDetector = new SkystoneDetector(DiagnosticVision.this, Color.Ftc.BLUE);
             skystoneDetector.init(new AveragingPipeline());
         }
     }
