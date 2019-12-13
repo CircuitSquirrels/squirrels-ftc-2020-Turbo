@@ -141,8 +141,8 @@ public class AveragingPipeline extends TernarySkystonePipeline
         Core.extractChannel(YCrCb, Cb, 2);
 
         // Colors for drawing regions
-        Scalar scanRectangleColor = new Scalar(0, 0, 255);
-        Scalar backgroundRectangleColor = new Scalar(255, 0, 0);
+        Scalar scanRectangleColor = new Scalar(255, 0, 0);
+        Scalar backgroundRectangleColor = new Scalar(0, 0, 255);
 
         ArrayList<Integer> tempAvgArray = new ArrayList<>();
         for(NormalizedRectangle normalizedRectangle: scanRegions) {
@@ -181,7 +181,7 @@ public class AveragingPipeline extends TernarySkystonePipeline
                     (int) Math.ceil(markerSize.getPixelScaledValue(input)), markerColor, -1);
         } else {
            for(int i = 0; i < avgArray.size(); ++i)  {
-              if (avgArray.get(i) < backgroundAvg) {
+              if (avgArray.get(i) > backgroundAvg) {
                   Imgproc.circle(input, scanRegions.get(i).centerXY.getOpenCvPoint(input),
                           (int) Math.ceil(markerSize.getPixelScaledValue(input)), markerColor, -1);
               }

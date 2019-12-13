@@ -63,10 +63,10 @@ public class SkystoneDetector {
 
 
     static public AveragingPipeline getAveragingPipelineForBlue() {
-        double normalizedImageLocationY = 0.55; // Vertical position, from top, [0.0,1.0]
-        double[] stone_size_inches_xy = {7.5,3.5}; // Size of the block
+        double normalizedImageLocationY = 0.53; // Vertical position, from top, [0.0,1.0]
+        double[] stone_size_inches_xy = {5.0,3.0}; // Size of the block
         double distance_inches = 25.0;
-        double leftStoneOffsetFromRobot_inches = 4.75;
+        double leftStoneOffsetFromRobot_inches = 1.5;
         int[] stoneIndexRangeFromLeft_0To2 = {0,2};
        return getAveragingPipelineFromGeometry(normalizedImageLocationY,stone_size_inches_xy,
                distance_inches, leftStoneOffsetFromRobot_inches,stoneIndexRangeFromLeft_0To2);
@@ -76,11 +76,11 @@ public class SkystoneDetector {
     // If neither see the skystone, it must be assumed to be on the left,
     // which is position 0 for red side.
     static public AveragingPipeline getAveragingPipelineForRed() {
-        double normalizedImageLocationY = 0.55; // Vertical position, from top, [0.0,1.0]
-        double[] stone_size_inches_xy = {7.5,3.5}; // Size of the block
+        double normalizedImageLocationY = 0.53; // Vertical position, from top, [0.0,1.0]
+        double[] stone_size_inches_xy = {5.0,3.0}; // Size of the block
         double distance_inches = 25.0;
-        double leftStoneOffsetFromRobot_inches = 11.25;
-        int[] stoneIndexRangeFromLeft_0To2 = {1,2};
+        double leftStoneOffsetFromRobot_inches = 7.5;
+        int[] stoneIndexRangeFromLeft_0To2 = {0,2};
         return getAveragingPipelineFromGeometry(normalizedImageLocationY,stone_size_inches_xy,
                 distance_inches, leftStoneOffsetFromRobot_inches,stoneIndexRangeFromLeft_0To2);
     }
@@ -167,26 +167,26 @@ public class SkystoneDetector {
     // Static to make unit testing easier.
     static public SkystoneRelativeLocation getSkystoneRelativeLocation(AveragingPipeline averagingPipeline, Color.Ftc teamColor) {
         SkystoneRelativeLocation skystoneRelativeLocation = SkystoneRelativeLocation.UNKNOWN;
-        Integer backgroundYellow = averagingPipeline.getBackground();
+        Integer background_Cb = averagingPipeline.getBackground();
         ArrayList<Integer> averageDate = averagingPipeline.getData();
-        int minYellowLevel = 255;
-        int minYellowLevelIndex = 0;
+        int max_Cb_level = 0;
+        int max_Cb_level_index = 0;
         boolean detections = false;
         int loopIndex = 0;
-        for(Integer regionYellowAverage: averageDate) {
-            if (regionYellowAverage <  backgroundYellow) {
+        for(Integer regionBlueAverage: averageDate) {
+            if (regionBlueAverage >  background_Cb) {
                 detections = true;
             }
-            if (regionYellowAverage < minYellowLevel) {
-                minYellowLevel = regionYellowAverage;
-                minYellowLevelIndex = loopIndex;
+            if (regionBlueAverage > max_Cb_level) {
+                max_Cb_level = regionBlueAverage;
+                max_Cb_level_index = loopIndex;
             }
             ++loopIndex;
         }
 
         switch(teamColor) {
             case BLUE:
-                switch (averagingPipeline.getMinIndex()) {
+                switch (max_Cb_level_index) {
                     case 0:
                         skystoneRelativeLocation = SkystoneRelativeLocation.LEFT;
                         break;
@@ -203,11 +203,14 @@ public class SkystoneDetector {
                 break;
             case RED:
                 if(detections) {
-                    switch(minYellowLevelIndex) {
+                    switch(max_Cb_level_index) {
                         case 0:
-                            skystoneRelativeLocation = SkystoneRelativeLocation.CENTER;
+                            skystoneRelativeLocation = SkystoneRelativeLocation.LEFT;
                             break;
                         case 1:
+                            skystoneRelativeLocation = SkystoneRelativeLocation.CENTER;
+                            break;
+                        case 2:
                             skystoneRelativeLocation = SkystoneRelativeLocation.RIGHT;
                             break;
                         default:

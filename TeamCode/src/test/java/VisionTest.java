@@ -50,13 +50,14 @@ public class VisionTest {
 
 
     Mat input = new Mat();
+    Mat inputBlue = new Mat();
+    Mat inputRed = new Mat();
 
     @Before
     public void initialize() {
-        String filePath = IMAGE_READ_PATH + "iphone7_27inches_by_2.5_up_inches_left.jpg";
-        input = Imgcodecs.imread(filePath);
-
-        input = cropAndResize(input,640,480);
+        this.input = loadMatFromBGR(IMAGE_READ_PATH + "iphone7_27inches_by_2.5_up_inches_left.jpg" );
+        this.inputBlue = loadMatFromBGR(IMAGE_READ_PATH + "blue_right_1.jpg" );
+        this.inputRed = loadMatFromBGR(IMAGE_READ_PATH + "red_center_1.jpg" );
     }
 
     @Test
@@ -69,7 +70,7 @@ public class VisionTest {
     @Test
     public void imageWrite() {
         String writePath = IMAGE_WRITE_PATH + "writeTestImage.jpg";
-        Imgcodecs.imwrite(writePath, input);
+        saveMatAsRGB(writePath, input);
         File outputFile = new File(writePath);
         assertThat(outputFile.exists()).isTrue();
     }
@@ -85,7 +86,7 @@ public class VisionTest {
         Core.extractChannel(yCbCrChan2Mat, yCbCrChan2Mat, 2);//takes cb difference and stores
 
         //b&w
-        Imgproc.threshold(yCbCrChan2Mat, thresholdMat, 152, 255, Imgproc.THRESH_BINARY_INV);
+        Imgproc.threshold(yCbCrChan2Mat, thresholdMat, 100, 255, Imgproc.THRESH_BINARY_INV);
 
         //outline/contour
         Imgproc.findContours(thresholdMat, contoursList, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -113,7 +114,7 @@ public class VisionTest {
     public void testDefaultPipeline() {
         AveragingPipeline testPipeline = new AveragingPipeline();
         Mat outputMat = testPipeline.processFrame(input);
-        Imgcodecs.imwrite(IMAGE_WRITE_PATH + "pipeline_default.jpg",outputMat);
+        saveMatAsRGB(IMAGE_WRITE_PATH + "pipeline_default.jpg",outputMat);
         testPipeline.getStatus();
 //        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
     }
@@ -121,8 +122,8 @@ public class VisionTest {
     @Test
     public void testBluePipeline() {
         AveragingPipeline testPipeline = SkystoneDetector.getAveragingPipelineForBlue();
-        Mat outputMat = testPipeline.processFrame(input);
-        Imgcodecs.imwrite(IMAGE_WRITE_PATH + "pipeline_blue.jpg",outputMat);
+        Mat outputMat = testPipeline.processFrame(inputBlue);
+        saveMatAsRGB(IMAGE_WRITE_PATH + "pipeline_blue.jpg",outputMat);
         testPipeline.getStatus();
         System.out.println(SkystoneDetector.getSkystoneRelativeLocation(testPipeline, Color.Ftc.BLUE));
     }
@@ -130,13 +131,13 @@ public class VisionTest {
     @Test
     public void testRedPipeline() {
         AveragingPipeline testPipeline = SkystoneDetector.getAveragingPipelineForRed();
-        Mat outputMat = testPipeline.processFrame(input);
-        Imgcodecs.imwrite(IMAGE_WRITE_PATH + "pipeline_red.jpg",outputMat);
+        Mat outputMat = testPipeline.processFrame(inputRed);
+        saveMatAsRGB(IMAGE_WRITE_PATH + "pipeline_red.jpg",outputMat);
         testPipeline.getStatus();
         System.out.println(SkystoneDetector.getSkystoneRelativeLocation(testPipeline, Color.Ftc.RED));
     }
 
-//    @Test
+    @Test
     public void testCustomPipeline() {
         ArrayList<AveragingPipeline.NormalizedRectangle> scanRegions = new ArrayList<>();
         double yPosition = 0.55;
@@ -149,13 +150,13 @@ public class VisionTest {
         scanRegions.add(new NormalizedRectangle(0.75,yPosition,normalizedSize[0],normalizedSize[1]));
         AveragingPipeline testPipeline = new AveragingPipeline(scanRegions);
         Mat outputMat = testPipeline.processFrame(input);
-        Imgcodecs.imwrite(IMAGE_WRITE_PATH + "pipeline_custom.jpg",outputMat);
+        saveMatAsRGB(IMAGE_WRITE_PATH + "pipeline_custom.jpg",outputMat);
         testPipeline.getStatus();
 //        System.out.println(testPipeline.getSkystoneRelativeLocation());
 //        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
     }
 
-    @Test
+//    @Test
     public void testPositionCalculation() {
         double[] fovXY_degrees = {78,78};
         double[] relativePositionXY_inches = {36,11};
@@ -181,8 +182,41 @@ public class VisionTest {
         }
         System.out.println(directory.getPath());
         System.out.println(writeLocation.getPath());
-        Imgcodecs.imwrite(writeLocation.getPath(),input);
+        saveMatAsRGB(writeLocation.getPath(),input);
 
+    }
+
+//    @Test
+    public void swapColorChannels() {
+        String INPUT = "./TestData/colorSwap/input";
+        String OUTPUT = "./TestData/colorSwap/output";
+        File dir = new File(INPUT);
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for(File child: directoryListing) {
+                Mat imageMat = Imgcodecs.imread(child.getPath());
+                saveMatAsRGB(OUTPUT + "/" + child.getName(), imageMat);
+            }
+        }
+    }
+
+
+    private Mat loadMatFromBGR(String filePath) {
+        Mat loadedMat = Imgcodecs.imread(filePath);
+        loadedMat = cropAndResize(loadedMat,640,480);
+        Imgproc.cvtColor(loadedMat, loadedMat, Imgproc.COLOR_RGB2BGR); //converts rgb to bgr
+        return loadedMat;
+    }
+
+
+    private void saveMatAsRGB(String filePath, Mat output) {
+        File file = new File(filePath);
+        File directory = new File(file.getParent());
+        if(!directory.exists()) {
+            directory.mkdir();
+        }
+        Imgproc.cvtColor(output, output, Imgproc.COLOR_BGR2RGB);
+        Imgcodecs.imwrite(file.getPath(), output);
     }
 
 
