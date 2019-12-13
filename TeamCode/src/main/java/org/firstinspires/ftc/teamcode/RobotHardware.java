@@ -21,7 +21,9 @@ import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
+import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
 import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
+import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
 import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.ExpansionHubMotor;
 import org.openftc.revextensions2.RevBulkData;
@@ -68,7 +70,7 @@ public class RobotHardware extends OpMode {
     public MecanumNavigation mecanumNavigation;
     public AutoDrive autoDrive;
     public IMUUtilities imuUtilities;
-    public SimpleVision simpleVision;
+    public SkystoneDetector skystoneDetector;
 
 
     // The motors on the robot, must be the same names defined in the robot's Configuration file.
@@ -671,23 +673,6 @@ public class RobotHardware extends OpMode {
         if(withFoundation) liftTicks += Constants.LIFT_FOUNDATION_HEIGHT_TICKS;
         if(withKnob) liftTicks += Constants.LIFT_KNOB_HEIGHT_TICKS;
         return (int) liftTicks;
-    }
-
-    public double getSkystoneIndex(Waypoints waypoints) {
-        double skystone_absolute_x;
-        double bot_absolute_x;
-        double bot_relative_to_skystone_y;
-
-        if(simpleVision == null) return 0;
-
-        bot_absolute_x = mecanumNavigation.currentPosition.x;
-        bot_relative_to_skystone_y = simpleVision.getPositionSkystoneRelativeNav2d().y;
-        if (waypoints.getTeamColor() == Color.Ftc.BLUE) {
-            skystone_absolute_x = bot_absolute_x - bot_relative_to_skystone_y - 5;
-        } else {
-            skystone_absolute_x = bot_absolute_x + bot_relative_to_skystone_y + 5;
-        }
-        return waypoints.skystoneIndexFromX(skystone_absolute_x);
     }
 }
 

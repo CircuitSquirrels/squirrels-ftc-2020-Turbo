@@ -15,7 +15,9 @@ import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
+import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
 import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
+import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
 
 public class AutoOpmode extends RobotHardware {
 
@@ -120,11 +122,10 @@ public class AutoOpmode extends RobotHardware {
     public void init_loop() {
         super.init_loop();
         controller1.update();
-        if (simpleVision == null) {
+        if (skystoneDetector == null) {
             telemetry.addData("Vision: ", "LOADING...");
         } else {
             telemetry.addData("Vision: ", "INITIALIZED");
-            simpleVision.updateVuMarkPose();
         }
         interactiveInit.update();
     }
@@ -199,13 +200,10 @@ public class AutoOpmode extends RobotHardware {
         telemetry.addData("State: ",robotStateContext.getCurrentState());
 
         try {
-            simpleVision.updateVuMarkPose();
-            simpleVision.displayFormattedVumarkPose();
-            telemetry.addData("Nav2D Absolute", simpleVision.getPositionAbsoluteNav2d());
-            telemetry.addData("Nav2D Skystone Relative", simpleVision.getPositionSkystoneRelativeNav2d());
-//            telemetry.addData("OpenGL Navigation", simpleVision.getLastAbsoluteLocation().toString());
-            simpleVision.updateTensorFlow(true);
-            simpleVision.displayTensorFlowDetections();
+            telemetry.addData("Skystone Position: ", skystoneDetector.getSkystoneRelativeLocation());
+            for (int i = 0; i < skystoneDetector.averagingPipeline.getAllData().size() - 1; i++) {
+                telemetry.addData("Skystone "+i+"Color: ", skystoneDetector.averagingPipeline.getAllData().get(i));
+            }
         } catch(Exception e) {
             telemetry.addData("Vision Not Loaded", "");
         }
@@ -225,9 +223,8 @@ public class AutoOpmode extends RobotHardware {
     class VisionLoader implements Runnable {
         public void run() {
             //TODO Might need to use trackables, the second to last boolean.
-            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
-                    true, false,true,
-                    true, SimpleVision.UseWebcamEnum.TRUE, SimpleVision.TensorFlowEnabled.FALSE);
+            skystoneDetector = new SkystoneDetector(AutoOpmode.this, robotColor);
+            skystoneDetector.init(new AveragingPipeline());
         }
     }
 

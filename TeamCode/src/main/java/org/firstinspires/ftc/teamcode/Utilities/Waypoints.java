@@ -178,7 +178,7 @@ public class Waypoints {
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.7 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.8 * tileBody + robotFrontPadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.SIMPLE_ALIGNMENT_INNER, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.2 * tileBody + robotFrontPadding, degreesToRadians(-90)));
 
         /**
