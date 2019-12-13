@@ -130,7 +130,35 @@ public class SkystoneDetector {
         return new AveragingPipeline(scanRegions);
     }
 
-
+    public int getSkystoneIndex() {
+        SkystoneRelativeLocation skystoneRelativeLocation = getSkystoneRelativeLocation();
+        switch(teamColor) {
+            case BLUE:
+                switch (skystoneRelativeLocation) {
+                    case LEFT:
+                        return 0;
+                    case CENTER:
+                        return 1;
+                    case RIGHT:
+                        return 2;
+                    default:
+                        return 0;
+                }
+            case RED:
+                switch (skystoneRelativeLocation) {
+                    case LEFT:
+                        return 2;
+                    case CENTER:
+                        return 1;
+                    case RIGHT:
+                        return 0;
+                    default:
+                        return 0;
+                }
+            default:
+                return 0;
+        }
+    }
 
     public SkystoneRelativeLocation getSkystoneRelativeLocation() {
        return  getSkystoneRelativeLocation(averagingPipeline, teamColor);

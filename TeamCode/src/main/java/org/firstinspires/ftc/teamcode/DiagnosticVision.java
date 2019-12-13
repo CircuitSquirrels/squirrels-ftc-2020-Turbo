@@ -22,7 +22,6 @@ public class DiagnosticVision extends DiagnosticOpMode {
 
     private Thread thread;
     Waypoints waypoints;
-    SkystoneDetector skystoneDetector;
     boolean useSettingsDirectory = false;
     boolean settingsDirectoryTriedAndFailed = false;
 
@@ -59,10 +58,6 @@ public class DiagnosticVision extends DiagnosticOpMode {
             telemetry.addData("Skystone Location",skystoneDetector.getSkystoneRelativeLocation())
                     .addData("Press A"," to save an image")
                     .addData("Image Number", skystoneDetector.averagingPipeline.lastInputImage);
-
-
-
-
             try {
                 File whatever = AppUtil.getInstance().getSettingsFile("whatever.txt");
                 File settingsDirectory = new File(whatever.getParent());

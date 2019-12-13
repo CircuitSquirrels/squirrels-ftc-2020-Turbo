@@ -63,14 +63,10 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             opMode.telemetry.addData("---Start Menu---", "")
                     .addData("Manual: ", "A")
                     .addData("Motor Tester: ", "B")
-                    .addData("Servo Tester: ", "X")
-                    .addData("Skystone Detector: ", "Y")
-                    .addData("Autonomous: ", "Right Bumper");
+                    .addData("Servo Tester: ", "X");
             if(controller1.AOnce()) stateMachine.changeState(DRIVE, new Manual());
             else if (controller1.BOnce()) stateMachine.changeState(DRIVE, new Motor_Tester());
             else if (controller1.XOnce()) stateMachine.changeState(DRIVE, new Servo_Tester());
-            else if (controller1.YOnce()) stateMachine.changeState(DRIVE, new Skystone_Detection());
-            else if (controller1.rightBumper()) stateMachine.changeState(DRIVE, new Skystone_Detection());
         }
     }
 
@@ -225,41 +221,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         }
     }
 
-    class Skystone_Detection extends Executive.StateBase {
-        double skystone_absolute_x = 0;
-        double bot_absolute_x = 0;
-        double bot_relative_to_skystone_y = 0;
-        double skystone_index_double = 0;
-        int skystone_index = 0;
-
-        @Override
-        public void init(Executive.StateMachine stateMachine) {
-            super.init(stateMachine);
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(SCAN_POSITION_A_0));
-        }
-
-        @Override
-        public void update() {
-            super.update();
-            if(opMode.controller1.startOnce()) stateMachine.changeState(DRIVE,new Start_Menu());
-
-            if(opMode.simpleVision == null) {
-                opMode.telemetry.addData("Vision: ", "Not Loaded.");
-                return;
-            }
-
-            bot_absolute_x = opMode.mecanumNavigation.currentPosition.x;
-            bot_relative_to_skystone_y = opMode.simpleVision.getPositionSkystoneRelativeNav2d().y;
-            skystone_absolute_x = bot_absolute_x - bot_relative_to_skystone_y;
-            skystone_index_double = 6.5 -(skystone_absolute_x + 72) / 8;
-            skystone_index = (int) Math.round(skystone_index_double);
-
-            opMode.telemetry.addData("Bot Absolute: ", bot_absolute_x)
-                    .addData("Bot Relative To Skystone: ", bot_relative_to_skystone_y)
-                    .addData("Skystone Index: ", skystone_index_double)
-                    .addData("Skystone Index Rounded: ", skystone_index);
-        }
-    }
 
     class Auto extends Executive.StateBase<AutoOpmode> {
         RobotStateContext robotStateContext;
