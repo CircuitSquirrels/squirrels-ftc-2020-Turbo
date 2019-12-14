@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
+import org.junit.Before;
 import org.junit.Test;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -38,32 +39,54 @@ public class WaypointGenerationTest {
     }
 
     String WAYPOINT_OUTPUT_PATH = "./TestData/waypoint_output/";
+/*
+    Waypoints waypoints;
 
-    @Test
+    @Before
+    public void setupTest() {
+        waypoints = new Waypoints(Color.Ftc.BLUE,0);
+    }
+ */
+
+//    @Test
     public void WaypointsDefinedForAllCases() {
         // Check RED and BLUE, BUILD AND LOAD, skystone 0,1,2, false skystone 3,4,5,6, -1 for errors.
     }
 
     @Test
-    public void Waypoint_startPoint_not_null() {
-        System.out.println("Start Test");
-        Waypoints waypoints = new Waypoints(Color.Ftc.RED);
-        waypoints.setSkystoneDetectionPosition(1);
+    public void Red_Waypoint_Mirror_Checking() {
+        System.out.println("Start Red Waypoint Mirroring Test");
+        Waypoints waypoints = new Waypoints(Color.Ftc.RED,1);
+        waypoints.setSkystoneDetectionPosition(3);
+
+        Navigation2D initialPosition_n2d = waypoints.loading.get(INITIAL_POSITION);
+        System.out.println(INITIAL_POSITION.toString());
+        System.out.println(initialPosition_n2d.toString());
 
         Navigation2D alignmentA_n2d = waypoints.loading.get(ALIGNMENT_POSITION_A);
-        Navigation2D pickupA_n2d = waypoints.loading.get(GRAB_SKYSTONE_A);
+        System.out.println(ALIGNMENT_POSITION_A.toString());
+        System.out.println(alignmentA_n2d.toString());
 
-        assertWaypointNotNull(alignmentA_n2d);
-        assertWaypoint_thetaEqual(alignmentA_n2d,pickupA_n2d);
-        assertWaypoint_xEqual(alignmentA_n2d,pickupA_n2d);
-
+        // Check that all headings are the same as the initial heading. Show any discrepancies.
+        System.out.println();
+        boolean didAngleFail = false;
+        List<LabeledWaypoint> waypointList = waypoints.getLabeledWaypointListForLoad();
+        for(LabeledWaypoint labeledWaypoint: waypointList) {
+            if(initialPosition_n2d.theta != labeledWaypoint.waypoint_n2d.theta) {
+                double newWaypointDegrees = Math.toDegrees(labeledWaypoint.waypoint_n2d.theta);
+                System.out.println(labeledWaypoint.label + "  angle is  " + newWaypointDegrees + "  which is incorrect.");
+                didAngleFail = true;
+            }
+        }
+        assertThat(didAngleFail).isFalse();
     }
+
 
 
     @Test
     public void GenerateAllWaypoits() throws IOException {
         for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
-            Display_Waypoints(Color.Ftc.BLUE, startPosition, 0);
+            Display_Waypoints(Color.Ftc.RED, startPosition, 1);
         }
     }
 
@@ -127,10 +150,6 @@ public class WaypointGenerationTest {
                 csvWriter.close();
             }
         }
-
-
-
-
 
     }
 

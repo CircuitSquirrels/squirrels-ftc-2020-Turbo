@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
@@ -166,13 +167,13 @@ public class Waypoints {
          * Blue Loading Waypoints
          */
         blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding + 1, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_0, blueStoneAlignmentLocations.get(2));
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_1, blueStoneAlignmentLocations.get(1));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition));
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition));
+        blueLoading.put(LocationLoading.SCAN_POSITION_A_0, blueStoneAlignmentLocations.get(2).copy());
+        blueLoading.put(LocationLoading.SCAN_POSITION_A_1, blueStoneAlignmentLocations.get(1).copy());
+        blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
+        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, new Navigation2D(blueStonePickupLocations.get(skystoneDetectionPosition + 3).x, blueStonePickupLocations.get(skystoneDetectionPosition + 3).y - 7, degreesToRadians((-90))));
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3));
+        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(45, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(45, 26.74 + 4, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
@@ -192,6 +193,7 @@ public class Waypoints {
 
     // skystoneDetectionPosition is 0-5, from field center to the front wall.
     private void customizeWaypoints(Color.Ftc teamColor, int skystoneDetectionPosition) {
+        this.teamColor = teamColor;
         this.skystoneDetectionPosition = skystoneDetectionPosition; // ensure class property is set.
         create_blue_waypoints(); // gets skystoneDetectionPosition from class property.
         if(teamColor == Color.Ftc.BLUE) {
