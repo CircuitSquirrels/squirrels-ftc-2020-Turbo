@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.Utilities.BehaviorSandBox;
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.Executive;
@@ -16,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
-import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
 import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
 
 public class AutoOpmode extends RobotHardware {
@@ -204,6 +202,7 @@ public class AutoOpmode extends RobotHardware {
             for (int i = 0; i < skystoneDetector.averagingPipeline.getAllData().size() - 1; i++) {
                 telemetry.addData("Skystone "+i+"Color: ", skystoneDetector.averagingPipeline.getAllData().get(i));
             }
+            telemetry.addData("Skystone Index: ", skystoneDetector.getSkystoneIndex());
         } catch(Exception e) {
             telemetry.addData("Vision Not Loaded", "");
         }
