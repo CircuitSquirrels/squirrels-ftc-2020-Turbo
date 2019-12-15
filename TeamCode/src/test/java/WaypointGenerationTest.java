@@ -86,7 +86,7 @@ public class WaypointGenerationTest {
     @Test
     public void GenerateAllWaypoits() throws IOException {
         for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
-            Display_Waypoints(Color.Ftc.RED, startPosition, 1);
+            Display_Waypoints(Color.Ftc.RED, startPosition, 2);
         }
     }
 
@@ -109,6 +109,11 @@ public class WaypointGenerationTest {
 
         for(LabeledWaypoint waypoint: waypointList) {
             System.out.println(waypoint.waypoint_n2d.toString() + ",    " + waypoint.label + ";");
+        }
+
+        // Add stone positions to csv for comparison
+        for(int i = 0; i<=5; ++i) {
+            waypointList.add(new LabeledWaypoint("Stone " + String.valueOf(i),waypoints.stoneLocations.get(i).copy()));
         }
 
         String filename_waypointCSV =

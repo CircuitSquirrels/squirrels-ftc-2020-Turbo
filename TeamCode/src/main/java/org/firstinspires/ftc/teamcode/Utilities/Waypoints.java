@@ -258,7 +258,7 @@ public class Waypoints {
         public String label = "";
         public Navigation2D waypoint_n2d = new Navigation2D(0,0,0);
 
-        LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
+        public LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
             this.label = label;
             this.waypoint_n2d = waypoint_n2d;
         }
