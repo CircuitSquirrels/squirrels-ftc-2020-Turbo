@@ -2,6 +2,7 @@ package FakeHardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Mockito
 //import org.mockito.Mockito;
@@ -55,7 +56,9 @@ public class FakeRobotHardware extends RobotHardware {
         return this.time;
     }
 
-    //
+    public ElapsedTime getNewElapsedTime() {
+        return new FakeElapsedTime(this);
+    }
 
 
     // Initialize Fake stuff

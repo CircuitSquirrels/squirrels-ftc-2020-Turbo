@@ -187,8 +187,8 @@ public class Executive {
         public void init(StateMachine<T_opmode> stateMachine) {
             this.stateMachine = stateMachine;
             this.opMode = stateMachine.opMode;
-            stateTimer = new ElapsedTime();
-            statePeriod = new ElapsedTime();
+            stateTimer = opMode.getNewElapsedTime();
+            statePeriod = opMode.getNewElapsedTime();
             initialized = true;
             stateTimer.reset();
             statePeriod.reset();

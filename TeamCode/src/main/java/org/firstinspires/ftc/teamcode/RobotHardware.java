@@ -476,6 +476,14 @@ public class RobotHardware extends OpMode {
      * Output whether or not the defined motors, servos, sensors could not be found
      */
 
+    /**
+     * Provides an entry point for fake timing during unit testing.
+     * @return
+     */
+    public ElapsedTime getNewElapsedTime() {
+        return new ElapsedTime();
+    }
+
     public void init() {
 
         // Setup expansion hubs for bulk reads.

@@ -78,15 +78,14 @@ public class StateMachineTest {
         elapsedTime = new ElapsedTime();
 
         // Interactive Init settings
+        opMode.PauseBeforeState.set(false);
         opMode.setDriveSpeed(1.0);
         opMode.setDropStones(true);
         opMode.setParkInner(false);
         opMode.setSimpleAuto(false);
 
-
         robotStateContext = new RobotStateContext(opMode,Color.Ftc.RED, RobotHardware.StartPosition.FIELD_LOADING);
         robotStateContext.init();
-
         simTime = 0.0;
     }
 
@@ -100,30 +99,32 @@ public class StateMachineTest {
     SimulationTime simulationTime = new SimulationTime();
     @Test
     public void simulateAutoDrive() {
-        simulationTime.setTime(0);
+        // Configuration
+        boolean realtime = false;
+        boolean showTransitionsOnly = true;
 
-        boolean realtime = true;
+        simulationTime.setTime(0);
+        if (!realtime) df_prec = df;
         boolean notStopped = true;
         double previousTime = 0;
         double deltaTime = 0;
-        double simulationEndTime = 50;
+        double simulationEndTime = 30;
         double simulationStepTime = 0.02;
-        double driveSpeed = 0.5;
         boolean isNewState = true;
         String previousState = "";
 
         while (simulationTime.time() <= simulationEndTime && notStopped) {
             robotStateContext.update();
 
-
             isNewState = !previousState.equals(robotStateContext.getCurrentState());
             previousState = robotStateContext.getCurrentState();
             if (realtime) {
                 simulationStepTime = deltaTime;
             }
-            if(isNewState || isDisplayInterval(2, simTime,simulationStepTime)) {
-                System.out.print("SimTime:  " + df.format(simTime) + "    " + "dt: " + df_prec.format(deltaTime) + "   ");
-                System.out.print(robotStateContext.getCurrentState());
+            if(isNewState || isDisplayInterval(2, simTime,simulationStepTime) && !showTransitionsOnly) {
+                System.out.print("SimTime: " + String.format("%5.2f",simTime) + "   ");
+                if(realtime) System.out.print( "dt: " + df_prec.format(deltaTime) + "   ");
+                System.out.print(padStringTo(43,robotStateContext.getCurrentState()));
                 System.out.println(mecanumNavigation.currentPosition.toString());
                 notStopped = !(robotStateContext.getCurrentState().startsWith("Stop_State") || robotStateContext.getCurrentState().startsWith("A_Manual"));
 //                System.out.println();
@@ -132,15 +133,13 @@ public class StateMachineTest {
             mecanumNavigation.update();
             opMode.updateAndIntegrateFakeOpMode(simTime);
 
-
+            previousTime = simulationTime.time();
             if(realtime) {
-                previousTime = simulationTime.time();
                 simulationTime.setTime(elapsedTime.time());
-                deltaTime = simulationTime.time() - previousTime;
-
             } else {
                 simulationTime.incrementTime(simulationStepTime);
             }
+            deltaTime = simulationTime.time() - previousTime;
             simTime = simulationTime.time();
         }
 
@@ -151,6 +150,24 @@ public class StateMachineTest {
         int stepsPerSecond = (int) Math.floor(1/simulationTimeStep);
         int stepsPerDisplay = stepsPerSecond / displaysPerSecond;
         return (simStep % stepsPerDisplay) == 0;
+    }
+
+    public String padStringTo(int desiredLength, String currentString) {
+        return currentString.concat(getPaddingString(desiredLength,currentString));
+    }
+
+    public String getPaddingString(int desiredLength, String currentString) {
+        return getPaddingString(desiredLength,currentString.length());
+    }
+
+    public String getPaddingString(int desiredLength, int currentLength) {
+        String padding = new String("");
+        if (desiredLength > currentLength) {
+            for(int i = 0; i < desiredLength - currentLength; ++i) {
+                padding = padding.concat(" ");
+            }
+        }
+        return padding;
     }
 
 

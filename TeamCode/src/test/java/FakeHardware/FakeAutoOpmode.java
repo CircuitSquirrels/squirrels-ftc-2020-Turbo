@@ -2,6 +2,8 @@ package FakeHardware;// Mockito
 //import org.mockito.Mockito;
 
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
@@ -61,7 +63,11 @@ public class FakeAutoOpmode extends AutoOpmode {
 
     @Override
     public void setAngle(ServoName servo, double position) {
+        //do nothing
+    }
 
+    public ElapsedTime getNewElapsedTime() {
+        return new FakeElapsedTime(this);
     }
 
     @Override

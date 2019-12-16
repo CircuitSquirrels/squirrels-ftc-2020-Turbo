@@ -18,7 +18,7 @@ public class FakeDcMotor{
 
 
     // Fake Physics - basic acceleration limit
-    private double maxTicksPerSecond = 1000;
+    private double maxTicksPerSecond = 1200;
     private double maxTicksPerSecondPerSecond = 3000;
     private double currentTicksPerSecond = 0;
 
