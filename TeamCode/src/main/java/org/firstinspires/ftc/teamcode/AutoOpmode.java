@@ -34,7 +34,7 @@ public class AutoOpmode extends RobotHardware {
     private InteractiveInit interactiveInit = null;
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> DropStones = new Mutable<>(true);
-    public Mutable<Boolean> PauseBeforeState = new Mutable<>(true);
+    public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
