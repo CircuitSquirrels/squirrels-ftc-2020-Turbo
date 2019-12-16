@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
@@ -203,6 +202,7 @@ public class Waypoints {
         } else {
             throw new IllegalStateException("Invalid Team Color");
         }
+        labelAllWaypointsFromEnums();
     }
 
 
@@ -238,30 +238,34 @@ public class Waypoints {
         }
     }
 
-    public List<LabeledWaypoint> getLabeledWaypointListForLoad() {
-        ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
+    public void labelAllWaypointsFromEnums() {
         for(LocationLoading locationLoading: LocationLoading.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationLoading.toString(), loading.get(locationLoading)));
+            loading.get(locationLoading).setLabel(locationLoading.toString());
         }
-        return labeledWaypoints;
-    }
 
-    public List<LabeledWaypoint> getLabeledWaypointListForBuild() {
-        ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
         for(LocationBuild locationBuild: LocationBuild.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationBuild.toString(), building.get(locationBuild)));
+            building.get(locationBuild).setLabel(locationBuild.toString());
+        }
+
+        for(int iStone=0; iStone<=5; ++iStone) {
+            stoneLocations.get(iStone).setLabel("Stone_" + String.valueOf(iStone));
+        }
+    }
+
+    public List<Navigation2D> getLabeledWaypointListForLoad() {
+        ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
+        for(LocationLoading locationLoading: LocationLoading.values()) {
+            labeledWaypoints.add(loading.get(locationLoading).copyAndLabel(locationLoading.toString()));
         }
         return labeledWaypoints;
     }
 
-    public static class LabeledWaypoint {
-        public String label = "";
-        public Navigation2D waypoint_n2d = new Navigation2D(0,0,0);
-
-        public LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
-            this.label = label;
-            this.waypoint_n2d = waypoint_n2d;
+    public List<Navigation2D> getLabeledWaypointListForBuild() {
+        ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
+        for(LocationBuild locationBuild: LocationBuild.values()) {
+            labeledWaypoints.add(building.get(locationBuild).copyAndLabel(locationBuild.toString()));
         }
+        return labeledWaypoints;
     }
 
     // Utility

@@ -14,6 +14,7 @@ public class AutoDrive {
 
     private RobotHardware opMode;
     private MecanumNavigation mecanumNavigation;
+    public MecanumNavigation.Navigation2D lastTargetPosition = new MecanumNavigation.Navigation2D(0,0,0);
 
 
     public AutoDrive(RobotHardware opMode, MecanumNavigation mecanumNavigation) {
@@ -29,6 +30,7 @@ public class AutoDrive {
      * @return boolean, true if currentPosition is near targetPosition.
      */
     public boolean driveToPosition(MecanumNavigation.Navigation2D targetPosition, double rate) {
+        lastTargetPosition = targetPosition;
         double distanceThresholdInches = 1;
         double angleThresholdRadians = 2 * (2*Math.PI/180);
         rate = Range.clip(rate,0,1);
@@ -52,6 +54,7 @@ public class AutoDrive {
     }
 
     public boolean rotateThenDriveToPosition(MecanumNavigation.Navigation2D targetPosition, double rate) {
+        lastTargetPosition = targetPosition;
         double distanceThresholdInches = 0.5;
         double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
@@ -87,6 +90,7 @@ public class AutoDrive {
     }
 
     public boolean driveToPositionTranslateOnly(MecanumNavigation.Navigation2D targetPosition, double rate) {
+        lastTargetPosition = targetPosition;
         double distanceThresholdInches = 0.5;
         rate = Range.clip(rate,0,1);
         MecanumNavigation.Navigation2D currentPosition =

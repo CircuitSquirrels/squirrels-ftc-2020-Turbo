@@ -113,6 +113,12 @@ public class StateMachineTest {
         boolean isNewState = true;
         String previousState = "";
 
+        System.out.println(padStringTo(15, "SimTime") +
+                padStringTo(43,"| Current States") +
+                padStringTo(30,"| Current Position") +
+                padStringTo(25,"| Last Waypoint Target"));
+        System.out.println("---------------------------------------------------------------------------------------------------------------------");
+
         while (simulationTime.time() <= simulationEndTime && notStopped) {
             robotStateContext.update();
 
@@ -125,7 +131,8 @@ public class StateMachineTest {
                 System.out.print("SimTime: " + String.format("%5.2f",simTime) + "   ");
                 if(realtime) System.out.print( "dt: " + df_prec.format(deltaTime) + "   ");
                 System.out.print(padStringTo(43,robotStateContext.getCurrentState()));
-                System.out.println(mecanumNavigation.currentPosition.toString());
+                System.out.println(mecanumNavigation.currentPosition.toString() + "   " + autoDrive.lastTargetPosition.getLabel());
+
                 notStopped = !(robotStateContext.getCurrentState().startsWith("Stop_State") || robotStateContext.getCurrentState().startsWith("A_Manual"));
 //                System.out.println();
             }

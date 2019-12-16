@@ -6,6 +6,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.io.File;
@@ -42,7 +43,9 @@ public abstract class TernarySkystonePipeline extends OpenCvPipeline {
             String imageFilename = "capturedImage_" + imageNumber.toString() + ".jpg";
             writeLocation = AppUtil.getInstance().getSettingsFile(imageFilename);
         } while(writeLocation.exists());
-        Imgcodecs.imwrite(writeLocation.getPath(), lastInputImage);
+        Mat imageRGB = new Mat();
+        Imgproc.cvtColor(lastInputImage,imageRGB,Imgproc.COLOR_BGR2RGB);
+        Imgcodecs.imwrite(writeLocation.getPath(), imageRGB);
     }
 
 
