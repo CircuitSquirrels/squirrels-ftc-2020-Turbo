@@ -92,7 +92,12 @@ public class Executive {
             try {
                 String stateString = state.getClass().toString();
                 String[] stringArray = stateString.split("\\$");
-                return stringArray[1];
+                if (state.getIteration()  == 0) {
+                    return stringArray[1];
+                } else {
+                    return stringArray[1] + ":" + String.valueOf(state.getIteration());
+                }
+
             } catch (Exception e){
                 return "";
             }
@@ -178,9 +183,14 @@ public class Executive {
 
 
         public StateBase() {
+            this.iteration = 0;
             // Defining default constructor
             // However, we NEED the state machine reference.
             // Handled by allowing init to take a stateMachine argument.
+        }
+
+        public StateBase(int iteration) {
+            this.iteration = iteration;
         }
 
 
@@ -203,6 +213,12 @@ public class Executive {
             stateMachine.changeState(stateType,state);
             stateMachine.stateMap.get(stateType).init(stateMachine);
         }
+
+        final private int iteration;
+        public int getIteration() {
+            return iteration;
+        }
+
 
         public void reset() {
             initialized = false;
