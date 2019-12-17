@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 
 import FakeHardware.FakeAutoOpmode;
 import FakeHardware.FakeIMUUtilities;
+import FakeHardware.FakeSkystoneDetector;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -75,6 +76,8 @@ public class StateMachineTest {
         imuUtilities = new FakeIMUUtilities(opMode,"IMU_1");
         opMode.setIMUUtilities(imuUtilities);
         opMode.controller1 = new Controller(opMode.gamepad1);
+        FakeSkystoneDetector fakeSkystoneDetector = new FakeSkystoneDetector(opMode);
+        opMode.skystoneDetector = fakeSkystoneDetector;
         elapsedTime = new ElapsedTime();
 
         // Interactive Init settings
@@ -83,6 +86,7 @@ public class StateMachineTest {
         opMode.setDropStones(true);
         opMode.setParkInner(false);
         opMode.setSimpleAuto(false);
+        fakeSkystoneDetector.setSkystoneIndex(2);
 
         robotStateContext = new RobotStateContext(opMode,Color.Ftc.RED, RobotHardware.StartPosition.FIELD_LOADING);
         robotStateContext.init();
@@ -101,14 +105,14 @@ public class StateMachineTest {
     public void simulateAutoDrive() {
         // Configuration
         boolean realtime = false;
-        boolean showTransitionsOnly = true;
+        boolean showTransitionsOnly = false;
 
         simulationTime.setTime(0);
         if (!realtime) df_prec = df;
         boolean notStopped = true;
         double previousTime = 0;
         double deltaTime = 0;
-        double simulationEndTime = 30;
+        double simulationEndTime = 40;
         double simulationStepTime = 0.02;
         boolean isNewState = true;
         String previousState = "";

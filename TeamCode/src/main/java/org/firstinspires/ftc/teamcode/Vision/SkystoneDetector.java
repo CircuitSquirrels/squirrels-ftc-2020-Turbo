@@ -34,6 +34,10 @@ public class SkystoneDetector {
     private final int rows = 640;
     private final int cols = 480;
 
+    public SkystoneDetector(RobotHardware opmode) {
+        // This is only to make unit testing easier. Do not use for robot code.
+        opmode.telemetry.addData("SkystoneDetector","DO NOT USE THIS CONSTRUCTOR!");
+    }
 
     public SkystoneDetector(RobotHardware opmode, Color.Ftc teamColor) {
        this.teamColor = teamColor;
