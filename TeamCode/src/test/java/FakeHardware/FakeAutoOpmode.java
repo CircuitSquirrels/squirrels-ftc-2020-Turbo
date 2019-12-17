@@ -53,6 +53,11 @@ public class FakeAutoOpmode extends AutoOpmode {
         SimpleAuto.set(simpleAuto);
     }
 
+    public void setSkystoneIndex(int skystoneIndex) {
+        FakeSkystoneDetector fakeSkystoneDetector = (FakeSkystoneDetector) skystoneDetector;
+        fakeSkystoneDetector.setSkystoneIndex(skystoneIndex);
+    }
+
     public void setParkInner(boolean parkInner) {
         ParkInner.set(parkInner);
     }

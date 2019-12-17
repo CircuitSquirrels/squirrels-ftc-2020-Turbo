@@ -54,7 +54,7 @@ public class StateMachineTest {
 
     double simTime = 0.0;
 
-    FakeAutoOpmode opMode = new FakeAutoOpmode();
+    FakeAutoOpmode opMode;
     MecanumNavigation mecanumNavigation;
     AutoDrive autoDrive;
     RobotStateContext robotStateContext;
@@ -64,13 +64,19 @@ public class StateMachineTest {
     @Before
     public void setupTest() {
         //        MockitoAnnotations.initMocks(this);
-        opMode.initializeFakeOpMode();
         df = new DecimalFormat("0.00");
         df_prec = new DecimalFormat(("0.00000000"));
+        initialize();
+    }
 
+    public void initialize() {
+        opMode = new FakeAutoOpmode();
         mecanumNavigation = new MecanumNavigation(opMode, Constants.getDriveTrainMecanum());
-        mecanumNavigation.initialize(new Navigation2D(0,0,0));
+        opMode.initializeFakeOpMode();
+
         autoDrive = new AutoDrive(opMode,mecanumNavigation);
+        mecanumNavigation.initialize(new Navigation2D(0,0,0));
+
         opMode.setAutoDrive(autoDrive);
         opMode.setMecanumNavigation(mecanumNavigation);
         imuUtilities = new FakeIMUUtilities(opMode,"IMU_1");
@@ -80,80 +86,114 @@ public class StateMachineTest {
         opMode.skystoneDetector = fakeSkystoneDetector;
         elapsedTime = new ElapsedTime();
 
+        // Interactive Init settings (Defaults)
+        opMode.PauseBeforeState.set(false);
+        opMode.setDriveSpeed(1.0);
+        opMode.setDropStones(true);
+        opMode.setParkInner(false);
+        opMode.setSimpleAuto(false);
+        opMode.setSkystoneIndex(2);
+
+        robotStateContext = new RobotStateContext(opMode,Color.Ftc.RED, RobotHardware.StartPosition.FIELD_LOADING);
+        robotStateContext.init();
+        simTime = 0.0;
+
+    }
+
+    @Test
+    public void parkOuter_Simple_Index0() {
+        initialize();
+        // Interactive Init settings
+        opMode.PauseBeforeState.set(false);
+        opMode.setDriveSpeed(1.0);
+        opMode.setDropStones(true);
+        opMode.setParkInner(false);
+        opMode.setSimpleAuto(true);
+        opMode.setSkystoneIndex(0);
+        robotStateContext.init(); // Required to apply modifications to interactive init settings.
+        simulateStateMachine(false, 2, 40.0, .02);
+    }
+
+    @Test
+    public void parkOuter_NoDrop_Index1() {
+        initialize();
+        // Interactive Init settings
+        opMode.PauseBeforeState.set(false);
+        opMode.setDriveSpeed(1.0);
+        opMode.setDropStones(false);
+        opMode.setParkInner(false);
+        opMode.setSimpleAuto(false);
+        opMode.setSkystoneIndex(1);
+        robotStateContext.init(); // Required to apply modifications to interactive init settings.
+        simulateStateMachine(false, 2, 40.0, .02);
+    }
+
+    @Test
+    public void parkOuter_DropStones_Index2() {
+        initialize();
         // Interactive Init settings
         opMode.PauseBeforeState.set(false);
         opMode.setDriveSpeed(1.0);
         opMode.setDropStones(true);
         opMode.setParkInner(false);
         opMode.setSimpleAuto(false);
-        fakeSkystoneDetector.setSkystoneIndex(2);
-
-        robotStateContext = new RobotStateContext(opMode,Color.Ftc.RED, RobotHardware.StartPosition.FIELD_LOADING);
-        robotStateContext.init();
-        simTime = 0.0;
+        opMode.setSkystoneIndex(2);
+        robotStateContext.init(); // Required to apply modifications to interactive init settings.
+        simulateStateMachine(false, 2, 40.0, .02);
     }
 
-    @Test
-    public void createAutoDrive() {
-        assertThat(autoDrive).isNotNull();
-        // Test Motion command for errors
-        autoDrive.rotateThenDriveToPosition(new Navigation2D(0,0,0), 1.0);
+    // Specify default behavior
+    public void simulateStateMachine() {
+        simulateStateMachine(false, 2, 40.0, .02);
     }
 
-    SimulationTime simulationTime = new SimulationTime();
-    @Test
-    public void simulateAutoDrive() {
+    public void simulateStateMachine(boolean showTransitionsOnly, int outputUpdatesPerSecond, double simulationEndTime, double simulationStepTime) {
         // Configuration
-        boolean realtime = false;
-        boolean showTransitionsOnly = false;
+//        boolean showTransitionsOnly = true;
+//        int outputUpdatesPerSecond = 2;
+//        double simulationEndTime = 40;
+//        double simulationStepTime = 0.02;
 
+        // Initialization
+
+        SimulationTime simulationTime = new SimulationTime();
         simulationTime.setTime(0);
-        if (!realtime) df_prec = df;
         boolean notStopped = true;
-        double previousTime = 0;
-        double deltaTime = 0;
-        double simulationEndTime = 40;
-        double simulationStepTime = 0.02;
         boolean isNewState = true;
         String previousState = "";
+        int formatStateFieldWidth = 47;
+        int formatWaypointFieldWidth = 25;
 
+        // Output Heading
         System.out.println(padStringTo(15, "SimTime") +
-                padStringTo(43,"| Current States") +
+                padStringTo(formatStateFieldWidth,"| Current States") +
                 padStringTo(30,"| Current Position") +
-                padStringTo(25,"| Last Waypoint Target"));
-        System.out.println("---------------------------------------------------------------------------------------------------------------------");
+                padStringTo(formatWaypointFieldWidth,"| Last Waypoint Target") +
+                padStringTo(17,"| Lift Encoder Ticks"));
+        System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
 
+        // Simulation loop, runs until simulationEndTime or final state is reached.
         while (simulationTime.time() <= simulationEndTime && notStopped) {
-            robotStateContext.update();
+            robotStateContext.update(); // Update state simulation
 
+            // Display logic, shows x updates per second AND first update after a state transition.
             isNewState = !previousState.equals(robotStateContext.getCurrentState());
             previousState = robotStateContext.getCurrentState();
-            if (realtime) {
-                simulationStepTime = deltaTime;
-            }
-            if(isNewState || isDisplayInterval(2, simTime,simulationStepTime) && !showTransitionsOnly) {
+            if(isNewState || isDisplayInterval(outputUpdatesPerSecond, simTime,simulationStepTime) && !showTransitionsOnly) {
                 System.out.print("SimTime: " + String.format("%5.2f",simTime) + "   ");
-                if(realtime) System.out.print( "dt: " + df_prec.format(deltaTime) + "   ");
-                System.out.print(padStringTo(43,robotStateContext.getCurrentState()));
-                System.out.println(mecanumNavigation.currentPosition.toString() + "   " + autoDrive.lastTargetPosition.getLabel());
-
+                System.out.print(padStringTo(formatStateFieldWidth,robotStateContext.getCurrentState()));
+                System.out.print(mecanumNavigation.currentPosition.toString() + "   " + padStringTo(formatWaypointFieldWidth, autoDrive.lastTargetPosition.getLabel()));
+                System.out.println("LiftWinch: " + String.format("%5d",opMode.getEncoderValue(RobotHardware.MotorName.LIFT_WINCH)));
                 notStopped = !(robotStateContext.getCurrentState().startsWith("Stop_State") || robotStateContext.getCurrentState().startsWith("A_Manual"));
-//                System.out.println();
             }
 
-            mecanumNavigation.update();
+            mecanumNavigation.update(); // Update navigation
+            // Increment simulation time and FakeRobotHardware state.
             opMode.updateAndIntegrateFakeOpMode(simTime);
-
-            previousTime = simulationTime.time();
-            if(realtime) {
-                simulationTime.setTime(elapsedTime.time());
-            } else {
-                simulationTime.incrementTime(simulationStepTime);
-            }
-            deltaTime = simulationTime.time() - previousTime;
+            simulationTime.incrementTime(simulationStepTime);
             simTime = simulationTime.time();
         }
-
+        System.out.println();
     }
 
     private boolean isDisplayInterval(int displaysPerSecond, double simTime, double simulationTimeStep) {
