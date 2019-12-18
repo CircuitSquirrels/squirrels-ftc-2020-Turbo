@@ -18,8 +18,8 @@ public class FakeDcMotor{
 
 
     // Fake Physics - basic acceleration limit
-    private double maxTicksPerSecond = 1200;
-    private double maxTicksPerSecondPerSecond = 3000;
+    private double maxTicksPerSecond = 2300; // Telemetry suggests velocity of 2500 ticks/second
+    private double maxTicksPerSecondPerSecond = 6000; // Telemetry suggests acceleration of 9000 ticks/s/s
     private double currentTicksPerSecond = 0;
 
 
