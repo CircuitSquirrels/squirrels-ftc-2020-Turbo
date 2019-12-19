@@ -293,7 +293,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_A")) {
-                    stateMachine.changeState(ARM, new Place_On_Foundation_A());
+                    stateMachine.changeState(ARM, new Place_On_Foundation(1));
                 }
                 if(stateMachine.getStateReference(ARM).arrived) {
                     stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Backup_Foundation_A());
@@ -349,7 +349,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_B")) {
-                stateMachine.changeState(ARM, new Place_On_Foundation_B());
+                stateMachine.changeState(ARM, new Place_On_Foundation(2));
             }
             if(stateMachine.getStateReference(ARM).arrived) {
                 arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
@@ -364,7 +364,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            // Need to change
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 if(!stateMachine.getCurrentStates(ARM).equals("openClaw")) {
@@ -494,24 +493,21 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Place_On_Foundation_A extends Executive.StateBase<AutoOpmode> {
+    class Place_On_Foundation extends Executive.StateBase<AutoOpmode> {
+        int Foundation_Level;
+
+        Place_On_Foundation(int Foundation_Level) {
+            this.Foundation_Level = Foundation_Level;
+        }
+
         @Override
         public void update() {
             super.update();
 
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(1, true, true),liftSpeed);
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(Foundation_Level, true, true),liftSpeed);
             if(arrived) {
                 opMode.openClaw();
             }
-        }
-    }
-
-    class Place_On_Foundation_B extends Executive.StateBase<AutoOpmode> {
-        @Override
-        public void update() {
-            super.update();
-
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(2, true, true),liftSpeed);
         }
     }
 
