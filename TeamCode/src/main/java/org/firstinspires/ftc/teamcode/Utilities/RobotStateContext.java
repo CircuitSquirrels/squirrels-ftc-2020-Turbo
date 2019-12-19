@@ -389,7 +389,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
-                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
+                if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
+                else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
             }
         }
     }
@@ -406,7 +407,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(BRIDGE_ALIGNMENT_OUTER), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
-                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Park_Inner());
+                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Park_Outer());
             }
         }
     }
