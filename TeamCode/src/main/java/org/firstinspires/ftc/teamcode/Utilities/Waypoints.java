@@ -66,8 +66,6 @@ public class Waypoints {
 
     public enum LocationLoading {
         INITIAL_POSITION,
-        SCAN_POSITION_A_0,
-        SCAN_POSITION_A_1,
         GRAB_SKYSTONE_A,
         ALIGNMENT_POSITION_A,
         BUILD_ZONE,
@@ -161,7 +159,7 @@ public class Waypoints {
             blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
             blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y, degreesToRadians(-90)));
         }
-        
+
         /**
          * Blue Loading Waypoints
          */
