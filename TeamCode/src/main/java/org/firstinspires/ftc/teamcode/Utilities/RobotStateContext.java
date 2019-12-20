@@ -158,7 +158,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed);
                     break;
                 case 1:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
+                    if(waypoints.getSkystoneDetectionPosition() != 2) {
+                        arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
+                    } else {
+                        arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(8, 0, 0), getDriveScale(stateTimer) * driveSpeed);
+                    }
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Alignment Index was not 0 or 1.");

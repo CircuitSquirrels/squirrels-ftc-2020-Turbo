@@ -161,13 +161,11 @@ public class Waypoints {
             blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
             blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y, degreesToRadians(-90)));
         }
-
+        
         /**
          * Blue Loading Waypoints
          */
         blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding + 1, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_0, blueStoneAlignmentLocations.get(2).copy());
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_1, blueStoneAlignmentLocations.get(1).copy());
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
