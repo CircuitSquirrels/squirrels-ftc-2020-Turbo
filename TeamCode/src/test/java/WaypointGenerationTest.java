@@ -82,7 +82,7 @@ public class WaypointGenerationTest {
     @Test
     public void GenerateAllWaypoits() throws IOException {
         for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
-            Display_Waypoints(Color.Ftc.RED, startPosition, 2);
+            Display_Waypoints(Color.Ftc.BLUE, startPosition, 2);
         }
     }
 

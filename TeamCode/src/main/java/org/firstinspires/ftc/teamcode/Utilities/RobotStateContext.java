@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
@@ -93,7 +95,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(initialPosition.theta));
         }
     }
-
     /**
      * Loading Drive State
      * The initial start state
@@ -220,11 +221,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if (!stateMachine.getCurrentStates(ARM).equals("Raise_Close_Claw")) {
-                stateMachine.changeState(ARM, new Raise_Close_Claw());
-                stateTimer.reset();
-            }
-            if (stateTimer.seconds() > scanDelay) {
+            if (!stateMachine.getCurrentStates(ARM).equals("Raise_Close_Claw")) stateMachine.changeState(ARM, new Raise_Close_Claw());
+
+            if (stateMachine.getStateReference(ARM).arrived) {
                 if (stateMachine.getStateReference(ARM).arrived) {
                     switch (index) {
                         case 0:
@@ -237,7 +236,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             throw new IndexOutOfBoundsException("Skystone Backup Index was not 0 or 1.");
                     }
                     if (arrived) {
-                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Build_Zone(index));
+                        if(dropStones) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Build_Zone(index));
+                        else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Foundation(index));
                     }
                 }
             }
@@ -260,12 +260,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(BUILD_ZONE), getDriveScale(stateTimer) * driveSpeed);
 
             if(arrived) {
-                if (dropStones) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Drop_Skystone(index));
-                else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Foundation(index));
+                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Drop_Skystone(index));
             }
         }
     }
-
+    /**
+     * Loading Drive State
+     * The state for dropping the skystone and then driving to the next stone or parking
+     */
     class Drop_Skystone extends Executive.StateBase<AutoOpmode> {
         int index;
 
@@ -276,14 +278,24 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
-            stateMachine.changeState(ARM, new Drop_Off_Skystone_A());
+            stateMachine.changeState(ARM, new Place_On_Foundation(1));
         }
 
         @Override
         public void update() {
             super.update();
             if(stateMachine.getStateReference(ARM).arrived) {
-                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(1));
+                switch (index) {
+                    case 0:
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(1));
+                        break;
+                    case 1:
+                        if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
+                        else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
+                        break;
+                    default:
+                        throw new IndexOutOfBoundsException("Out of bounds Drop Skystone Index");
+                }
             }
         }
     }
@@ -298,7 +310,15 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
+            switch (index) {
+                case 0:
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0), getDriveScale(stateTimer) * driveSpeed);
+                    break;
+                case 1:
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
+                    break;
+                default: throw new IllegalStateException("Invalid align index");
+            }
             if(arrived) {
                 stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Place_Foundation(index));
             }
@@ -315,12 +335,21 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
+            switch (index) {
+                case 0:
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_DROP_OFF).addAndReturn(12, 0, 0), getDriveScale(stateTimer) * driveSpeed);
+                    break;
+                case 1:
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_DROP_OFF), getDriveScale(stateTimer) * driveSpeed);
+                    break;
+                default: throw new IllegalStateException("Invalid place index");
+            }
             if(arrived) {
-                if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation_A")) {
+                if(!stateMachine.getCurrentStates(ARM).equals("Place_On_Foundation")) {
                     stateMachine.changeState(ARM, new Place_On_Foundation(1));
+                    stateTimer.reset();
                 }
-                if(stateMachine.getStateReference(ARM).arrived) {
+                if(stateMachine.getStateReference(ARM).arrived && stateTimer.seconds() > 0.2) {
                     stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Backup_Foundation(index));
                 }
             }
@@ -340,8 +369,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(ARM, new Vertical_Claw());
-                if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
-                else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
+                switch (index) {
+                    case 0:
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(1));
+                        break;
+                    case 1:
+                        if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
+                        else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid Back Up Foundation Index");
+                }
             }
         }
     }
@@ -463,18 +501,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
     }
 
-    class Drop_Off_Skystone_A extends Executive.StateBase<AutoOpmode> {
-        @Override
-        public void update() {
-            super.update();
-
-            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, opMode.liftArmTicksForLevelFoundationKnob(1, true, true),liftSpeed);
-            if(arrived) {
-                opMode.openClaw();
-            }
-        }
-    }
-
     class Vertical_Claw extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -583,7 +609,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     public double getDriveScale(ElapsedTime stateTimer) {
         double driveScale;
-        double speedDivider = 2.0; // No idea what a good name is
+        double speedDivider = 0.75; // No idea what a good name is
         driveScale = stateTimer.seconds() / speedDivider;
         driveScale = driveScale < 1.0 ? driveScale : 1.0;
         return driveScale;

@@ -670,7 +670,6 @@ public class RobotHardware extends OpMode {
                 return this.K_I;
             case D:
                 return this.K_D;
-            case F:
             default:
                 return this.K_F;
         }

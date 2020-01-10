@@ -25,6 +25,7 @@ public class Manual extends RobotHardware {
     private Mutable<Double> Exponential = new Mutable<>(1.0);
     private Mutable<Double> DriveSpeed = new Mutable<>(1.0);
     private Mutable<Double> RotationSpeed = new Mutable<>(1.0);
+    private Mutable<Boolean> Debug = new Mutable<>(false);
 
     // Define interactive init variable holders
     private double lifterSpeed;
@@ -37,6 +38,7 @@ public class Manual extends RobotHardware {
     private boolean precisionMode = false;
     private double precisionSpeed = 0.3;
     public Controller clawController;
+    private MecanumNavigation.Navigation2D waypoint = new MecanumNavigation.Navigation2D(0, 0, 0);
 
     @Override
     public void init() {
@@ -53,6 +55,7 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
+        interactiveInit.addBoolean(Debug, "Debug", false, true);
 
     }
 
@@ -133,6 +136,16 @@ public class Manual extends RobotHardware {
             imuUtilities.setCompensatedHeading(0);
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
         }
+        if(Debug.get()) {
+            if (controller1.left_trigger > 0.1) {
+                waypoint = mecanumNavigation.currentPosition.copy();
+            }
+
+            if (controller1.B()) {
+                autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+            }
+        }
+
         // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
         telemetry.addData("CoPilot Mode", copilotEnabled);
 

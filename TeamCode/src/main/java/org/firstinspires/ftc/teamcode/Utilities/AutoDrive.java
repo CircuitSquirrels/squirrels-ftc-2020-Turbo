@@ -58,8 +58,7 @@ public class AutoDrive {
         double distanceThresholdInches = 0.5;
         double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
-        MecanumNavigation.Navigation2D currentPosition =
-                (MecanumNavigation.Navigation2D)mecanumNavigation.currentPosition.clone();
+        MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
         MecanumNavigation.Navigation2D deltaPosition = targetPosition.minusEquals(currentPosition);
         double deltaDistance = Math.sqrt( Math.pow(deltaPosition.x,2) + Math.pow(deltaPosition.y,2));
 
@@ -67,7 +66,7 @@ public class AutoDrive {
         // Not Close enough to target, keep moving
         if ( Math.abs(deltaPosition.theta) > angleThresholdRadians) {
 
-            MecanumNavigation.Navigation2D rotationTarget = (MecanumNavigation.Navigation2D)currentPosition.clone();
+            MecanumNavigation.Navigation2D rotationTarget = currentPosition.copy();
             rotationTarget.theta = targetPosition.theta; // Only rotate to the target at first.
             Mecanum.Wheels wheels = mecanumNavigation.deltaWheelsFromPosition(rotationTarget);
             rateScale = rampDown(Math.abs(deltaPosition.theta)*(180/Math.PI), 50, 0.8, 0.1);
@@ -135,8 +134,6 @@ public class AutoDrive {
         }
         return Range.clip(Math.abs(output),0,1);
     }
-
-
 
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, int rampDistanceTicks) {
         power = Range.clip(Math.abs(power), 0, 1);
