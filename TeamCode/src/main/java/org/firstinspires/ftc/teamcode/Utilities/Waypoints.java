@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
@@ -67,8 +66,6 @@ public class Waypoints {
 
     public enum LocationLoading {
         INITIAL_POSITION,
-        SCAN_POSITION_A_0,
-        SCAN_POSITION_A_1,
         GRAB_SKYSTONE_A,
         ALIGNMENT_POSITION_A,
         BUILD_ZONE,
@@ -119,8 +116,6 @@ public class Waypoints {
     private double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
     private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth / 2; // Distance from outside wall to stone center.
 
-    // Foundation Initial Location
-
     // Robot Dimensions
     private double robotWidth = 17;
     private double robotSidePadding = robotWidth/2;
@@ -160,19 +155,17 @@ public class Waypoints {
         for(int i = 0; i<=5; ++i) {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,degreesToRadians(-90)));
             blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
-            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y, degreesToRadians(-90)));
+            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y + 2, degreesToRadians(-90)));
         }
 
         /**
          * Blue Loading Waypoints
          */
         blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding + 1, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_0, blueStoneAlignmentLocations.get(2).copy());
-        blueLoading.put(LocationLoading.SCAN_POSITION_A_1, blueStoneAlignmentLocations.get(1).copy());
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, new Navigation2D(blueStonePickupLocations.get(skystoneDetectionPosition + 3).x, blueStonePickupLocations.get(skystoneDetectionPosition + 3).y - 7, degreesToRadians((-90))));
+        blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(45, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(45, 26.74 + 4, degreesToRadians(-90)));
@@ -203,6 +196,7 @@ public class Waypoints {
         } else {
             throw new IllegalStateException("Invalid Team Color");
         }
+        labelAllWaypointsFromEnums();
     }
 
 
@@ -238,30 +232,34 @@ public class Waypoints {
         }
     }
 
-    public List<LabeledWaypoint> getLabeledWaypointListForLoad() {
-        ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
+    public void labelAllWaypointsFromEnums() {
         for(LocationLoading locationLoading: LocationLoading.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationLoading.toString(), loading.get(locationLoading)));
+            loading.get(locationLoading).setLabel(locationLoading.toString());
         }
-        return labeledWaypoints;
-    }
 
-    public List<LabeledWaypoint> getLabeledWaypointListForBuild() {
-        ArrayList<LabeledWaypoint> labeledWaypoints = new ArrayList<>();
         for(LocationBuild locationBuild: LocationBuild.values()) {
-            labeledWaypoints.add(new LabeledWaypoint(locationBuild.toString(), building.get(locationBuild)));
+            building.get(locationBuild).setLabel(locationBuild.toString());
+        }
+
+        for(int iStone=0; iStone<=5; ++iStone) {
+            stoneLocations.get(iStone).setLabel("Stone_" + String.valueOf(iStone));
+        }
+    }
+
+    public List<Navigation2D> getLabeledWaypointListForLoad() {
+        ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
+        for(LocationLoading locationLoading: LocationLoading.values()) {
+            labeledWaypoints.add(loading.get(locationLoading).copyAndLabel(locationLoading.toString()));
         }
         return labeledWaypoints;
     }
 
-    public static class LabeledWaypoint {
-        public String label = "";
-        public Navigation2D waypoint_n2d = new Navigation2D(0,0,0);
-
-        LabeledWaypoint(String label, Navigation2D waypoint_n2d) {
-            this.label = label;
-            this.waypoint_n2d = waypoint_n2d;
+    public List<Navigation2D> getLabeledWaypointListForBuild() {
+        ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
+        for(LocationBuild locationBuild: LocationBuild.values()) {
+            labeledWaypoints.add(building.get(locationBuild).copyAndLabel(locationBuild.toString()));
         }
+        return labeledWaypoints;
     }
 
     // Utility

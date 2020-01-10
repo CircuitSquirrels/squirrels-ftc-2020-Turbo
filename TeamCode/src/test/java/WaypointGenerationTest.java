@@ -4,10 +4,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
-import org.firstinspires.ftc.teamcode.Utilities.Waypoints.LabeledWaypoint;
-import org.junit.Before;
 import org.junit.Test;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,7 +13,6 @@ import java.util.List;
 
 import static org.firstinspires.ftc.teamcode.RobotHardware.StartPosition.FIELD_LOADING;
 import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
-import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.*;
 
 public class WaypointGenerationTest {
 
@@ -70,11 +66,11 @@ public class WaypointGenerationTest {
         // Check that all headings are the same as the initial heading. Show any discrepancies.
         System.out.println();
         boolean didAngleFail = false;
-        List<LabeledWaypoint> waypointList = waypoints.getLabeledWaypointListForLoad();
-        for(LabeledWaypoint labeledWaypoint: waypointList) {
-            if(initialPosition_n2d.theta != labeledWaypoint.waypoint_n2d.theta) {
-                double newWaypointDegrees = Math.toDegrees(labeledWaypoint.waypoint_n2d.theta);
-                System.out.println(labeledWaypoint.label + "  angle is  " + newWaypointDegrees + "  which is incorrect.");
+        List<Navigation2D> waypointList = waypoints.getLabeledWaypointListForLoad();
+        for(Navigation2D labeledWaypoint: waypointList) {
+            if(initialPosition_n2d.theta != labeledWaypoint.theta) {
+                double newWaypointDegrees = Math.toDegrees(labeledWaypoint.theta);
+                System.out.println(labeledWaypoint.getLabel() + "  angle is  " + newWaypointDegrees + "  which is incorrect.");
                 didAngleFail = true;
             }
         }
@@ -86,7 +82,7 @@ public class WaypointGenerationTest {
     @Test
     public void GenerateAllWaypoits() throws IOException {
         for(RobotHardware.StartPosition startPosition: RobotHardware.StartPosition.values()) {
-            Display_Waypoints(Color.Ftc.RED, startPosition, 1);
+            Display_Waypoints(Color.Ftc.BLUE, startPosition, 2);
         }
     }
 
@@ -100,15 +96,20 @@ public class WaypointGenerationTest {
         System.out.println("Skystone Detection Position:    " + waypoints.getSkystoneDetectionPosition());
         System.out.println();
 
-        List<LabeledWaypoint> waypointList;
+        List<Navigation2D> waypointList;
         if(startPosition == FIELD_LOADING) {
             waypointList = waypoints.getLabeledWaypointListForLoad();
         } else {
             waypointList = waypoints.getLabeledWaypointListForBuild();
         }
 
-        for(LabeledWaypoint waypoint: waypointList) {
-            System.out.println(waypoint.waypoint_n2d.toString() + ",    " + waypoint.label + ";");
+        for(Navigation2D waypoint: waypointList) {
+            System.out.println(waypoint.toString() + ",    " + waypoint.getLabel() + ";");
+        }
+
+        // Add stone positions to csv for comparison
+        for(int i = 0; i<=5; ++i) {
+            waypointList.add(waypoints.stoneLocations.get(i).copyAndLabel("Stone " + String.valueOf(i)));
         }
 
         String filename_waypointCSV =
@@ -120,7 +121,7 @@ public class WaypointGenerationTest {
 
     }
 
-    private void writeWaypointCSV(String filename,List<LabeledWaypoint> labeledWaypoints) throws IOException {
+    private void writeWaypointCSV(String filename,List<Navigation2D> labeledWaypoints) throws IOException {
         File file = new File(filename);
         File directory = new File(file.getParent());
 //        System.out.println(directory.getPath());
@@ -137,9 +138,9 @@ public class WaypointGenerationTest {
             csvWriter.append("Theta degrees;\n");
 
             // Add data
-            for(LabeledWaypoint waypoint: labeledWaypoints) {
-                csvWriter.append(waypoint.label + ",");
-                csvWriter.append(waypoint.waypoint_n2d.toString() + ";\n");
+            for(Navigation2D waypoint: labeledWaypoints) {
+                csvWriter.append(waypoint.getLabel() + ",");
+                csvWriter.append(waypoint.toString() + ";\n");
             }
             System.out.println("\n"+"Wrote file:  " + filename);
         } catch (IOException ioException) {

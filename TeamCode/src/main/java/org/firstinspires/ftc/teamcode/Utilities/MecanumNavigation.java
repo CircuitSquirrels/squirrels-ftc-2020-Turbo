@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
-import java.text.DecimalFormat;
-
 /**
  * Created by Ashley on 12/8/2017.
  */
@@ -139,6 +137,7 @@ public class MecanumNavigation {
         public double y = 0;
         // Rotation degrees CCW
         public double theta = 0;
+        private String label = "";
 
         /**
          *
@@ -176,7 +175,13 @@ public class MecanumNavigation {
         }
 
         public Navigation2D copy() {
-            return (Navigation2D) this.clone();
+            return this.copyAndLabel(label.concat("_copy"));
+        }
+
+        public Navigation2D copyAndLabel(String newLabel) {
+            Navigation2D copied_n2d = new Navigation2D(this.x,this.y,this.theta);
+            copied_n2d.label = newLabel;
+            return copied_n2d;
         }
 
         public void addInPlace(Navigation2D other) {
@@ -253,11 +258,21 @@ public class MecanumNavigation {
             this.theta = absoluteTheta;
         }
 
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
         @Override
         public Object clone()
         {
             try {
-                return super.clone();
+                Navigation2D temp_n2d = (Navigation2D) super.clone();
+                temp_n2d.setLabel(temp_n2d.label.concat("_copy"));
+                return temp_n2d;
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -265,8 +280,12 @@ public class MecanumNavigation {
         }
 
         public String toString() {
-            DecimalFormat df = new DecimalFormat("0.00");
-            return df.format(x) + " , " + df.format(y) + " , " + df.format(theta*180/Math.PI) + " deg";
+//            DecimalFormat df = new DecimalFormat(" 00.00;-00.00");
+//            DecimalFormat df_deg = new DecimalFormat(" 00.0;-00.0");
+//            return df.format(x) + ",  " + df.format(y) + ", " + df_deg.format(theta*180/Math.PI) + " deg";
+            String format_xy = "%6.2f";
+            String format_deg = "%6.1f";
+            return String.format(format_xy,x) + ",  " + String.format(format_xy,y) + ", " + String.format(format_deg,theta*180/Math.PI) + " deg";
         }
     }
 
