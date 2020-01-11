@@ -38,6 +38,7 @@ public class AutoOpmode extends RobotHardware {
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
+    public Mutable<Boolean> Foundation = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Pickup", group="Auto")
     public static class AutoRedPickup extends AutoOpmode {
@@ -110,9 +111,10 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
         interactiveInit.addBoolean(DropStones, "Drop Stones",true, false);
-        interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
+        interactiveInit.addBoolean(Foundation, "Move Foundation: ", true, false);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
+        interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
     }
 

@@ -22,6 +22,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private boolean simple;
     private boolean parkInner;
     private boolean dropStones;
+    private boolean foundation;
 
     private double scanDelay = 0.5;
     private double liftSpeed = 1;
@@ -50,6 +51,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         simple = opMode.SimpleAuto.get();
         parkInner = opMode.ParkInner.get();
         dropStones = opMode.DropStones.get();
+        foundation = opMode.Foundation.get();
     }
 
 
@@ -169,7 +171,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     throw new IndexOutOfBoundsException("Skystone Alignment Index was not 0 or 1.");
             }
             if (arrived) {
-                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Grab_Skystone(index));
+                if(waypoints.getSkystoneDetectionPosition() == 2 && index == 1) {
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Wallstone_Alignment());
+                } else {
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Grab_Skystone(index));
+                }
             }
         }
     }
@@ -179,10 +185,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      */
     class Grab_Skystone extends Executive.StateBase<AutoOpmode> {
         int index;
-
         Grab_Skystone(int Index) {
             index = Index;
         }
+
 
         @Override
         public void update() {
@@ -198,7 +204,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     throw new IndexOutOfBoundsException("Skystone Grab Index was not 0 or 1.");
             }
             if(arrived) {
-                if(!stateMachine.getCurrentStates(ARM).equals("Lower_Close_Claw")) {
+                if(!stateMachine.getCurrentStates(ARM).equals(Lower_Close_Claw.class.getSimpleName())) {
                     stateMachine.changeState(ARM, new Lower_Close_Claw());
                 }
                 if(stateMachine.getStateReference(ARM).arrived) {
@@ -221,7 +227,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if (!stateMachine.getCurrentStates(ARM).equals("Raise_Close_Claw")) stateMachine.changeState(ARM, new Raise_Close_Claw());
+            if (!stateMachine.getCurrentStates(ARM).equals(Raise_Close_Claw.class.getSimpleName())) {
+                stateMachine.changeState(ARM, new Raise_Close_Claw());
+            }
 
             if (stateMachine.getStateReference(ARM).arrived) {
                 if (stateMachine.getStateReference(ARM).arrived) {
@@ -310,17 +318,68 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            switch (index) {
-                case 0:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0), getDriveScale(stateTimer) * driveSpeed);
-                    break;
-                case 1:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
-                    break;
-                default: throw new IllegalStateException("Invalid align index");
-            }
+            arrived = opMode.autoDrive.driveToPositionTranslateOnly(index == 0 ? waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0) :
+                    waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer) * driveSpeed);
             if(arrived) {
                 stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Place_Foundation(index));
+            }
+        }
+    }
+
+    class Wallstone_Alignment extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            if(teamColor == Color.Ftc.BLUE) {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(15, 0, degreesToRadians(-30)), getDriveScale(stateTimer) * driveSpeed);
+            } else {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(15, 0, degreesToRadians(30)), getDriveScale(stateTimer) * driveSpeed);
+            }
+
+            if(arrived) {
+                stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Grab_Wallstone());
+            }
+        }
+    }
+
+    class Grab_Wallstone extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            if(teamColor == Color.Ftc.BLUE) {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(3, -5, degreesToRadians(-30)), getDriveScale(stateTimer) * .5);
+            } else {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(3, 3, degreesToRadians(30)), getDriveScale(stateTimer) * .5);
+            }
+            if(arrived) {
+                if(!stateMachine.getCurrentStates(ARM).equals(Lower_Close_Claw.class.getSimpleName())) {
+                    stateMachine.changeState(ARM, new Lower_Close_Claw());
+                }
+                if(stateMachine.getStateReference(ARM).arrived) {
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Backup_Wallstone());
+                }
+            }
+        }
+    }
+
+    class Backup_Wallstone extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            stateMachine.changeState(ARM, new Raise_Close_Claw());
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(stateMachine.getStateReference(ARM).arrived) {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(3, 0, 0), getDriveScale(stateTimer) * driveSpeed);
+                if (arrived) {
+                    if (dropStones)
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Build_Zone(1));
+                    else
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Foundation(1));
+                }
             }
         }
     }
@@ -350,9 +409,43 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     stateTimer.reset();
                 }
                 if(stateMachine.getStateReference(ARM).arrived && stateTimer.seconds() > 0.2) {
-                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Backup_Foundation(index));
+                    if(foundation && index == 1) {
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Drag_Foundation());
+                    } else {
+                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Backup_Foundation(index));
+                    }
                 }
             }
+        }
+    }
+
+    class Drag_Foundation extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            stateMachine.changeState(ARM, new Vertical_Claw());
+            stateTimer.reset();
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(stateMachine.getStateReference(ARM).arrived && stateTimer.seconds() > .6) {
+                arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(DRAG_FOUNDATION_OUTSIDE_WALL), getDriveScale(stateTimer) * .25);
+                if(arrived) {
+                    stateMachine.changeState(ARM, new Raise_Open_Claw());
+                    opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL));
+                    stateMachine.changeState(DRIVE, new End_Foundation());
+                }
+            }
+        }
+    }
+
+    class End_Foundation extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            opMode.verticalClaw();
         }
     }
 

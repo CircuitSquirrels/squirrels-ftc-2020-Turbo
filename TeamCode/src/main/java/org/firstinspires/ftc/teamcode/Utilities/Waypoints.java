@@ -73,6 +73,8 @@ public class Waypoints {
         ALIGNMENT_POSITION_B,
         FOUNDATION_ALIGNMENT,
         FOUNDATION_DROP_OFF,
+        DRAG_FOUNDATION_INSIDE_WALL,
+        DRAG_FOUNDATION_OUTSIDE_WALL,
         BRIDGE_ALIGNMENT_OUTER,
         BRIDGE_ALIGNMENT_INNER,
         PARK_OUTER,
@@ -124,6 +126,7 @@ public class Waypoints {
     private double grabOffset_X_Forward = 9; // Forward on Robot from navigation point, center of drivetrain.
     private double grabOffset_Y_Left = 0; // Left on Robot
     private double wallPadding = 1.5; // How far to stay from something you don't want to bump.
+    public Navigation2D redDropOffFudgeFactor = new Navigation2D(0, 3, 0);
 
     // Maneuver
     private double scanOffset_Y = 10;  // Arbitrary distance to move forward before scanning for skystones.
@@ -167,10 +170,12 @@ public class Waypoints {
         blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
-        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(45, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(45, 26.74 + 4, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(49, 26.74 + 4, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 10, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.8 * tileBody + robotFrontPadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.SIMPLE_ALIGNMENT_INNER, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.2 * tileBody + robotFrontPadding, degreesToRadians(-90)));
@@ -211,6 +216,10 @@ public class Waypoints {
         building.putAll(blueBuild);
         stoneLocations.addAll(blueStoneLocations);
         x_reflectGenericWaypointsAndStoneLocationsInPlace();
+        // I apologize in advance for the stupidity of our code
+        loading.get(LocationLoading.FOUNDATION_DROP_OFF).addInPlace(redDropOffFudgeFactor);
+        loading.get(LocationLoading.FOUNDATION_ALIGNMENT).addInPlace(redDropOffFudgeFactor);
+        loading.get(LocationLoading.BUILD_ZONE).addInPlace(redDropOffFudgeFactor);
     }
 
 

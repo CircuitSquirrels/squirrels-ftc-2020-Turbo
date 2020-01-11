@@ -91,6 +91,7 @@ public class AutoDrive {
     public boolean driveToPositionTranslateOnly(MecanumNavigation.Navigation2D targetPosition, double rate) {
         lastTargetPosition = targetPosition;
         double distanceThresholdInches = 0.5;
+        double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
         MecanumNavigation.Navigation2D currentPosition =
                 (MecanumNavigation.Navigation2D)mecanumNavigation.currentPosition.clone();
@@ -100,7 +101,8 @@ public class AutoDrive {
         double rateScale;
         // Not Close enough to target, keep moving
         if (Math.abs(deltaPosition.x) > distanceThresholdInches ||
-                Math.abs(deltaPosition.y) > distanceThresholdInches) {
+                Math.abs(deltaPosition.y) > distanceThresholdInches ||
+                Math.abs(deltaPosition.theta) > angleThresholdRadians) {
             MecanumNavigation.Navigation2D translationTarget = (MecanumNavigation.Navigation2D)currentPosition.clone();
             translationTarget.x = targetPosition.x;
             translationTarget.y = targetPosition.y;
@@ -172,12 +174,12 @@ public class AutoDrive {
     public boolean multiWaypointState(String stateName_multiWaypoint, double speed, ArrayList<MecanumNavigation.Navigation2D> waypointList) {
         // Determine if this is a new call to the function, and state variables should be reset.
         // This functions as the initialization of the state variables.
-        if (stateName_multiWaypoint != previousStateName_multiWaypoint) {
+        if (stateName_multiWaypoint.equals(previousStateName_multiWaypoint)) {
             currentDriveWaypoint = 0;
             previousStateName_multiWaypoint = stateName_multiWaypoint;
         }
 
-        boolean arrived = false;
+        boolean arrived;
         boolean finalArrived = false;
         int lastIndex = waypointList.size() - 1;
 
@@ -200,7 +202,4 @@ public class AutoDrive {
         opMode.telemetry.addData("Target", waypointList.get(currentDriveWaypoint).toString());
         return finalArrived;
     }
-
-
-
 }
