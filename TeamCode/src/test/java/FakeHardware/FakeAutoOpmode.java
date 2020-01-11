@@ -5,7 +5,6 @@ package FakeHardware;// Mockito
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
-import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
@@ -46,7 +45,7 @@ public class FakeAutoOpmode extends AutoOpmode {
     }
 
     public void setDriveSpeed(double driveSpeed) {
-        AutoDriveSpeed.set(driveSpeed);
+        DriveSpeed.set(driveSpeed);
     }
 
     public void setSimpleAuto(boolean simpleAuto) {

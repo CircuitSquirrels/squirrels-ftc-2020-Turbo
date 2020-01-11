@@ -32,7 +32,8 @@ public class AutoOpmode extends RobotHardware {
 
     //Interactive Init menu
     private InteractiveInit interactiveInit = null;
-    public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+
+    public Mutable<Double> DriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> DropStones = new Mutable<>(true);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
@@ -96,11 +97,11 @@ public class AutoOpmode extends RobotHardware {
 
         imuUtilities = new IMUUtilities(this,"IMU_1");
 
-        if(!robotColor.equals(Color.Ftc.UNKNOWN)) {
+        if(!robotColor.equals(Color.Ftc.UNKNOWN))
             robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
-        } else {
+        else
             robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
-        }
+
 
         timingMonitor = new TimingMonitor(AutoOpmode.this);
         timingMonitor.disable();
@@ -109,7 +110,7 @@ public class AutoOpmode extends RobotHardware {
 
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
-        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
+        interactiveInit.addDouble(DriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
         interactiveInit.addBoolean(DropStones, "Drop Stones",true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(Foundation, "Move Foundation: ", true, false);
@@ -162,7 +163,8 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void loop() {
         timingMonitor.loopStart();
-        if(controller1.start()) { timingMonitor.reset();} // Clear with start button
+        if(controller1.start())
+            timingMonitor.reset(); // Clear with start button
 
         super.loop();
         timingMonitor.checkpoint("POST super.loop()");
@@ -176,7 +178,7 @@ public class AutoOpmode extends RobotHardware {
         robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
 
-        if ( imuUtilities != null ) {
+        if (imuUtilities != null) {
             imuUtilities.update();
             timingMonitor.checkpoint("POST imuUtilities.update()");
         }
@@ -218,12 +220,9 @@ public class AutoOpmode extends RobotHardware {
     }
 
 
-
-
-    // Initialize vuforia in a separate thread to avoid init() hangups.
+    // Initialize OpenCV in a separate thread to avoid init() hangups.
     class VisionLoader implements Runnable {
         public void run() {
-            //TODO Might need to use trackables, the second to last boolean.
             skystoneDetector = new SkystoneDetector(AutoOpmode.this, robotColor);
             skystoneDetector.init(new AveragingPipeline());
         }
@@ -239,7 +238,7 @@ public class AutoOpmode extends RobotHardware {
         constantsWriter.addFieldToRecord("wheelbase_length_in", Constants.WHEELBASE_LENGTH_IN);
         constantsWriter.addFieldToRecord("wheelbase_k", Math.abs(Constants.WHEELBASE_LENGTH_IN/2.0)
                 + Math.abs(Constants.WHEELBASE_WIDTH_IN/2.0));
-        constantsWriter.addFieldToRecord("drive_wheel_steps_per_rotation", (double) Constants.DRIVE_WHEEL_STEPS_PER_ROT);
+        constantsWriter.addFieldToRecord("drive_wheel_steps_per_rotation", Constants.DRIVE_WHEEL_STEPS_PER_ROT);
         constantsWriter.completeRecord();
         constantsWriter.close();
     }
@@ -278,7 +277,7 @@ public class AutoOpmode extends RobotHardware {
         }
         // Capture all motor encoder values:
         for (MotorName m : MotorName.values()) {
-            csvWriter.addFieldToRecord(m.name()+"_ticks", (double)getEncoderValue(m));
+            csvWriter.addFieldToRecord(m.name()+"_ticks", (double) getEncoderValue(m));
         }
         // Capture all motor power levels:
         for (MotorName m : MotorName.values()) {
@@ -306,7 +305,7 @@ public class AutoOpmode extends RobotHardware {
         }
     }
 
-    void closeCSV() {
+    private void closeCSV() {
         if(RecordTelemetry.get()) {
             csvWriter.close();
             if (writeControls) {
