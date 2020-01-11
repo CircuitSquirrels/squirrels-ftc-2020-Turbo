@@ -87,10 +87,12 @@ public class AutoDrive {
         }
 
     }
-
     public boolean driveToPositionTranslateOnly(MecanumNavigation.Navigation2D targetPosition, double rate) {
+        return driveToPositionTranslateOnly(targetPosition, rate, 0.5);
+    }
+
+    public boolean driveToPositionTranslateOnly(MecanumNavigation.Navigation2D targetPosition, double rate, double distanceThresholdInches) {
         lastTargetPosition = targetPosition;
-        double distanceThresholdInches = 0.5;
         double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
         MecanumNavigation.Navigation2D currentPosition =

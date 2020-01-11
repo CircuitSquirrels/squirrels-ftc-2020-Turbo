@@ -25,6 +25,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private double scanDelay = 0.5;
     private double liftSpeed = 1;
     private int liftRaised = 1500;
+    private double corseTolerance = 1.5;
 
     private Controller controller1;
 
@@ -156,20 +157,20 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (index) {
                 case 0:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed);
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                     break;
                 case 1:
                     if(waypoints.getSkystoneDetectionPosition() != 2) {
-                        arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
+                        arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                     } else {
                         arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(8, 0, 0), getDriveScale(stateTimer) * driveSpeed);
                     }
                     break;
                 case 2:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer) * driveSpeed);
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                     break;
                 case 3:
-                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer) * driveSpeed);
+                    arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Alignment Index was not 0 or 1.");
@@ -245,16 +246,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 if (stateMachine.getStateReference(ARM).arrived) {
                     switch (index) {
                         case 0:
-                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed);
+                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                             break;
                         case 1:
-                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed);
+                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                             break;
                         case 2:
-                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer) * driveSpeed);
+                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                             break;
                         case 3:
-                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer) * driveSpeed);
+                            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
                             break;
                         default:
                             throw new IndexOutOfBoundsException("Skystone Backup Index was not 0 or 1.");
@@ -281,7 +282,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(BUILD_ZONE), getDriveScale(stateTimer) * driveSpeed);
+            arrived = opMode.autoDrive.driveToPositionTranslateOnly(waypoints.loading.get(BUILD_ZONE), getDriveScale(stateTimer) * driveSpeed, corseTolerance);
 
             if(arrived) {
                 stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Drop_Skystone(index));
@@ -308,24 +309,22 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if(stateMachine.getStateReference(ARM).arrived) {
-                switch (index) {
-                    case 0:
-                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(1));
-                        break;
-                    case 1:
-                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(2));
-                        break;
-                    case 2:
-                        stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(3));
-                        break;
-                    case 3:
-                        if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
-                        else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
-                        break;
-                    default:
-                        throw new IndexOutOfBoundsException("Out of bounds Drop Skystone Index");
-                }
+            switch (index) {
+                case 0:
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(1));
+                    break;
+                case 1:
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(2));
+                    break;
+                case 2:
+                    stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Skystone(3));
+                    break;
+                case 3:
+                    if(parkInner) stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Inner());
+                    else stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Align_Outer());
+                    break;
+                default:
+                    throw new IndexOutOfBoundsException("Out of bounds Drop Skystone Index");
             }
         }
     }
