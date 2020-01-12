@@ -150,14 +150,14 @@ public class Manual extends RobotHardware {
         telemetry.addData("CoPilot Mode", copilotEnabled);
 
         if (clawController.leftBumper()) {
-            closeClaw();
-            telemetry.addData("Claw: ", "CLOSED");
+            commandClaw(ClawPositions.CLOSED);
+            telemetry.addData("ClawPositions: ", "CLOSED");
         } else if (clawController.rightBumper()) {
-            openClaw();
-            telemetry.addData("Claw: ", "OPEN");
+            commandClaw(ClawPositions.OPEN);
+            telemetry.addData("ClawPositions: ", "OPEN");
         } else if(clawController.right_trigger > 0.1) {
-            verticalClaw();
-            telemetry.addData("Claw: ", "VERTICAL");
+            commandClaw(ClawPositions.VERTICAL);
+            telemetry.addData("ClawPositions: ", "VERTICAL");
         }
     }
 

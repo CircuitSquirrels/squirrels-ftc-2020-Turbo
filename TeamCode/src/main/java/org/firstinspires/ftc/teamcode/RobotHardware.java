@@ -20,9 +20,6 @@ import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
-import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
-import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
-import org.firstinspires.ftc.teamcode.Vision.SimpleVision;
 import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
 import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.ExpansionHubMotor;
@@ -330,28 +327,34 @@ public class RobotHardware extends OpMode {
         return isMovementDone;
     }
 
-    /**
-     * Initialize the claw vertical with the position defined in Constants.
-     */
-    public void verticalClaw() {
-        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_VERTICAL);
-        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_VERTICAL);
+    public enum ClawPositions {
+        CLOSED(Constants.RIGHT_CLAW_CLOSED, Constants.LEFT_CLAW_CLOSED),
+        OPEN(Constants.RIGHT_CLAW_OPEN, Constants.LEFT_CLAW_OPEN),
+        VERTICAL(Constants.RIGHT_CLAW_VERTICAL, Constants.LEFT_CLAW_VERTICAL),
+        NONE(-1, -1);
+        private final double rightPos;
+        private final double leftPos;
+
+        ClawPositions(double RightPos, double LeftPos) {
+            this.rightPos = RightPos;
+            this.leftPos = LeftPos;
+        }
+
+        public double getRightPos() {
+            return rightPos;
+        }
+
+        public double getLeftPos() {
+            return leftPos;
+        }
     }
 
-    /**
-     * Open the claw with the position defined in Constants.
-     */
-    public void openClaw() {
-        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_OPEN);
-        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_OPEN);
-    }
+    public void commandClaw(ClawPositions positions) {
+        double rAngle = positions.getRightPos() != -1 ? positions.getRightPos() : getAngle(ServoName.CLAW_RIGHT);
+        double lAngle = positions.getLeftPos() != -1 ? positions.getLeftPos() : getAngle(ServoName.CLAW_LEFT);
 
-    /**
-     * Close the claw with the position defined in Constants.
-     */
-    public void closeClaw() {
-        setAngle(ServoName.CLAW_LEFT, Constants.LEFT_CLAW_CLOSED);
-        setAngle(ServoName.CLAW_RIGHT, Constants.RIGHT_CLAW_CLOSED);
+        setAngle(ServoName.CLAW_RIGHT, rAngle);
+        setAngle(ServoName.CLAW_LEFT, lAngle);
     }
 
     // The color sensors on the robot.

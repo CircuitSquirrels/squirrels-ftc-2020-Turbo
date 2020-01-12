@@ -5,21 +5,19 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
-import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
-
 import java.util.HashMap;
 
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
 
 public class BehaviorSandBox implements Executive.RobotStateMachineContextInterface {
 
-    AutoOpmode opMode;
-    Executive.StateMachine<AutoOpmode> stateMachine;
-    Color.Ftc teamColor;
-    RobotHardware.StartPosition startPosition;
-    Waypoints waypoints;
-    double driveSpeed = 0.8;
-    Controller controller1;
+    private AutoOpmode opMode;
+    private Executive.StateMachine<AutoOpmode> stateMachine;
+    private Color.Ftc teamColor;
+    private RobotHardware.StartPosition startPosition;
+    private Waypoints waypoints;
+    private double driveSpeed = 0.8;
+    private Controller controller1;
 
     public BehaviorSandBox(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
@@ -84,12 +82,13 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
                 stateMachine.changeState(DRIVE, new Start_Menu());
             }
 
-            opMode.setDriveForSimpleMecanum(controller1.left_stick_x, controller1.left_stick_y, controller1.right_stick_x, controller1.right_stick_y);
+            opMode.setDriveForSimpleMecanum(controller1.left_stick_x * driveSpeed, controller1.left_stick_y * driveSpeed,
+                    controller1.right_stick_x * driveSpeed, controller1.right_stick_y * driveSpeed);
 
             if(controller1.rightBumper()) {
-                opMode.openClaw();
+                opMode.commandClaw(RobotHardware.ClawPositions.OPEN);
             } else if(controller1.leftBumper()) {
-                opMode.closeClaw();
+                opMode.commandClaw(RobotHardware.ClawPositions.CLOSED);
             }
 
             for (RobotHardware.MotorName m : RobotHardware.MotorName.values()) {
@@ -146,7 +145,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         int servoIndex = 0;
         int maxServoIndex;
         int inputDivider = 10;
-        double speed = 1;
         double nextServoPosition;
         RobotHardware.ServoName currentServo;
         boolean disableClawServoTest = true;
@@ -155,7 +153,7 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         public void init(Executive.StateMachine stateMachine) {
             super.init(stateMachine);
             opMode.telemetry.clear();
-            opMode.verticalClaw();
+            opMode.commandClaw(RobotHardware.ClawPositions.VERTICAL);
 
             for (RobotHardware.ServoName s : RobotHardware.ServoName.values()) {
                 try {
@@ -209,19 +207,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
         }
     }
 
-    class Start extends Executive.StateBase {
-        @Override
-        public void init(Executive.StateMachine stateMachine) {
-            super.init(stateMachine);
-        }
-
-        @Override
-        public void update() {
-            super.update();
-        }
-    }
-
-
     class Auto extends Executive.StateBase<AutoOpmode> {
         RobotStateContext robotStateContext;
 
@@ -249,22 +234,6 @@ public class BehaviorSandBox implements Executive.RobotStateMachineContextInterf
             opMode.stopAllMotors();
         }
     }
-
-    /* Class template for easy copy paste.
-
-     class Template extends Executive.StateBase {
-            @Override
-            public void init(Executive.StateMachine stateMachine) {
-                super.init(stateMachine);
-            }
-
-            @Override
-            public void update() {
-                super.update();
-            }
-     }
-     */
-
 
     private double degreesToRadians(double degrees) {
         return degrees * Math.PI / 180;

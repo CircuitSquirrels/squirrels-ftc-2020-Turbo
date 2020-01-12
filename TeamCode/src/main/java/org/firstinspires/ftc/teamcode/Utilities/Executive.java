@@ -90,12 +90,11 @@ public class Executive {
         public String getCurrentStates(StateType stateType) {
             StateBase state = stateMap.get(stateType);
             try {
-                String stateString = state.getClass().toString();
-                String[] stringArray = stateString.split("\\$");
-                if (state.getIteration()  == 0) {
-                    return stringArray[1];
+                String stateName = state.getClass().getSimpleName();
+                if (state.getIteration()  == -1) {
+                    return stateName;
                 } else {
-                    return stringArray[1] + ":" + String.valueOf(state.getIteration());
+                    return stateName + ":" + state.getIteration();
                 }
 
             } catch (Exception e){
@@ -141,11 +140,11 @@ public class Executive {
                         throw new RuntimeException("ERROR: state called in StateMachine update() was never initialized");
                     }
                     // Delete or update state
-                    if (state.isDeleteRequested() == false) {
+                    if (!state.isDeleteRequested()) {
                         state.update();
                     }
                 } else {
-                    Log.w("Statemap null key", "");
+                    Log.w("Error", "Statemap null key");
                 }
             }
             clearDeletedStates();
@@ -175,15 +174,16 @@ public class Executive {
         T_opmode opMode;
         ElapsedTime stateTimer; // Time how long state has been active
         ElapsedTime statePeriod; // Time how long since state has been executed.
-        double lastStatePeriod = 0;
+        double lastStatePeriod = -1;
         boolean arrived = false;
+        boolean armStateSet = false;
 
         private boolean initialized = false;
         private boolean deleteRequested = false;
 
 
         public StateBase() {
-            this.iteration = 0;
+            this.iteration = -1;
             // Defining default constructor
             // However, we NEED the state machine reference.
             // Handled by allowing init to take a stateMachine argument.
@@ -209,9 +209,16 @@ public class Executive {
             statePeriod.reset();
         }
 
-        protected void nextState(StateMachine.StateType stateType, StateBase state) {
-            stateMachine.changeState(stateType,state);
+        protected void nextState(StateMachine.StateType stateType, StateBase state, boolean isActive) {
+            if(stateType.equals(StateMachine.StateType.ARM))
+                armStateSet = true;
+
+            stateMachine.changeState(isActive, stateType, state);
             stateMachine.stateMap.get(stateType).init(stateMachine);
+        }
+
+        protected void nextState(StateMachine.StateType stateType, StateBase state) {
+            nextState(stateType, state, true);
         }
 
         final private int iteration;
