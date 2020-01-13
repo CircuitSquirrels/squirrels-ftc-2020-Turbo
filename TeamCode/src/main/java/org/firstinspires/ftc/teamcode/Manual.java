@@ -151,13 +151,13 @@ public class Manual extends RobotHardware {
 
         if (clawController.leftBumper()) {
             commandClaw(ClawPositions.CLOSED);
-            telemetry.addData("ClawPositions: ", "CLOSED");
+            telemetry.addData("Claw: ", "CLOSED");
         } else if (clawController.rightBumper()) {
             commandClaw(ClawPositions.OPEN);
-            telemetry.addData("ClawPositions: ", "OPEN");
+            telemetry.addData("Claw: ", "OPEN");
         } else if(clawController.right_trigger > 0.1) {
             commandClaw(ClawPositions.VERTICAL);
-            telemetry.addData("ClawPositions: ", "VERTICAL");
+            telemetry.addData("Claw: ", "VERTICAL");
         }
     }
 
