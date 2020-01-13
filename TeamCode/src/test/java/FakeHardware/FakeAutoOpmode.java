@@ -65,6 +65,10 @@ public class FakeAutoOpmode extends AutoOpmode {
         DropStones.set(dropStones);
     }
 
+    public void setMoveFoundation(boolean moveFoundation) {
+        Foundation.set(moveFoundation);
+    }
+
     @Override
     public void setAngle(ServoName servo, double position) {
         //do nothing

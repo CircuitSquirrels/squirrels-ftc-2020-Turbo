@@ -89,14 +89,15 @@ public class Executive {
         // Format state to only contain the class name.
         public String getCurrentStates(StateType stateType) {
             StateBase state = stateMap.get(stateType);
+            String stateString;
             try {
                 String stateName = state.getClass().getSimpleName();
                 if (state.getIteration()  == -1) {
-                    return stateName;
+                    stateString = stateName;
                 } else {
-                    return stateName + ":" + state.getIteration();
+                    stateString = stateName + ":" + state.getIteration();
                 }
-
+                return stateString + state.getAuxData();
             } catch (Exception e){
                 return "";
             }
@@ -226,6 +227,22 @@ public class Executive {
             return iteration;
         }
 
+        public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed) {
+            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+        }
+
+        public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed, double tolerance) {
+            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed, tolerance);
+        }
+
+        public boolean isArmArrived() {
+            StateBase armState = stateMachine.getStateReference(StateMachine.StateType.ARM);
+            return armState.arrived;
+        }
+
+        public String getAuxData() {
+            return "";
+        }
 
         public void reset() {
             initialized = false;
