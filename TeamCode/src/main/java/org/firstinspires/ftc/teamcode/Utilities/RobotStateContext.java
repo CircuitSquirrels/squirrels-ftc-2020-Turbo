@@ -25,7 +25,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private boolean dropStones;
     private boolean foundation;
 
-    private boolean manualEnd;
+    private boolean manualEnd = true;
 
     private final int liftRaised = 1500;
     private final int liftLowered = 0;
@@ -58,11 +58,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
         stateMachine.init();
 
-        driveSpeed = opMode.DriveSpeed.get();
-        simple = opMode.SimpleAuto.get();
-        parkInner = opMode.ParkInner.get();
-        dropStones = opMode.DropStones.get();
-        foundation = opMode.Foundation.get();
+        this.driveSpeed = opMode.DriveSpeed.get();
+        this.simple = opMode.SimpleAuto.get();
+        this.parkInner = opMode.ParkInner.get();
+        this.dropStones = opMode.DropStones.get();
+        this.foundation = opMode.Foundation.get();
     }
 
 
@@ -200,7 +200,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     }
     /**
      * Loading Drive State
-     * The state for grabbing the detected skystone
+     * The state for grabbing the detected skystone and/or regular stones.
      */
     class Grab_Skystone extends Executive.StateBase<AutoOpmode> {
 
@@ -258,28 +258,23 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextArmState(CLOSED, liftRaised, false);
 
             if (!isArmArrived()) return;
-
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_A),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
+                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
+                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_A),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
+                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 3:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_B),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
+                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Backup Index was out of bounds.");
             }
-            if (arrived) return;
+            if (!arrived) return;
 
             if (dropStones)
                 nextState(DRIVE, new Build_Zone(getIteration()), opMode.shouldContinue());
@@ -352,9 +347,23 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            //Todo Clean up this bit, add offset class vars
-            arrived = driveTo(getIteration() == 0 ? waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0) :
-                    waypoints.loading.get(FOUNDATION_ALIGNMENT), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            //Todo Add offset class vars
+            switch (getIteration()) {
+                case 0:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                case 1:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                case 2:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                default:
+                    throw new IndexOutOfBoundsException("Align Foundation index out of bounds");
+            }
 
             if(!arrived) return;
 
@@ -440,6 +449,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_DROP_OFF).addAndReturn(-12, 0, 0),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                case 2:
                     arrived = driveTo(waypoints.loading.get(FOUNDATION_DROP_OFF),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
@@ -454,10 +467,56 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
             if(!isArmArrived() || !(stateTimer.seconds() > placeFoundation_Delay)) return;
 
-            if(foundation && getIteration() == 1)
+            if(foundation && getIteration() == 2)
                 nextState(DRIVE, new Drag_Foundation(), opMode.shouldContinue());
             else
                 nextState(DRIVE, new Backup_Foundation(getIteration()), opMode.shouldContinue());
+        }
+    }
+
+    class Backup_Foundation extends Executive.StateBase<AutoOpmode> {
+
+        Backup_Foundation(int iteration) {
+            super(iteration);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            switch (getIteration()) {
+                case 0:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                case 1:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                case 2:
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
+                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    break;
+                default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
+            }
+            if(!arrived) return;
+
+            nextArmState(VERTICAL, null, false);
+            switch (getIteration()) {
+                case 0:
+                    nextState(DRIVE, new Align_Skystone(1), opMode.shouldContinue());
+                    break;
+                case 1:
+                    nextState(DRIVE, new Align_Skystone(2), opMode.shouldContinue());
+                    break;
+                case 2:
+                    if(parkInner)
+                        nextState(DRIVE, new Align_Inner(), opMode.shouldContinue());
+                    else
+                        nextState(DRIVE, new Align_Outer(), opMode.shouldContinue());
+                    break;
+                default:
+                    throw new IndexOutOfBoundsException("Backup Foundation index out of bounds.");
+            }
         }
     }
 
@@ -481,7 +540,15 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextArmState(OPEN, liftRaised, true);
             // Reset robot's current position to compensate for slippage from dragging foundation.
             opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL));
-            nextState(DRIVE, new Strafe_From_Foundation(), opMode.shouldContinue());
+            nextState(DRIVE, new Foundation_End(), opMode.shouldContinue());
+        }
+    }
+
+    class Foundation_End extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            nextArmState(VERTICAL, liftRaised, false);
         }
     }
 
@@ -503,36 +570,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
             else
                 nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
-        }
-    }
-
-    class Backup_Foundation extends Executive.StateBase<AutoOpmode> {
-
-        Backup_Foundation(int iteration) {
-            super(iteration);
-        }
-
-        @Override
-        public void update() {
-            super.update();
-            arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
-            if(!arrived) return;
-
-            nextArmState(VERTICAL, null, false);
-            switch (getIteration()) {
-                case 0:
-                    nextState(DRIVE, new Align_Skystone(1), opMode.shouldContinue());
-                    break;
-                case 1:
-                    if(parkInner)
-                        nextState(DRIVE, new Align_Inner(), opMode.shouldContinue());
-                    else
-                        nextState(DRIVE, new Align_Outer(), opMode.shouldContinue());
-                    break;
-                default:
-                    throw new IndexOutOfBoundsException("Backup Foundation index out of bounds.");
-            }
         }
     }
 
