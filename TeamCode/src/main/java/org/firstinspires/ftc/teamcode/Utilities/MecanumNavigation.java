@@ -204,6 +204,14 @@ public class MecanumNavigation {
             return new Navigation2D(this.x + x, this.y + y, this.theta + theta);
         }
 
+        public Navigation2D substractAndReturn(double x, double y, double theta) {
+            return new Navigation2D(this.x - x, this.y - y, this.theta - theta);
+        }
+
+        public Navigation2D substractAndReturn(Navigation2D other) {
+            return new Navigation2D(this.x - other.x, this.y - other.y, this.theta - other.theta);
+        }
+
         public void subtractInPlace(Navigation2D other) {
             this.x -= other.x;
             this.y -= other.y;
