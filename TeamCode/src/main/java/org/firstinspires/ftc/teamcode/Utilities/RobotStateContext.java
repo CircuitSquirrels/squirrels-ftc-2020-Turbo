@@ -29,7 +29,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     private final int liftRaised = 1500;
     private final int liftLowered = 0;
-    private final double courseTolerance = 1.5;
+    private final double courseTolerance = 0.5;
     private final double liftSpeed = 1.0;
     private final double wallStoneSpeed = 0.5;
     private final double foundationDragSpeed = 0.5;
