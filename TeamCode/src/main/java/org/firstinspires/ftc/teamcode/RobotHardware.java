@@ -60,10 +60,9 @@ public class RobotHardware extends OpMode {
 
     // Execution cycle period monitor.
     private ElapsedTime period = new ElapsedTime();
-    private Vector<Double> pastPeriods = new Vector<Double>();
+    private Vector<Double> pastPeriods = new Vector<>();
 
-    public Controller controller1;
-    public Controller controller2;
+    public Controller controller1, controller2;
     public MecanumNavigation mecanumNavigation;
     public AutoDrive autoDrive;
     public IMUUtilities imuUtilities;
@@ -397,11 +396,7 @@ public class RobotHardware extends OpMode {
      */
     public boolean colorSensorExists(ColorSensorName sensor) {
         ColorSensor s = allColorSensors.get(sensor.ordinal());
-        if (s == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return s != null;
     }
 
     /**
@@ -410,8 +405,7 @@ public class RobotHardware extends OpMode {
      * @param sensor  The sensor to set the LED power.
      * @param enabled Whether to turn the LED on.
      */
-    public void setColorSensorLedEnabled(ColorSensorName sensor,
-                                         boolean enabled) {
+    public void setColorSensorLedEnabled(ColorSensorName sensor, boolean enabled) {
         ColorSensor s = allColorSensors.get(sensor.ordinal());
         if (s == null) {
             telemetry.addData("Color Sensor Missing: ", sensor.name());
@@ -493,7 +487,7 @@ public class RobotHardware extends OpMode {
         expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
         expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
 
-        allMotors = new ArrayList<ExpansionHubMotor>();
+        allMotors = new ArrayList<>();
         for (MotorName m : MotorName.values()) {
             try {
                 allMotors.add(hardwareMap.get(ExpansionHubMotor.class, m.name()));
@@ -504,7 +498,7 @@ public class RobotHardware extends OpMode {
         }
 
         // Collect a list of only the drive motors.
-        driveMotorNames = new ArrayList<MotorName>();
+        driveMotorNames = new ArrayList<>();
         driveMotorNames.add(MotorName.DRIVE_FRONT_LEFT);
         driveMotorNames.add(MotorName.DRIVE_FRONT_RIGHT);
         driveMotorNames.add(MotorName.DRIVE_BACK_LEFT);
@@ -538,7 +532,7 @@ public class RobotHardware extends OpMode {
             telemetry.addData("Unable to set arm motor to zero power brake or encoder use", "");
         }
 
-        allServos = new ArrayList<Servo>();
+        allServos = new ArrayList<>();
         for (ServoName s : ServoName.values()) {
             try {
                 allServos.add(hardwareMap.get(Servo.class, s.name()));
@@ -554,11 +548,10 @@ public class RobotHardware extends OpMode {
             telemetry.addData("Unable to set left servo direction", "");
         }
 
-        allColorSensors = new ArrayList<ColorSensor>();
+        allColorSensors = new ArrayList<>();
         for (ColorSensorName s : ColorSensorName.values()) {
             try {
-                allColorSensors.add(hardwareMap.get(ColorSensor.class,
-                        s.name()));
+                allColorSensors.add(hardwareMap.get(ColorSensor.class, s.name()));
             } catch (Exception e) {
                 telemetry.addData("Color Sensor Missing: ", s.name());
                 allColorSensors.add(null);

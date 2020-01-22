@@ -30,7 +30,7 @@ public class Constants {
     // Arm Lift Encoders
     public static final double LIFT_TICKS_PER_INCH = 335;
     public static final double LIFT_FOUNDATION_HEIGHT_TICKS = 360;
-    public static final double LIFT_KNOB_HEIGHT_TICKS = 330 * 1.5;
+    public static final double LIFT_KNOB_HEIGHT_TICKS = 330 * 2;
 
 
     

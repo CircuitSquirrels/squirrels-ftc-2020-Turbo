@@ -12,7 +12,7 @@ import static com.google.common.truth.Truth.assertThat;
 //import org.mockito.MockitoAnnotations;
 
 // Teamcode
-        import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
+import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
@@ -20,10 +20,7 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 
 import java.text.DecimalFormat;
-
-        import FakeHardware.FakeRobotHardware;
-
-import static com.google.common.truth.Truth.assertThat;
+import FakeHardware.FakeRobotHardware;
 
 public class AutoDriveTest {
 

@@ -344,7 +344,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
         }
     }
-
+    /**
+     * Loading Drive State
+     * Aligns with the foundation for placing
+     */
     class Align_Foundation extends Executive.StateBase<AutoOpmode> {
 
         Align_Foundation(int iteration) {
@@ -377,7 +380,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
            nextState(DRIVE, new Place_Foundation(getIteration()), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Aligns with the wallstone for easy grabbing
+     */
     class WallStone_Alignment extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -394,7 +400,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextState(DRIVE, new Grab_WallStone(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Grabs the wallstone
+     */
     class Grab_WallStone extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -416,7 +425,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextState(DRIVE, new Backup_WallStone(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Backup from wallstone to avoid knocking stones over
+     */
     class Backup_WallStone extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -440,7 +452,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextState(DRIVE, new Align_Foundation(1), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Places stone on foundation
+     */
     class Place_Foundation extends Executive.StateBase<AutoOpmode> {
 
         Place_Foundation(int iteration) {
@@ -480,7 +495,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextState(DRIVE, new Backup_Foundation(getIteration()), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Backups up from foundation to avoid hitting it
+     */
     class Backup_Foundation extends Executive.StateBase<AutoOpmode> {
 
         Backup_Foundation(int iteration) {
@@ -529,7 +547,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
         }
     }
-
+    /**
+     * Loading Drive State
+     * Drags foundation to build site
+     */
     class Drag_Foundation extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -553,7 +574,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextState(DRIVE, new Foundation_End(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Gets rid of the arm states
+     */
     class Foundation_End extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -561,7 +585,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextArmState(VERTICAL, liftRaised, false);
         }
     }
-
+    /**
+     * Loading Drive State
+     * Strafes away from the foundation for parking
+     */
     class Strafe_From_Foundation extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -582,7 +609,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Aligns outer parking area
+     */
     class Align_Outer extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -594,7 +624,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Parks on outer side of skybridge
+     */
     class Park_Outer extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
@@ -615,7 +648,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 nextState(DRIVE, new Stop_State(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Aligns at the inner side of the sky bridge
+     */
     class Align_Inner extends Executive.StateBase<AutoOpmode> {
         @Override
         public void update() {
@@ -627,7 +663,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
         }
     }
-
+    /**
+     * Loading Drive State
+     * Parks on inner side of skybridge
+     */
     class Park_Inner extends Executive.StateBase<AutoOpmode> {
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {

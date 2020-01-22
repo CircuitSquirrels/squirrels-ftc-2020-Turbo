@@ -95,8 +95,7 @@ public class AutoDrive {
         lastTargetPosition = targetPosition;
         double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
-        MecanumNavigation.Navigation2D currentPosition =
-                (MecanumNavigation.Navigation2D)mecanumNavigation.currentPosition.clone();
+        MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
         MecanumNavigation.Navigation2D deltaPosition = targetPosition.minusEquals(currentPosition);
         double deltaDistance = Math.sqrt( Math.pow(deltaPosition.x,2) + Math.pow(deltaPosition.y,2));
 

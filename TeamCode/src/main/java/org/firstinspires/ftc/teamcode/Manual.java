@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
+
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.ARM;
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
 
 @TeleOp (name="Manual",group="Competition")
@@ -74,7 +76,7 @@ public class Manual extends RobotHardware {
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
         stateMachine = new Executive.StateMachine(this);
-        stateMachine.changeState(DRIVE, new ManualArm());
+        stateMachine.changeState(DRIVE, new ManageArmStates());
         stateMachine.init();
 
         imuUtilities = new IMUUtilities(this,"IMU_1");
@@ -203,50 +205,46 @@ public class Manual extends RobotHardware {
         if(copilotEnabled) return Math.abs(clawController.right_stick_y) > threshold;
         else return Math.abs(clawController.left_stick_y) > threshold;
     }
-    boolean arrived = false;
-    public class ManualArm extends Executive.StateBase<Manual> {
+
+
+    private class ManageArmStates extends Executive.StateBase<Manual> {
+        public int placeIndex = 1;
+
         @Override
         public void update() {
             super.update();
 
-            if (copilotEnabled) {
-                // Lifter Control
-                setPower(MotorName.LIFT_WINCH, Math.pow(-controller2.left_stick_y, exponential) * lifterSpeed);
-            } else {
-                // Lifter Control
-                setPower(MotorName.LIFT_WINCH, Math.pow(-controller1.right_stick_y, 5) * lifterSpeed);
-            }
+            Controller armController = copilotEnabled ? controller2 : controller1;
 
-            if(clawController.YOnce()) {
-                stateMachine.changeState(DRIVE, new ArmBottom());
-            } else if (clawController.XOnce()) {
-                stateMachine.changeState(DRIVE, new ArmLifted());
-            }
-        }
-    }
-
-    public class ArmBottom extends Executive.StateBase<Manual> {
-        @Override
-        public void update() {
-            super.update();
-            arrived = autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 0, lifterSpeed);
-            if(gotoManualArmControl() || arrived) {
-                stateMachine.changeState(DRIVE, new ManualArm());
-            } else if (clawController.XOnce()) {
-                stateMachine.changeState(DRIVE, new ArmLifted());
+            if(gotoManualArmControl()) {
+                stateMachine.changeState(ARM, new ManualArmControl());
+            } else if(armController.AOnce()) {
+                stateMachine.changeState(ARM, new GoToLiftLevel(placeIndex));
+            } else if(armController.BOnce()) {
+                stateMachine.changeState(ARM, new GoToLiftLevel(0));
             }
         }
-    }
 
-    public class ArmLifted extends Executive.StateBase<Manual> {
-        @Override
-        public void update() {
-            super.update();
-            arrived = autoDrive.driveMotorToPos(MotorName.LIFT_WINCH, 1300, lifterSpeed);
-            if(gotoManualArmControl() || arrived) {
-                stateMachine.changeState(DRIVE, new ManualArm());
-            } else if(clawController.YOnce()) {
-                stateMachine.changeState(DRIVE, new ArmBottom());
+        private class ManualArmControl extends Executive.StateBase<Manual> {
+            @Override
+            public void update() {
+                super.update();
+                if (copilotEnabled)
+                    setPower(MotorName.LIFT_WINCH, Math.pow(-controller2.left_stick_y, exponential) * lifterSpeed);
+                else
+                    setPower(MotorName.LIFT_WINCH, Math.pow(-controller1.right_stick_y, exponential) * lifterSpeed);
+            }
+        }
+
+        private class GoToLiftLevel extends Executive.StateBase<Manual> {
+            int index;
+            GoToLiftLevel(int index) {
+                this.index = index;
+            }
+            @Override
+            public void update() {
+                super.update();
+                driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(index, true, true), lifterSpeed);
             }
         }
     }
