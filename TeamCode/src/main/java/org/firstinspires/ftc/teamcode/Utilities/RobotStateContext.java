@@ -174,8 +174,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 case 1:
-                    if(waypoints.getSkystoneDetectionPosition() == 2)
-                        arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(8, 0, 0),
+                    if(waypoints.getSkystoneDetectionPosition() == 2)  // Waypoint offset adjusted to match WallStone Alignment state.
+                        arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(15, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                     else
                         arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B),
