@@ -37,6 +37,7 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Boolean> DropStones = new Mutable<>(true);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
+    public Mutable<Boolean> ConservativeRoute = new Mutable<>(false);
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
     public Mutable<Boolean> Foundation = new Mutable<>(false);
@@ -114,6 +115,7 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(DropStones, "Drop Stones",true, false);
         interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
         interactiveInit.addBoolean(Foundation, "Move Foundation: ", true, false);
+        interactiveInit.addBoolean(ConservativeRoute, "Conservative Route: ", false, true);
         interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
         interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);

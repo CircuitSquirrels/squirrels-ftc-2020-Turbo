@@ -111,6 +111,7 @@ public class StateMachineTest {
         opMode.setSimpleAuto(true);
         opMode.setSkystoneIndex(0);
         opMode.setMoveFoundation(false);
+        opMode.setConservativeMode(true);
         robotStateContext.init(); // Required to apply modifications to interactive init settings.
         simulateStateMachine(true, 2, 40.0, .02);
     }
@@ -126,6 +127,7 @@ public class StateMachineTest {
         opMode.setSimpleAuto(false);
         opMode.setSkystoneIndex(1);
         opMode.setMoveFoundation(false);
+        opMode.setConservativeMode(true);
         robotStateContext.init(); // Required to apply modifications to interactive init settings.
         simulateStateMachine(true, 2, 40.0, .02);
     }
@@ -141,8 +143,9 @@ public class StateMachineTest {
         opMode.setSimpleAuto(false);
         opMode.setSkystoneIndex(1);
         opMode.setMoveFoundation(false);
+        opMode.setConservativeMode(true);
         robotStateContext.init(); // Required to apply modifications to interactive init settings.
-        simulateStateMachine(false, 2, 40.0, .02);
+        simulateStateMachine(true, 2, 40.0, .02);
     }
 
     @Test
@@ -156,8 +159,9 @@ public class StateMachineTest {
         opMode.setSimpleAuto(false);
         opMode.setSkystoneIndex(2);
         opMode.setMoveFoundation(false);
+        opMode.setConservativeMode(true);
         robotStateContext.init(); // Required to apply modifications to interactive init settings.
-        simulateStateMachine(false, 2, 40.0, .02);
+        simulateStateMachine(true, 2, 40.0, .02);
     }
 
     @Test
@@ -171,8 +175,9 @@ public class StateMachineTest {
         opMode.setSimpleAuto(false);
         opMode.setSkystoneIndex(1);
         opMode.setMoveFoundation(true);
+        opMode.setConservativeMode(true);
         robotStateContext.init(); // Required to apply modifications to interactive init settings.
-        simulateStateMachine(false, 2, 40.0, .02);
+        simulateStateMachine(true, 2, 40.0, .02);
     }
 
     // Specify default behavior

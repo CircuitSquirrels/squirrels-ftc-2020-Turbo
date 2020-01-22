@@ -69,6 +69,8 @@ public class FakeAutoOpmode extends AutoOpmode {
         Foundation.set(moveFoundation);
     }
 
+    public void setConservativeMode(boolean conservativeMode) {ConservativeRoute.set(conservativeMode); }
+
     @Override
     public void setAngle(ServoName servo, double position) {
         //do nothing

@@ -24,6 +24,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private boolean parkInner;
     private boolean dropStones;
     private boolean foundation;
+    private boolean conservativeRoute;
 
     private boolean manualEnd = true;
 
@@ -63,6 +64,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.parkInner = opMode.ParkInner.get();
         this.dropStones = opMode.DropStones.get();
         this.foundation = opMode.Foundation.get();
+        this.conservativeRoute = opMode.ConservativeRoute.get();
     }
 
 
@@ -322,10 +324,15 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
+
             switch (getIteration()) {
                 case 0: case 1: case 2:
                     nextState(DRIVE, new Align_Skystone(getIteration() + 1), opMode.shouldContinue());
                     break;
+//                    if (!conservativeRoute) {
+//                        nextState(DRIVE, new Align_Skystone(getIteration() + 1), opMode.shouldContinue());
+//                        break;
+//                    }
                 case 3:
                     if(parkInner)
                         nextState(DRIVE, new Align_Inner(), opMode.shouldContinue());
@@ -506,8 +513,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     nextState(DRIVE, new Align_Skystone(1), opMode.shouldContinue());
                     break;
                 case 1:
-                    nextState(DRIVE, new Align_Skystone(2), opMode.shouldContinue());
-                    break;
+                    if(!conservativeRoute) {
+                        // After 2nd (index 1) stone is placed, only go for the 3rd if conservativeRoute is false.
+                        nextState(DRIVE, new Align_Skystone(2), opMode.shouldContinue());
+                        break;
+                    }
                 case 2:
                     if(parkInner)
                         nextState(DRIVE, new Align_Inner(), opMode.shouldContinue());
