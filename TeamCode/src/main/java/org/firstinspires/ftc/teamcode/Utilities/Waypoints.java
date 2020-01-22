@@ -120,7 +120,7 @@ public class Waypoints {
     private double stoneKnobHeight = 5;
     private double tileBody = 22.75; // Width of a tile without its tabs
     private double tileTabs = 0.9; // Width of interlocking tabs, from tile body to tile body.
-    private double halfField = 70.5; // Should equal (6*tileBody + 5*tileTabs)/2
+    private double halfField = 70.875; // Should equal (6*tileBody + 5*tileTabs)/2
     private double stoneStartYOffset = (tileBody * 2) + (tileTabs * 2) + stoneWidth / 2; // Distance from outside wall to stone center.
 
     // Robot Dimensions
@@ -128,7 +128,7 @@ public class Waypoints {
     private double robotSidePadding = robotWidth/2;
     private double robotFrontPadding = 5.25; //Distance from Robot front edge to wheelbase center.
     private double robotBackPadding = 6.25; //Distance from Robot back edge to wheelbase center.
-    private double grabOffset_X_Forward = 9-1; // Forward on Robot from navigation point, center of drivetrain.
+    private double grabOffset_X_Forward = 9.75; // Forward on Robot from navigation point, center of drivetrain.  // 9.75 when measured
     private double grabOffset_Y_Left = 0; // Left on Robot
     private double wallPadding = 1.5; // How far to stay from something you don't want to bump.
     public Navigation2D redDropOffFudgeFactor = new Navigation2D(0, 3, 0);
@@ -180,7 +180,7 @@ public class Waypoints {
         blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_B,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
         blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_B,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
         blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(49, 26.74 + 4 + 2, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
