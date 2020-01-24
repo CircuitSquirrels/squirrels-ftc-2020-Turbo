@@ -89,6 +89,13 @@ public class Waypoints {
 
     public enum LocationBuild {
         INITIAL_POSITION,
+        ALIGN_FOUNDATION,
+        FOUNDATION,
+        DRAG_FOUNDATION_INSIDE_WALL,
+        DRAG_FOUNDATION_OUTSIDE_WALL,
+        STRAFE_AWAY_FROM_FOUNDATION,
+        BRIDGE_ALIGNMENT_OUTER,
+        BRIDGE_ALIGNMENT_INNER,
         PARK_OUTER,
         PARK_INNER,
         SIMPLE_ALIGNMENT_INNER,
@@ -194,6 +201,13 @@ public class Waypoints {
          * Blue Build positions
          */
         blueBuild.put(LocationBuild.INITIAL_POSITION, new Navigation2D(+tileBody + robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.ALIGN_FOUNDATION, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.FOUNDATION, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
+        blueBuild.put(LocationBuild.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.PARK_INNER, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.SIMPLE_ALIGNMENT_INNER, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));

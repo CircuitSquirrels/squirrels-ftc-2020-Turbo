@@ -484,8 +484,12 @@ public class RobotHardware extends OpMode {
     public void init() {
 
         // Setup expansion hubs for bulk reads.
-        expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
-        expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+        try {
+            expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+            expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+        } catch (Exception e) {
+            telemetry.addData("Couldn't find expansion hub",e.getMessage());
+        }
 
         allMotors = new ArrayList<>();
         for (MotorName m : MotorName.values()) {
@@ -522,7 +526,7 @@ public class RobotHardware extends OpMode {
         setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
-        setDriveMotorsZeroPowerBraking(false);
+        setDriveMotorsZeroPowerBraking(true);
 
         // Set arm motor to brake
         try {

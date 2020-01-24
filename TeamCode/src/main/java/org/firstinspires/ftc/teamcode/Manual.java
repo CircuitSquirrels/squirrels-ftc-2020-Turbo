@@ -208,7 +208,9 @@ public class Manual extends RobotHardware {
 
 
     private class ManageArmStates extends Executive.StateBase<Manual> {
-        public int placeIndex = 1;
+        private int placeIndex = 1;
+        private boolean arrived = false;
+        private double offset_encoder = 0;
 
         @Override
         public void update() {
@@ -219,10 +221,17 @@ public class Manual extends RobotHardware {
             if(gotoManualArmControl()) {
                 stateMachine.changeState(ARM, new ManualArmControl());
             } else if(armController.AOnce()) {
-                stateMachine.changeState(ARM, new GoToLiftLevel(placeIndex));
+                stateMachine.changeState(ARM, new GoToLiftLevel());
             } else if(armController.BOnce()) {
-                stateMachine.changeState(ARM, new GoToLiftLevel(0));
+                stateMachine.changeState(ARM, new GoToBottom());
+            } else if(armController.YOnce()) {
+                placeIndex = 1;
+            } else if(arrived) {
+                stateMachine.changeState(ARM, new ManualArmControl());
             }
+
+            offset_encoder += -armController.right_stick_y * 500 * getAveragePeriodSec();
+            telemetry.addData("Offset", offset_encoder);
         }
 
         private class ManualArmControl extends Executive.StateBase<Manual> {
@@ -237,14 +246,21 @@ public class Manual extends RobotHardware {
         }
 
         private class GoToLiftLevel extends Executive.StateBase<Manual> {
-            int index;
-            GoToLiftLevel(int index) {
-                this.index = index;
-            }
             @Override
             public void update() {
                 super.update();
-                driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(index, true, true), lifterSpeed);
+                arrived = driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + (int) offset_encoder, lifterSpeed);
+                if(arrived) {
+                    placeIndex++;
+                }
+            }
+        }
+
+        private class GoToBottom extends Executive.StateBase<Manual> {
+            @Override
+            public void update() {
+                super.update();
+                arrived = driveMotorToPos(MotorName.LIFT_WINCH, (int) offset_encoder, lifterSpeed);
             }
         }
     }

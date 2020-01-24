@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import static org.firstinspires.ftc.teamcode.RobotHardware.StartPosition.*;
 import static org.firstinspires.ftc.teamcode.RobotHardware.ClawPositions.*;
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationBuild.FOUNDATION;
 import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
 
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
@@ -295,6 +296,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         }
 
         @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            nextArmState(CLOSED, 800, false);
+        }
+
+        @Override
         public void update() {
             super.update();
             arrived = driveTo(waypoints.loading.get(BUILD_ZONE),
@@ -409,7 +416,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             if(teamColor.equals(Color.Ftc.BLUE))
-                arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(3, -5, degreesToRadians(-30)),
+                arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(7, -5, degreesToRadians(-30)),
                         getDriveScale(stateTimer.seconds()) * wallStoneSpeed);
             else
                 arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(3, 3, degreesToRadians(30)),
@@ -489,7 +496,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
             if(!isArmArrived() || !(stateTimer.seconds() > placeFoundation_Delay)) return;
 
-            if(foundation && getIteration() == 2)
+            if(foundation && (getIteration() == 2) || (getIteration() == 1 && conservativeRoute))
                 nextState(DRIVE, new Drag_Foundation(), opMode.shouldContinue());
             else
                 nextState(DRIVE, new Backup_Foundation(getIteration()), opMode.shouldContinue());
@@ -514,9 +521,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed);
-                    break;
+                    if(!conservativeRoute)
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
+                                getDriveScale(stateTimer.seconds()) * driveSpeed);
+
                 case 2:
                     arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
@@ -833,8 +841,25 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            // TODO: Provide real building side routine. Move the foundation?
-            stateMachine.changeState(DRIVE, new Simple_Park());
+            if(simple) {
+                stateMachine.changeState(DRIVE, new Simple_Park());
+            } else {
+
+            }
+        }
+    }
+
+    class Align_With_Foundation extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            nextArmState(VERTICAL, liftRaised, false);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
         }
     }
 
