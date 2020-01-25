@@ -210,7 +210,7 @@ public class Manual extends RobotHardware {
     private class ManageArmStates extends Executive.StateBase<Manual> {
         private int placeIndex = 1;
         private boolean arrived = false;
-        private double offset_encoder = 0;
+        private int offset_encoder = 0;
 
         @Override
         public void update() {
@@ -226,11 +226,15 @@ public class Manual extends RobotHardware {
                 stateMachine.changeState(ARM, new GoToBottom());
             } else if(armController.YOnce()) {
                 placeIndex = 1;
+            } else if(armController.dpadUpOnce()) {
+                placeIndex++;
+            } else if(armController.dpadDownOnce()) {
+                placeIndex--;
             } else if(arrived) {
                 stateMachine.changeState(ARM, new ManualArmControl());
             }
 
-            offset_encoder += -armController.right_stick_y * 500 * getAveragePeriodSec();
+            offset_encoder += (int) -armController.right_stick_y * 500 * getAveragePeriodSec();
             telemetry.addData("Offset", offset_encoder);
         }
 
@@ -249,7 +253,7 @@ public class Manual extends RobotHardware {
             @Override
             public void update() {
                 super.update();
-                arrived = driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + (int) offset_encoder, lifterSpeed);
+                arrived = driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + offset_encoder, lifterSpeed);
                 if(arrived) {
                     placeIndex++;
                 }
@@ -260,7 +264,7 @@ public class Manual extends RobotHardware {
             @Override
             public void update() {
                 super.update();
-                arrived = driveMotorToPos(MotorName.LIFT_WINCH, (int) offset_encoder, lifterSpeed);
+                arrived = driveMotorToPos(MotorName.LIFT_WINCH, offset_encoder, lifterSpeed);
             }
         }
     }

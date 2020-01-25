@@ -526,7 +526,7 @@ public class RobotHardware extends OpMode {
         setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
-        setDriveMotorsZeroPowerBraking(true);
+        setDriveMotorsZeroPowerBraking(false);
 
         // Set arm motor to brake
         try {
