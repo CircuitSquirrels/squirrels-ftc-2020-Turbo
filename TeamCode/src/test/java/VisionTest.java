@@ -116,7 +116,7 @@ public class VisionTest {
         Mat outputMat = testPipeline.processFrame(input);
         saveMatAsRGB(IMAGE_WRITE_PATH + "pipeline_default.jpg",outputMat);
         testPipeline.getStatus();
-//        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
+        testPipeline.saveInputImage(IMAGE_WRITE_PATH + "anotherFolder/");
     }
 
     @Test

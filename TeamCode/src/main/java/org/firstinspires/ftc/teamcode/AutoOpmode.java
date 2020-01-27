@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Utilities.BehaviorSandBox;
-import org.firstinspires.ftc.teamcode.Utilities.CSV;
+import org.firstinspires.ftc.teamcode.FileIO.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.Executive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
@@ -219,6 +219,13 @@ public class AutoOpmode extends RobotHardware {
     public void stop() {
         super.stop();
         closeCSV();
+        saveLiftEncoderPosition();
+
+    }
+
+    private void saveLiftEncoderPosition() {
+
+
     }
 
 
