@@ -21,7 +21,6 @@ public class Manual extends RobotHardware {
     Executive.StateMachine<Manual> stateMachine;
 
     // Adding interactive init variables
-    private InteractiveInit interactiveInit = null;
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> CoPilot = new Mutable<>(false);
     private Mutable<Double> Exponential = new Mutable<>(1.0);
@@ -51,14 +50,12 @@ public class Manual extends RobotHardware {
         clawController = controller2;
 
         //Adding Interactive init options
-        interactiveInit = new InteractiveInit(this);
-        interactiveInit.addDouble(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
-        interactiveInit.addDouble(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75);
-        interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
-        interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
-        interactiveInit.addBoolean(Debug, "Debug", false, true);
-
+        interactiveInit.addOption(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+                    .addOption(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75)
+                    .addOption(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75)
+                    .addOption(Exponential, "Exponential", 3.0, 1.0)
+                    .addOption(CoPilot, "Copilot Enable", false, true)
+                    .addOption(Debug, "Debug", false, true);
     }
 
     @Override
@@ -81,8 +78,6 @@ public class Manual extends RobotHardware {
 
         imuUtilities = new IMUUtilities(this,"IMU_1");
         imuUtilities.setCompensatedHeading(0);
-        // Lock Interactive Init so it no longer receives inputs
-        interactiveInit.lock();
 
         // Assign the variables to Interactive Init values
         lifterSpeed = LiftSpeed.get();

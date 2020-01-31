@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
+import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
@@ -67,6 +68,7 @@ public class RobotHardware extends OpMode {
     public AutoDrive autoDrive;
     public IMUUtilities imuUtilities;
     public SkystoneDetector skystoneDetector;
+    public InteractiveInit interactiveInit;
 
 
     // The motors on the robot, must be the same names defined in the robot's Configuration file.
@@ -566,11 +568,15 @@ public class RobotHardware extends OpMode {
         df = new DecimalFormat("0.00");
         df_prec = new DecimalFormat("0.0000");
 
+        interactiveInit = new InteractiveInit(this);
+
         stopAllMotors();
         period.reset(); // Reset timer
     }
 
     public void init_loop() {
+        interactiveInit.update();
+
         bulkDataDrive = expansionHubDrive.getBulkInputData();
         bulkDataArm = expansionHubArm.getBulkInputData();
     }
@@ -579,6 +585,7 @@ public class RobotHardware extends OpMode {
         stopAllMotors();
         bulkDataDrive = expansionHubDrive.getBulkInputData();
         bulkDataArm = expansionHubArm.getBulkInputData();
+        interactiveInit.lock();
         period.reset(); // Reset timer
     }
 

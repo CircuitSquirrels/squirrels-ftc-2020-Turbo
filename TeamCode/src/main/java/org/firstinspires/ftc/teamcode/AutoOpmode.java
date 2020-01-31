@@ -30,9 +30,7 @@ public class AutoOpmode extends RobotHardware {
     private CSV controlWriter;
     private boolean writeControls = false;
 
-    //Interactive Init menu
-    private InteractiveInit interactiveInit = null;
-
+    // Interactive init options
     public Mutable<Double> DriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> DropStones = new Mutable<>(true);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
@@ -105,48 +103,49 @@ public class AutoOpmode extends RobotHardware {
 
 
         timingMonitor = new TimingMonitor(AutoOpmode.this);
+        // Disable timing monitor to avoid spamming telemetry
         timingMonitor.disable();
 
         telemetry.addData("Initialization: ", "Successful!");
 
+        interactiveInit = new InteractiveInit(AutoOpmode.this);
+
         // Initialization Menu
-        interactiveInit = new InteractiveInit(this);
-        interactiveInit.addDouble(DriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5, .6, .7);
-        interactiveInit.addBoolean(DropStones, "Drop Stones",true, false);
-        interactiveInit.addBoolean(ParkInner, "Park Inner: ", false, true);
-        interactiveInit.addBoolean(Foundation, "Move Foundation: ", true, false);
-        interactiveInit.addBoolean(ConservativeRoute, "Conservative Route: ", false, true);
-        interactiveInit.addBoolean(PauseBeforeState, "Pause Before State", true, false);
-        interactiveInit.addBoolean(SimpleAuto, "Simple Auto: ", true, false);
-        interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
+        interactiveInit.addOption(DriveSpeed, "DriveSpeed: ",0.8,1.0,.1,.3,.5, .6, .7)
+                .addOption(DropStones, "Drop Stones: ",true, false)
+                .addOption(ParkInner, "Park Inner: ", false, true)
+                .addOption(Foundation, "Move Foundation: ", false, true)
+                .addOption(ConservativeRoute, "Conservative Route: ", false, true)
+                .addOption(PauseBeforeState, "Pause Before State: ", true, false)
+                .addOption(SimpleAuto, "Simple Auto: ", true, false)
+                .addOption(RecordTelemetry,"Record Telemetry: ", true, false)
+                .addOption(FoundationPark, "Foundation Park: ", false, true);
     }
 
     @Override
     public void init_loop() {
         super.init_loop();
+
         controller1.update();
-        if (skystoneDetector == null) {
-            telemetry.addData("Vision: ", "LOADING...");
-        } else {
-            telemetry.addData("Vision: ", "INITIALIZED");
-        }
         interactiveInit.update();
+        if (skystoneDetector == null)
+            telemetry.addData("Vision: ", "LOADING...");
+        else
+            telemetry.addData("Vision: ", "INITIALIZED");
     }
 
     @Override
     public void start() {
-        super.init();
+        super.start();
 
         // Navigation and control
-        mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
+        mecanumNavigation = new MecanumNavigation(this, Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-
-        interactiveInit.lock();
 
         robotStateContext.init(); //After mecanum init, because state init could reference mecanumNavigation.
 
