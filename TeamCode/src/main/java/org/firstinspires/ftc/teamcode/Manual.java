@@ -102,6 +102,7 @@ public class Manual extends RobotHardware {
         controller2.update();
         mecanumNavigation.update();
 
+        telemetry.addLine("---Drive---");
         // Display the robot's position compared to where it started
         mecanumNavigation.displayPosition();
 
@@ -211,12 +212,14 @@ public class Manual extends RobotHardware {
         private int placeIndex = 1;
         private boolean arrived = false;
         private int offset_encoder = 0;
+        private int lastEncoderPosition = 0;
+        Controller armController;
 
         @Override
         public void update() {
             super.update();
 
-            Controller armController = copilotEnabled ? controller2 : controller1;
+            armController = copilotEnabled ? controller2 : controller1;
 
             if(gotoManualArmControl()) {
                 stateMachine.changeState(ARM, new ManualArmControl());
@@ -234,18 +237,22 @@ public class Manual extends RobotHardware {
                 stateMachine.changeState(ARM, new ManualArmControl());
             }
 
-            offset_encoder += (int) -armController.right_stick_y * 500 * getAveragePeriodSec();
+            offset_encoder += (int) -armController.right_stick_y * 250 * getAveragePeriodSec();
+            telemetry.addLine("---Lifter---");
             telemetry.addData("Offset", offset_encoder);
+            telemetry.addData("Place Index", placeIndex);
         }
 
         private class ManualArmControl extends Executive.StateBase<Manual> {
             @Override
             public void update() {
                 super.update();
-                if (copilotEnabled)
-                    setPower(MotorName.LIFT_WINCH, Math.pow(-controller2.left_stick_y, exponential) * lifterSpeed);
-                else
-                    setPower(MotorName.LIFT_WINCH, Math.pow(-controller1.right_stick_y, exponential) * lifterSpeed);
+                if(Math.abs(armController.left_stick_y) > 0.05) {
+                    setPower(MotorName.LIFT_WINCH, Math.pow(-armController.left_stick_y, exponential) * lifterSpeed);
+                    lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
+                } else {
+                    driveMotorToPos(MotorName.LIFT_WINCH, lastEncoderPosition, lifterSpeed);
+                }
             }
         }
 
@@ -254,6 +261,7 @@ public class Manual extends RobotHardware {
             public void update() {
                 super.update();
                 arrived = driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + offset_encoder, lifterSpeed);
+                lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 if(arrived) {
                     placeIndex++;
                 }
@@ -265,6 +273,7 @@ public class Manual extends RobotHardware {
             public void update() {
                 super.update();
                 arrived = driveMotorToPos(MotorName.LIFT_WINCH, offset_encoder, lifterSpeed);
+                lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
             }
         }
     }

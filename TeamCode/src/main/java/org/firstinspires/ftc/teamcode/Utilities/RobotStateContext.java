@@ -29,7 +29,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     private boolean manualEnd = false;
 
-    private final int liftRaised = 1500;
+    private final int liftRaised = 750;
     private final int liftLowered = 0;
     private final double courseTolerance = 0.5;
     private final double liftSpeed = 1.0;
@@ -579,7 +579,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             nextArmState(OPEN, liftRaised, true);
             // Reset robot's current position to compensate for slippage from dragging foundation.
             opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL));
-            nextState(DRIVE, new Foundation_End(), opMode.shouldContinue());
+            if(opMode.FoundationPark.get()) {
+                if(parkInner)
+                    nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
+                else
+                    nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
+            }  else {
+                nextState(DRIVE, new Foundation_End(), opMode.shouldContinue());
+            }
         }
     }
     /**
