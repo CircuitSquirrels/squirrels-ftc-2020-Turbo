@@ -183,6 +183,12 @@ public class MecanumNavigation {
         // Simple clone.
         public Navigation2D(Navigation2D navigation2D) {
             this(navigation2D.x, navigation2D.y, navigation2D.theta);
+            this.referenceFrame = navigation2D.referenceFrame;
+        }
+
+        public Navigation2D(Navigation2D navigation2D, Frame2D referenceFrame) {
+            this(navigation2D.x, navigation2D.y, navigation2D.theta);
+            this.referenceFrame = referenceFrame; // DEBUG: Not copied, reference may stay connected
         }
 
         public Navigation2D copy() {
@@ -342,13 +348,37 @@ public class MecanumNavigation {
             return pointInParentFrame;
         }
 
-        public Navigation2D getNav2dInWorldFrame() {
+        public Navigation2D getNav2DInWorldFrame() {
             Navigation2D pointInNewFrame = this.copy();
             // When the parent is null, we are in the world frame.
             while(pointInNewFrame.referenceFrame != null) {
                 pointInNewFrame = pointInNewFrame.getNav2DInParentFrame();
             }
             return pointInNewFrame;
+        }
+
+        public Navigation2D getNav2DInLocalFrame(Frame2D localFrame) {
+            Navigation2D localPoint;
+            Navigation2D globalPoint = this.getNav2DInWorldFrame(); // Null referenceFrame
+
+            // If localFrame is really the world frame, then return the world frame.
+            if(localFrame == null) return this.getNav2DInWorldFrame();
+
+            // Get position of local frame origin in world frame
+            Navigation2D localFrameOriginInWorld_N2D = localFrame.positionInReferenceFrame.copy();
+            localFrameOriginInWorld_N2D.referenceFrame = localFrame.referenceFrame;
+            localFrameOriginInWorld_N2D = localFrameOriginInWorld_N2D.getNav2DInWorldFrame();
+
+            // Apply shift then rotation to move globalPoint into the new localfFrameOriginInWorld
+            localPoint = new Navigation2D(0,0,0);  // Reinitialize local point
+            localPoint.x = globalPoint.x - localFrameOriginInWorld_N2D.x;
+            localPoint.y = globalPoint.y - localFrameOriginInWorld_N2D.y;
+            localPoint.rotateDegrees(-Math.toDegrees(localFrameOriginInWorld_N2D.theta));
+            // Correct localFrame set
+            localPoint.referenceFrame = localFrame; // TODO DEBUG Frame Not copied
+
+
+            return localPoint;
         }
     }
 
