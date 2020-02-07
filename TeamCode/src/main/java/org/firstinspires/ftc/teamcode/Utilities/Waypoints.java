@@ -64,6 +64,7 @@ public class Waypoints {
      * public waypoints customized for starting location
       */
 
+    //Todo Convert enums to storing their own XY Theta instead of assigning it later?
     public enum LocationLoading {
         INITIAL_POSITION,
         GRAB_SKYSTONE_A,
@@ -75,8 +76,8 @@ public class Waypoints {
         ALIGN_EXTRA_STONE_A,
         GRAB_EXTRA_STONE_B,
         ALIGN_EXTRA_STONE_B,
-        FOUNDATION_ALIGNMENT,
-        FOUNDATION_DROP_OFF,
+        FOUNDATION_ALIGNMENT_A,
+        FOUNDATION_PLACE,
         DRAG_FOUNDATION_INSIDE_WALL,
         DRAG_FOUNDATION_OUTSIDE_WALL,
         STRAFE_AWAY_FROM_FOUNDATION,
@@ -89,13 +90,6 @@ public class Waypoints {
 
     public enum LocationBuild {
         INITIAL_POSITION,
-        ALIGN_FOUNDATION,
-        FOUNDATION,
-        DRAG_FOUNDATION_INSIDE_WALL,
-        DRAG_FOUNDATION_OUTSIDE_WALL,
-        STRAFE_AWAY_FROM_FOUNDATION,
-        BRIDGE_ALIGNMENT_OUTER,
-        BRIDGE_ALIGNMENT_INNER,
         PARK_OUTER,
         PARK_INNER,
         SIMPLE_ALIGNMENT_INNER,
@@ -168,30 +162,31 @@ public class Waypoints {
         List<Navigation2D> blueStonePickupLocations = new ArrayList(); // Location from which to pickup stone 0-5
         List<Navigation2D> blueStoneAlignmentLocations = new ArrayList(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
-            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),halfField-2*tileBody-2*tileTabs-0.5*stoneWidth,degreesToRadians(-90)));
-            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0)); // setup grabOffset from stones.
-            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), innerTileAlignment_Y + 4, degreesToRadians(-90)));
+            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),31.5, Math.toRadians(-90)));
+            // Add robot's length for correct grab position.
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0));
+            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), 37.5, Math.toRadians(-90)));
         }
 
         /**
          * Blue Loading Waypoints
          */
-        blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-tileBody - robotSidePadding, halfField - robotBackPadding + 1, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-33, 65, Math.toRadians(-90)));
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
-        blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(tileBody - 6, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(24, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, Math.toRadians(-90)));
         blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
         blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_A,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
         blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_A,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
         blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_B,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
         blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_B,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
-        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_DROP_OFF, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT_A, new Navigation2D(50, 37.5, Math.toRadians(-90)));
+        blueLoading.put(LocationLoading.FOUNDATION_PLACE, new Navigation2D(50, 30.5, Math.toRadians(-90)));
+        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, Math.toRadians(-90)));
         blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
+        blueLoading.put(LocationLoading.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
         blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.8 * tileBody + robotFrontPadding, degreesToRadians(-90)));
@@ -201,13 +196,13 @@ public class Waypoints {
          * Blue Build positions
          */
         blueBuild.put(LocationBuild.INITIAL_POSITION, new Navigation2D(+tileBody + robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.ALIGN_FOUNDATION, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.FOUNDATION, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.ALIGN_FOUNDATION, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.FOUNDATION, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
+//        blueBuild.put(LocationBuild.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.PARK_INNER, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
         blueBuild.put(LocationBuild.SIMPLE_ALIGNMENT_INNER, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
@@ -241,8 +236,8 @@ public class Waypoints {
         stoneLocations.addAll(blueStoneLocations);
         x_reflectGenericWaypointsAndStoneLocationsInPlace();
         // I apologize in advance for the stupidity of our code
-        loading.get(LocationLoading.FOUNDATION_DROP_OFF).addInPlace(redDropOffFudgeFactor);
-        loading.get(LocationLoading.FOUNDATION_ALIGNMENT).addInPlace(redDropOffFudgeFactor);
+        loading.get(LocationLoading.FOUNDATION_PLACE).addInPlace(redDropOffFudgeFactor);
+        loading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).addInPlace(redDropOffFudgeFactor);
         loading.get(LocationLoading.BUILD_ZONE).addInPlace(redDropOffFudgeFactor);
     }
 

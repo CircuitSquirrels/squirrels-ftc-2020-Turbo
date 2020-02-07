@@ -20,17 +20,15 @@ import java.io.File;
 @TeleOp(name="Diagnostic Vision", group="Diagnostic")
 public class DiagnosticVision extends DiagnosticOpMode {
 
-    private Thread thread;
-    Waypoints waypoints;
-    boolean useSettingsDirectory = false;
-    boolean settingsDirectoryTriedAndFailed = false;
+    private Waypoints waypoints;
+    private boolean useSettingsDirectory = false;
+    private boolean settingsDirectoryTriedAndFailed = false;
 
     @Override
     public void init() {
         super.init();
         waypoints = new Waypoints(Color.Ftc.RED);
-        thread = new Thread(new VisionLoader());
-        thread.start();
+        new Thread(() -> loadVision(DiagnosticVision.this, Color.Ftc.BLUE)).start();
         telemetry.addData("Diagnostic Vision Mode ", " Initialized");
     }
 
@@ -89,13 +87,4 @@ public class DiagnosticVision extends DiagnosticOpMode {
         }
 
     }
-
-    // Initialize vision in a separate thread to avoid init() hangups.
-    class VisionLoader implements Runnable {
-        public void run() {
-            skystoneDetector = new SkystoneDetector(DiagnosticVision.this, Color.Ftc.BLUE);
-            skystoneDetector.init(new AveragingPipeline());
-        }
-    }
-
 }

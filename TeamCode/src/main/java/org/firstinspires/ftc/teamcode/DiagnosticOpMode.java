@@ -20,7 +20,7 @@ import java.util.function.IntBinaryOperator;
 public class DiagnosticOpMode extends Manual {
 
     IMUUtilities imuHelper;
-    TimingMonitor timingMonitor;
+    private TimingMonitor timingMonitor;
 
     @Override
     public void init() {

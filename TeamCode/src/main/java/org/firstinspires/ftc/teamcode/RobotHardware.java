@@ -4,32 +4,15 @@ import android.util.Log;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.*;
 
-import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
-import org.firstinspires.ftc.teamcode.Utilities.Color;
-import org.firstinspires.ftc.teamcode.Utilities.Constants;
-import org.firstinspires.ftc.teamcode.Utilities.Controller;
-import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
-import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
-import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
-import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
-import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
-import org.openftc.revextensions2.ExpansionHubEx;
-import org.openftc.revextensions2.ExpansionHubMotor;
-import org.openftc.revextensions2.RevBulkData;
+import org.firstinspires.ftc.teamcode.Utilities.*;
+import org.firstinspires.ftc.teamcode.Vision.*;
+import org.openftc.revextensions2.*;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Vector;
+import java.util.*;
 
 public class RobotHardware extends OpMode {
 
@@ -521,21 +504,20 @@ public class RobotHardware extends OpMode {
             allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotorSimple.Direction.FORWARD);
         } catch (Exception e) {
-            telemetry.addData("Unable to set motor direction", "");
+            telemetry.addData("Error", "Unable to set motor direction");
         }
 
         // Set drive motors to use encoders
         setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Set drive motors to float instead of brake when power is zero.
-        setDriveMotorsZeroPowerBraking(false);
+        setDriveMotorsZeroPowerBraking(true);
 
         // Set arm motor to brake
         try {
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
-            telemetry.addData("Unable to set arm motor to zero power brake or encoder use", "");
+            telemetry.addData("Error", "Unable to set arm motor to zero power brake or encoder use");
         }
 
         allServos = new ArrayList<>();
@@ -546,12 +528,6 @@ public class RobotHardware extends OpMode {
                 telemetry.addData("Servo Missing: ", s.name());
                 allServos.add(null);
             }
-        }
-        // Set servo direction
-        try {
-
-        } catch (Exception e) {
-            telemetry.addData("Unable to set left servo direction", "");
         }
 
         allColorSensors = new ArrayList<>();
@@ -598,12 +574,11 @@ public class RobotHardware extends OpMode {
     public void stop() {
         super.stop();
 
-        for (MotorName m : MotorName.values()) {
+        for (MotorName m : MotorName.values())
             setPower(m, 0);
-        }
-        for (ColorSensorName s : ColorSensorName.values()) {
+
+        for (ColorSensorName s : ColorSensorName.values())
             setColorSensorLedEnabled(s, false);
-        }
     }
 
 
@@ -636,7 +611,7 @@ public class RobotHardware extends OpMode {
     }
 
     public enum ControlParameter {
-        P,I,D,F,
+        P,I,D,F
     }
 
     public void changeDriveControlParameterByFactor(ControlParameter controlParameter, double scaleFactor) {
@@ -682,20 +657,16 @@ public class RobotHardware extends OpMode {
         }
     }
 
-
-    public double degreesToRadians(double degrees) {
-        return degrees * Math.PI / 180;
-    }
-
-    public double radiansToDegrees(double radians) {
-        return radians * 180 / Math.PI;
-    }
-
     public int liftArmTicksForLevelFoundationKnob(int level_1to6, boolean withFoundation, boolean withKnob) {
         double liftTicks = (level_1to6 - 1) * 4 * Constants.LIFT_TICKS_PER_INCH;
         if(withFoundation) liftTicks += Constants.LIFT_FOUNDATION_HEIGHT_TICKS;
         if(withKnob) liftTicks += Constants.LIFT_KNOB_HEIGHT_TICKS;
         return (int) liftTicks;
+    }
+
+    public void loadVision(RobotHardware opmode, Color.Ftc teamColor) {
+        skystoneDetector = new SkystoneDetector(opmode, teamColor);
+        skystoneDetector.init(new AveragingPipeline());
     }
 }
 

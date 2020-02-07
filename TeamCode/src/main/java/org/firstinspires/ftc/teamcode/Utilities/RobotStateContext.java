@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import static org.firstinspires.ftc.teamcode.RobotHardware.StartPosition.*;
 import static org.firstinspires.ftc.teamcode.RobotHardware.ClawPositions.*;
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
-import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationBuild.FOUNDATION;
 import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
 
 public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
@@ -48,7 +47,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.opMode = opMode;
         this.teamColor = teamColor;
         this.startPosition = startPosition;
-        this.stateMachine = new Executive.StateMachine(opMode);
+        this.stateMachine = new Executive.StateMachine<>(opMode);
         this.waypoints = new Waypoints(teamColor);
         stateMachine.update();
 
@@ -298,6 +297,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
+            //Todo Convert the ticks to a class variable
             nextArmState(CLOSED, 800, false);
         }
 
@@ -367,17 +367,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Add offset class vars
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
@@ -472,17 +472,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_DROP_OFF).addAndReturn(12, 0, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_DROP_OFF).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_DROP_OFF).addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -517,16 +517,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute)
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
 
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -729,8 +729,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
         @Override
         public String getAuxData() {
-//            return " " + positions.toString() + " " + String.valueOf(liftPos) + " wait: " + String.valueOf(wait);
-            return " " + positions.toString() + " " + String.valueOf(liftPos) + " " + String.valueOf(wait);
+//            return " " + positions.toString() + " " + liftPos + " wait: " + String.valueOf(wait);
+            return " " + positions.toString() + " " + liftPos + " " + wait;
         }
     }
 
@@ -856,8 +856,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             if(simple) {
                 stateMachine.changeState(DRIVE, new Simple_Park());
-            } else {
-
             }
         }
     }

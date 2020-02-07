@@ -1,29 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.Utilities.BehaviorSandBox;
-import org.firstinspires.ftc.teamcode.Utilities.CSV;
-import org.firstinspires.ftc.teamcode.Utilities.Executive;
-import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
-import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
-import org.firstinspires.ftc.teamcode.Utilities.Mutable;
-import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
-import org.firstinspires.ftc.teamcode.Utilities.Color;
-import org.firstinspires.ftc.teamcode.Utilities.Constants;
-import org.firstinspires.ftc.teamcode.Utilities.Controller;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
-import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
-import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
-import org.firstinspires.ftc.teamcode.Vision.AveragingPipeline;
-import org.firstinspires.ftc.teamcode.Vision.SkystoneDetector;
+import org.firstinspires.ftc.teamcode.Utilities.*;
+import org.firstinspires.ftc.teamcode.Vision.*;
 
 public class AutoOpmode extends RobotHardware {
 
-    public TimingMonitor timingMonitor;
-    protected Color.Ftc robotColor;
-    protected StartPosition robotStartPos;
-    public Executive.RobotStateMachineContextInterface robotStateContext;
-    public Thread thread;
+    private TimingMonitor timingMonitor;
+    Color.Ftc robotColor;
+    StartPosition robotStartPos;
+    private Executive.RobotStateMachineContextInterface robotStateContext;
 
     // Telemetry Recorder
     private CSV csvWriter;
@@ -31,14 +17,15 @@ public class AutoOpmode extends RobotHardware {
     private boolean writeControls = false;
 
     // Interactive init options
-    public Mutable<Double> DriveSpeed = new Mutable<>(0.5);
-    public Mutable<Boolean> DropStones = new Mutable<>(true);
+    public Mutable<Double> DriveSpeed = new Mutable<>(0.7);
+    public Mutable<Boolean> DropStones = new Mutable<>(false);
     public Mutable<Boolean> PauseBeforeState = new Mutable<>(false);
     private Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
-    public Mutable<Boolean> ConservativeRoute = new Mutable<>(false);
-    public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
+    public Mutable<Boolean> ConservativeRoute = new Mutable<>(true);
+    public Mutable<Boolean> SimpleAuto = new Mutable<>(false);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
-    public Mutable<Boolean> Foundation = new Mutable<>(false);
+    public Mutable<Boolean> Foundation = new Mutable<>(true);
+    public Mutable<Boolean> FoundationPark = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Pickup", group="Auto")
     public static class AutoRedPickup extends AutoOpmode {
@@ -91,15 +78,15 @@ public class AutoOpmode extends RobotHardware {
 
         controller1 = new Controller(gamepad1);
 
-        thread = new Thread(new VisionLoader());
-        thread.start();
+        new Thread(() -> loadVision(AutoOpmode.this, robotColor)).start();
 
         imuUtilities = new IMUUtilities(this,"IMU_1");
 
-        if(!robotColor.equals(Color.Ftc.UNKNOWN))
-            robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
-        else
+        if(robotColor.equals(Color.Ftc.UNKNOWN))
             robotStateContext = new BehaviorSandBox(AutoOpmode.this, Color.Ftc.BLUE, robotStartPos);
+        else
+            robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
+
 
 
         timingMonitor = new TimingMonitor(AutoOpmode.this);
@@ -111,15 +98,15 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit = new InteractiveInit(AutoOpmode.this);
 
         // Initialization Menu
-        interactiveInit.addOption(DriveSpeed, "DriveSpeed: ",0.8,1.0,.1,.3,.5, .6, .7)
+        interactiveInit.addOption(DriveSpeed, "DriveSpeed: ",0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
                 .addOption(DropStones, "Drop Stones: ",true, false)
-                .addOption(ParkInner, "Park Inner: ", false, true)
-                .addOption(Foundation, "Move Foundation: ", false, true)
-                .addOption(ConservativeRoute, "Conservative Route: ", false, true)
+                .addOption(ParkInner, "Park Inner: ", true, false)
+                .addOption(Foundation, "Move Foundation: ", true, false)
+                .addOption(ConservativeRoute, "Conservative Route: ", true, false)
                 .addOption(PauseBeforeState, "Pause Before State: ", true, false)
                 .addOption(SimpleAuto, "Simple Auto: ", true, false)
                 .addOption(RecordTelemetry,"Record Telemetry: ", true, false)
-                .addOption(FoundationPark, "Foundation Park: ", false, true);
+                .addOption(FoundationPark, "Foundation Park: ", true, false);
     }
 
     @Override
@@ -220,17 +207,6 @@ public class AutoOpmode extends RobotHardware {
         closeCSV();
     }
 
-
-    // Initialize OpenCV in a separate thread to avoid init() hangups.
-    class VisionLoader implements Runnable {
-        public void run() {
-            skystoneDetector = new SkystoneDetector(AutoOpmode.this, robotColor);
-            skystoneDetector.init(new AveragingPipeline());
-        }
-    }
-
-
-
     private void recordConstantsToFile() {
         CSV constantsWriter = new CSV(this);
         constantsWriter.open("constants.csv");
@@ -329,12 +305,12 @@ public class AutoOpmode extends RobotHardware {
             imuUtilities.updateNow();
             double gyroHeading = imuUtilities.getCompensatedHeading();
             MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
-            currentPosition.theta = degreesToRadians(gyroHeading);
+            currentPosition.theta = Math.toRadians(gyroHeading);
             mecanumNavigation.setCurrentPosition(currentPosition);
         }
     }
 
     public boolean shouldContinue() {
-        return !PauseBeforeState.get() || controller1.AOnce();
+        return !PauseBeforeState.get() || controller1.A();
     }
 }
