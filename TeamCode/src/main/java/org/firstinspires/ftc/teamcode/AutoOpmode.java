@@ -39,6 +39,7 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Boolean> SimpleAuto = new Mutable<>(true);
     public Mutable<Boolean> ParkInner = new Mutable<>(true);
     public Mutable<Boolean> Foundation = new Mutable<>(false);
+    public Mutable<Boolean> FoundationPark = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Pickup", group="Auto")
     public static class AutoRedPickup extends AutoOpmode {
