@@ -68,7 +68,7 @@ public class PositionController {
     public Navigation2D toRobotFrame(Navigation2D pointInFieldFrame) {
         Navigation2D pointInRobotFrame = pointInFieldFrame.copy();
         pointInRobotFrame.subtractInPlace(new Navigation2D(mecanumNavigation.currentPosition.x, mecanumNavigation.currentPosition.y, 0));
-        pointInRobotFrame.rotate(-mecanumNavigation.currentPosition.theta);
+        pointInRobotFrame.rotateDegrees(Math.toDegrees(-mecanumNavigation.currentPosition.theta));
         return pointInRobotFrame;
     }
 }

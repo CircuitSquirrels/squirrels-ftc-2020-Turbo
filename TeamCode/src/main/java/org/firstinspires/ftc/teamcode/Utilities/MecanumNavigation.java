@@ -151,11 +151,22 @@ public class MecanumNavigation {
             this.theta = theta;
         }
 
-        public void rotate (double degrees) {
-            double radians = degrees * Math.PI / 180;
-            this.x = x * Math.cos(radians) - y * Math.sin(radians);
-            this.y = x * Math.sin(radians) + y * Math.cos(radians);
-            this.theta += radians;
+
+        public Navigation2D(double x, double y, double theta, Frame2D referenceFrame) {
+            this(x,y,theta);
+            this.referenceFrame = referenceFrame;
+        }
+
+
+        public void rotateDegrees(double degrees) {
+            double radians, xNew, yNew, thetaNew;
+            radians = degrees * Math.PI / 180;
+            xNew = x * Math.cos(radians) - y * Math.sin(radians);
+            yNew = x * Math.sin(radians) + y * Math.cos(radians);
+            thetaNew = this.theta + radians;
+            this.x = xNew;
+            this.y = yNew;
+            this.theta = thetaNew;
         }
 
         public void reflectInX() {
@@ -165,7 +176,7 @@ public class MecanumNavigation {
 
         public Navigation2D rotateCopy (double degrees) {
             Navigation2D nav2D_copy = (Navigation2D) this.clone();
-            nav2D_copy.rotate(degrees);
+            nav2D_copy.rotateDegrees(degrees);
             return nav2D_copy;
         }
 
@@ -175,12 +186,21 @@ public class MecanumNavigation {
         }
 
         public Navigation2D copy() {
-            return this.copyAndLabel(label.concat("_copy"));
+            if(this.label == "") {
+                return this.copyAndLabel("");
+            } else {
+                return this.copyAndLabel(label.concat("_copy"));
+            }
         }
 
         public Navigation2D copyAndLabel(String newLabel) {
             Navigation2D copied_n2d = new Navigation2D(this.x,this.y,this.theta);
             copied_n2d.label = newLabel;
+            if(this.referenceFrame == null) {
+                copied_n2d.referenceFrame = null;
+            } else {
+                copied_n2d.referenceFrame = this.referenceFrame.copy();
+            }
             return copied_n2d;
         }
 
@@ -294,6 +314,81 @@ public class MecanumNavigation {
             String format_xy = "%6.2f";
             String format_deg = "%6.1f";
             return String.format(format_xy,x) + ",  " + String.format(format_xy,y) + ", " + String.format(format_deg,theta*180/Math.PI) + " deg";
+        }
+
+        // Default value of reference frame is null, which indicates absolute, or world frame.
+        public Frame2D referenceFrame = null;
+
+        // Methods for getting parent
+
+        public Navigation2D getNav2DInParentFrame() {
+            Navigation2D pointInParentFrame = this.copy();
+            // If reference frame is null, we are in the world frame with no parent, and can just return a copy.
+            if (pointInParentFrame.referenceFrame == null) return pointInParentFrame;
+
+            // Otherwise, if referenceFrame is not null, the following transformation is required:
+            // Rotate the point by the negative of the frame angle to get orientation to 0
+            pointInParentFrame.rotateDegrees(Math.toDegrees(referenceFrame.positionInReferenceFrame.theta));
+            // Translate the point by the x and y of the frame in its reference.
+            pointInParentFrame.x += referenceFrame.positionInReferenceFrame.x;
+            pointInParentFrame.y += referenceFrame.positionInReferenceFrame.y;
+            // Adjust referenceFrame to match
+            if (pointInParentFrame.referenceFrame.referenceFrame == null) {
+                pointInParentFrame.referenceFrame = null;
+            } else {
+                pointInParentFrame.referenceFrame = pointInParentFrame.referenceFrame.referenceFrame.copy();
+            }
+
+            return pointInParentFrame;
+        }
+
+        public Navigation2D getNav2dInWorldFrame() {
+            Navigation2D pointInNewFrame = this.copy();
+            // When the parent is null, we are in the world frame.
+            while(pointInNewFrame.referenceFrame != null) {
+                pointInNewFrame = pointInNewFrame.getNav2DInParentFrame();
+            }
+            return pointInNewFrame;
+        }
+    }
+
+    /**
+     * Represents the frame that a Navigation2D point is referenced in. x,y,theta is given in the
+     * reference coordinates.
+     */
+    public static class Frame2D {
+        public Navigation2D positionInReferenceFrame = new Navigation2D(0,0,0);
+        public Frame2D referenceFrame = null;
+
+        public Frame2D() {
+            this.positionInReferenceFrame = new Navigation2D(0,0,0);
+            this.referenceFrame = null;
+        }
+
+        public Frame2D(Navigation2D positionInReferenceFrame, Frame2D referenceFrame) {
+            this.positionInReferenceFrame = positionInReferenceFrame.copy();
+            // Handle potential null reference frame in a safe way, while terminating recursion.
+            if (referenceFrame == null) {
+                this.referenceFrame = null;  // Breaks recursion, null safe
+            } else {
+                this.referenceFrame = referenceFrame.copy();
+            }
+        }
+
+        public Frame2D(Navigation2D positionInReferenceFrame) {
+            this(positionInReferenceFrame,null);
+        }
+
+        public Frame2D(double x, double y, double theta) {
+            this(new Navigation2D(x,y,theta),null);
+        }
+
+        public Frame2D copy() {
+            return new Frame2D(this.positionInReferenceFrame, this.referenceFrame);
+        }
+
+        public boolean isWorldFrame() {
+            return this.referenceFrame == null;
         }
     }
 
