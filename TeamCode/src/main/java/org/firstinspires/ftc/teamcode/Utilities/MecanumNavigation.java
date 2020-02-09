@@ -358,7 +358,7 @@ public class MecanumNavigation {
         }
 
         public Navigation2D getNav2DInLocalFrame(Frame2D localFrame) {
-            Navigation2D localPoint;
+            Navigation2D localPoint = this.copy();
             Navigation2D globalPoint = this.getNav2DInWorldFrame(); // Null referenceFrame
 
             // If localFrame is really the world frame, then return the world frame.
@@ -370,9 +370,10 @@ public class MecanumNavigation {
             localFrameOriginInWorld_N2D = localFrameOriginInWorld_N2D.getNav2DInWorldFrame();
 
             // Apply shift then rotation to move globalPoint into the new localfFrameOriginInWorld
-            localPoint = new Navigation2D(0,0,0);  // Reinitialize local point
             localPoint.x = globalPoint.x - localFrameOriginInWorld_N2D.x;
             localPoint.y = globalPoint.y - localFrameOriginInWorld_N2D.y;
+            // It is important that the initial theta before applying this rotation come from the
+            // original heading.
             localPoint.rotateDegrees(-Math.toDegrees(localFrameOriginInWorld_N2D.theta));
             // Correct localFrame set
             localPoint.referenceFrame = localFrame; // TODO DEBUG Frame Not copied
