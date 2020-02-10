@@ -10,10 +10,10 @@ import java.util.EnumMap;
 public class Waypoints {
 
     // Both Build and Load waypoints are built for given Color.
-    Color.Ftc teamColor;
+    private Color.Ftc teamColor;
 
     // Value should be 0-5, where 0 is near the center of the field, and 5 is adjacent to the outer wall.
-    private int skystoneDetectionPosition = 0;
+    private int skystoneDetectionPosition;
 
     public Color.Ftc getTeamColor() {
         return teamColor;
@@ -56,36 +56,74 @@ public class Waypoints {
      * These initial waypoints for blueLoading are generated from
      * a list of parameters to ease tweaking.
      *
-     * Constructor uses skystoneDetectionPosition as an input, numbered 0-5
+     * Constructor uses skystoneDetectionPosition as an input, numbered 0-2
      * from field center to front wall.
      */
 
-    /**
-     * public waypoints customized for starting location
-      */
-
     //Todo Convert enums to storing their own XY Theta instead of assigning it later?
     public enum LocationLoading {
-        INITIAL_POSITION,
-        GRAB_SKYSTONE_A,
-        ALIGNMENT_POSITION_A,
-        BUILD_ZONE,
-        GRAB_SKYSTONE_B,
-        ALIGNMENT_POSITION_B,
-        GRAB_EXTRA_STONE_A,
-        ALIGN_EXTRA_STONE_A,
-        GRAB_EXTRA_STONE_B,
-        ALIGN_EXTRA_STONE_B,
-        FOUNDATION_ALIGNMENT_A,
-        FOUNDATION_PLACE,
-        DRAG_FOUNDATION_INSIDE_WALL,
-        DRAG_FOUNDATION_OUTSIDE_WALL,
-        STRAFE_AWAY_FROM_FOUNDATION,
-        BRIDGE_ALIGNMENT_OUTER,
-        BRIDGE_ALIGNMENT_INNER,
-        PARK_OUTER,
-        PARK_INNER,
-        SIMPLE_ALIGNMENT_INNER,
+        INITIAL_POSITION(-33, 65, -90),
+
+        ALIGNMENT_POSITION_A(0,0,0),
+        GRAB_SKYSTONE_A(0,0,0),
+
+        ALIGNMENT_POSITION_B(0,0,0),
+        GRAB_SKYSTONE_B(0,0,0),
+        // Set extra stone A to the 1st stone. If the stone is already taken it'll change it to the 2nd stone.
+        ALIGN_EXTRA_STONE_A(-26,37.5,-90),
+        GRAB_EXTRA_STONE_A(-26,31.5,-90),
+        // Set extra stone B to the 2nd stone. If the stone is already taken it'll change it to the 3rd stone.
+        ALIGN_EXTRA_STONE_B(-34,37.5,-90),
+        GRAB_EXTRA_STONE_B(-34,31.5,-90),
+
+        BUILD_ZONE(24, 37.5, -90),
+
+        FOUNDATION_ALIGNMENT(50, 37.5, -90),
+        FOUNDATION_PLACE(50, 30.5, -90),
+
+        PULL_FOUNDATION(27, 40.5, 0),
+        PUSH_FOUNDATION(45, 40.5, 0),
+
+        PARK_OUTER(0, 60.5, -90),
+        PARK_INNER(0, 37.5, -90),
+
+        SIMPLE_ALIGNMENT_INNER(-33, 37.5, -90);
+        private double x;
+        private double y;
+        private double theta;
+        LocationLoading(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = theta;
+        }
+
+        public Navigation2D getNavigation2D(){
+            return new Navigation2D(x, y, Math.toRadians(theta));
+        }
+
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public void setY(double y) {
+            this.y = y;
+        }
+
+        public void setTheta(double theta) {
+            this.theta = theta;
+        }
+
+        public void set(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = theta;
+        }
+
+        public void set(Navigation2D navigation2D) {
+            this.x = navigation2D.x;
+            this.y = navigation2D.y;
+            this.theta = navigation2D.theta;
+        }
     }
 
     public enum LocationBuild {
@@ -105,8 +143,8 @@ public class Waypoints {
 
     // Skystone locations (6 stones from field center to wall numbered from 0-5)
     // Waypoint customized by color.
-    public List<Navigation2D> stoneLocations = new ArrayList();
-    private List<Navigation2D> blueStoneLocations = new ArrayList();
+    public List<Navigation2D> stoneLocations = new ArrayList<>();
+    private List<Navigation2D> blueStoneLocations = new ArrayList<>();
 
 
 
@@ -143,7 +181,7 @@ public class Waypoints {
 
     // Skystone index is numbered from 0 to 5, starting from field center.
     public double skystoneXFromIndex(int index) {
-        return -halfField + stoneLength * (5.5 - index);
+        return -70 + stoneLength * (5.5 - index);
     }
 
     public double skystoneIndexFromX(double skystoneX) {
@@ -171,26 +209,15 @@ public class Waypoints {
         /**
          * Blue Loading Waypoints
          */
-        blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-33, 65, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
-        blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(24, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
-        blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_A,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
-        blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_A,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
-        blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_B,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
-        blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_B,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
-        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT_A, new Navigation2D(50, 37.5, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_PLACE, new Navigation2D(50, 30.5, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.8 * tileBody + robotFrontPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.SIMPLE_ALIGNMENT_INNER, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.2 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        LocationLoading.ALIGNMENT_POSITION_A.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition));
+        LocationLoading.GRAB_SKYSTONE_A.set(blueStonePickupLocations.get(skystoneDetectionPosition));
+        LocationLoading.ALIGNMENT_POSITION_B.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition + 2));
+        LocationLoading.GRAB_SKYSTONE_B.set(blueStonePickupLocations.get(skystoneDetectionPosition + 2));
+
+        for(LocationLoading waypoint : LocationLoading.values()) {
+            blueLoading.put(waypoint, waypoint.getNavigation2D());
+        }
+
 
         /**
          * Blue Build positions
@@ -237,7 +264,7 @@ public class Waypoints {
         x_reflectGenericWaypointsAndStoneLocationsInPlace();
         // I apologize in advance for the stupidity of our code
         loading.get(LocationLoading.FOUNDATION_PLACE).addInPlace(redDropOffFudgeFactor);
-        loading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).addInPlace(redDropOffFudgeFactor);
+        loading.get(LocationLoading.FOUNDATION_ALIGNMENT).addInPlace(redDropOffFudgeFactor);
         loading.get(LocationLoading.BUILD_ZONE).addInPlace(redDropOffFudgeFactor);
     }
 

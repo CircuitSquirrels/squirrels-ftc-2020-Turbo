@@ -367,17 +367,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Add offset class vars
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
@@ -517,16 +517,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute)
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT).addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
 
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
+                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -572,13 +572,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Check if delay is necessary, if not remove it!
             if(!isArmArrived() && stateTimer.seconds() > 0.6) return;
 
-            arrived = driveTo(waypoints.loading.get(DRAG_FOUNDATION_OUTSIDE_WALL),
-                    getDriveScale(stateTimer.seconds()) * foundationDragSpeed);
             if(!arrived) return;
 
             nextArmState(OPEN, liftRaised, true);
-            // Reset robot's current position to compensate for slippage from dragging foundation.
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL));
+
             if(opMode.FoundationPark.get()) {
                 if(parkInner)
                     nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
@@ -603,7 +600,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            driveTo(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL).addAndReturn(7, 0, 0), getDriveScale(stateTimer.seconds()) * foundationDragSpeed);
         }
     }
     /**
@@ -620,8 +616,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(STRAFE_AWAY_FROM_FOUNDATION),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             if(parkInner)
@@ -638,8 +632,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(BRIDGE_ALIGNMENT_OUTER),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
@@ -677,8 +669,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(BRIDGE_ALIGNMENT_INNER),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
@@ -729,8 +719,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
         @Override
         public String getAuxData() {
-//            return " " + positions.toString() + " " + liftPos + " wait: " + String.valueOf(wait);
-            return " " + positions.toString() + " " + liftPos + " " + wait;
+            return " " + positions.name() + " " + liftPos + " " + wait;
         }
     }
 
@@ -763,7 +752,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = armControl(OPEN, opMode.liftArmTicksForLevelFoundationKnob(foundationLevel, true, true), true);
+            arrived = armControl(OPEN, Constants.liftArmTicksForLevelFoundationKnob(foundationLevel, true, true), true);
         }
     }
 
