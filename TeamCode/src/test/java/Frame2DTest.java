@@ -57,34 +57,24 @@ public class Frame2DTest {
         TestFTC.assertWaypoint_Equal(point2,local2);
     }
 
-    @Test
-    public void globalToLocalToGlobal() {
-        Navigation2D p1 = new Navigation2D(1,0,Math.toRadians(90));
-        describeNav2dFrame(p1);
-        Frame2D f1 = new Frame2D(0,1,Math.toRadians(45));
-        Navigation2D localPoint = p1.getNav2DInLocalFrame(f1);
-        describeNav2dFrame(localPoint);
-        Navigation2D globalNew = localPoint.getNav2DInWorldFrame();
-
-        describeNav2dFrame(globalNew);
-        TestFTC.assertWaypoint_Equal(p1,globalNew);
-    }
     
     @Test
     public void globalToLocalToGlobal_Loop() {
         ArrayList<Navigation2D> globalPoints = new ArrayList<>();
         ArrayList<Frame2D> localFrames = new ArrayList<>();
         
-        globalPoints.add(new Navigation2D(0,0,0));
-        globalPoints.add(new Navigation2D(1,0,0));
-        globalPoints.add(new Navigation2D(1.5,5.5,90));
-        globalPoints.add(new Navigation2D(-4,0,180));
-        globalPoints.add(new Navigation2D(4,10,-45));
+        globalPoints.add(new Navigation2D(0,0,Math.toRadians(0)));
+        globalPoints.add(new Navigation2D(1,0,Math.toRadians(0)));
+        globalPoints.add(new Navigation2D(1.5,5.5,Math.toRadians(90)));
+        globalPoints.add(new Navigation2D(-4,0,Math.toRadians(180)));
+        globalPoints.add(new Navigation2D(4,10,-Math.toRadians(45)));
         
-        localFrames.add(new Frame2D(0,0,0));
-        localFrames.add(new Frame2D(0,2,0));
-        localFrames.add(new Frame2D(0,0,90));
-        localFrames.add(new Frame2D(-10,-10,30));
+        localFrames.add(new Frame2D(0,0,Math.toRadians(0)));
+        localFrames.add(new Frame2D(0,2,Math.toRadians(0)));
+        localFrames.add(new Frame2D(0,0,Math.toRadians(90)));
+        localFrames.add(new Frame2D(-10,-10,Math.toRadians(30)));
+        localFrames.add(new Frame2D(-10,7,Math.toRadians(180)));
+        localFrames.add(new Frame2D(9,-2.5,-Math.toRadians(361)));
 
         Navigation2D localIntermediate, globalReconstruction;
         for(Navigation2D point : globalPoints) {
@@ -92,11 +82,9 @@ public class Frame2DTest {
                 localIntermediate = point.getNav2DInLocalFrame(localFrame);
                 globalReconstruction = localIntermediate.getNav2DInWorldFrame();
                 TestFTC.assertWaypoint_Equal(point,globalReconstruction);
-                describeNav2dFrame(globalReconstruction);
+                describeNav2dFrame(localIntermediate);
             }
         }
-
-
     }
 
     @Test
@@ -106,18 +94,18 @@ public class Frame2DTest {
         // This frame will be the marker for pivoting the waypoints, and must be identified in the new position
         Frame2D foundationDropOffFrame = new Frame2D(waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_DROP_OFF).copy());
         // New location of the foundation indicated
-        Frame2D foundationDropOffFrame_moved = new Frame2D(foundationDropOffFrame.positionInReferenceFrame.addAndReturn(-10,10,Math.toRadians(90)));
+        Frame2D foundationDropOffFrame_moved = new Frame2D(foundationDropOffFrame.positionInReferenceFrame.addAndReturn(-10,10,Math.toRadians(135)));
         // Populate stone locations on platform
         ArrayList<Navigation2D> foundationDropLocations = new ArrayList<>();
         for(int i = 0; i<=2; ++i) {
             System.out.println("Waypoint index:" + i);
             Navigation2D positionInGlobalFrame = waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_DROP_OFF).addAndReturn(-8.0*i, 0, 0);
-            System.out.println("Initial Position, Global Frame:");
-            describeNav2dFrame(positionInGlobalFrame);
+//            System.out.println("Initial Position, Global Frame:");
+//            describeNav2dFrame(positionInGlobalFrame);
 
             Navigation2D positionInInitialFoundationFrame = positionInGlobalFrame.getNav2DInLocalFrame(foundationDropOffFrame);
-            System.out.println("Initial Position, Local Frame:");
-            describeNav2dFrame(positionInInitialFoundationFrame);
+//            System.out.println("Initial Position, Local Frame:");
+//            describeNav2dFrame(positionInInitialFoundationFrame);
             positionInInitialFoundationFrame.referenceFrame = foundationDropOffFrame_moved;
 
             Navigation2D positionOfRelocatedPointsInGlobalFrame = positionInInitialFoundationFrame.getNav2DInWorldFrame();
