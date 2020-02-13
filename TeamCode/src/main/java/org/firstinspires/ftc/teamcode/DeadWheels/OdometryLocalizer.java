@@ -31,6 +31,14 @@ public class OdometryLocalizer {
         return absolutePosition;
     }
 
+    public OdometryTicks getEncoderPosition() {
+        return encoderPosition;
+    }
+
+    public Frame2D getRobotFrame() {
+        return new Frame2D(absolutePosition);
+    }
+
     public void update(OdometryTicks newTicks) {
         Navigation2D rotatingFrameMotion;
         Navigation2D deltaPositionInRobotFrame;

@@ -13,4 +13,8 @@ public class OdometryTicks {
     public OdometryTicks subtractAndReturn(OdometryTicks ticks) {
         return new OdometryTicks(left - ticks.left, center - ticks.center, right - ticks.right);
     }
+
+    public OdometryTicks addAndReturn(OdometryTicks ticks) {
+        return new OdometryTicks(left + ticks.left, center + ticks.center, right + ticks.right);
+    }
 }
