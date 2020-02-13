@@ -243,7 +243,7 @@ public class Manual extends RobotHardware {
             @Override
             public void update() {
                 super.update();
-                arrived = driveMotorToPos(MotorName.LIFT_WINCH, liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + offset_encoder, lifterSpeed);
+                arrived = driveMotorToPos(MotorName.LIFT_WINCH, Constants.liftArmTicksForLevelFoundationKnob(placeIndex, true, true) + offset_encoder, lifterSpeed);
                 lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 if(arrived) {
                     placeIndex++;

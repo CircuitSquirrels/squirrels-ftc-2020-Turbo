@@ -14,6 +14,7 @@ import org.openftc.revextensions2.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
+//Todo Clean up docs and add comments for newly added functions
 public class RobotHardware extends OpMode {
 
     // All motors on the robot, in order of MotorName.
@@ -29,15 +30,12 @@ public class RobotHardware extends OpMode {
     // All servos on the robot, in order of ServoName.
     private ArrayList<Servo> allServos;
 
-    // Names of only the drive motors.
-    private ArrayList<MotorName> driveMotorNames;
-
     // All color sensors on the robot, in order of ColorSensorName.
     private ArrayList<ColorSensor> allColorSensors;
 
     // Format for displaying decimals.
-    public DecimalFormat df;
-    public DecimalFormat df_prec;
+    public DecimalFormat df = new DecimalFormat("0.00");
+    public DecimalFormat df_prec = new DecimalFormat("0.0000");
 
     // IMU reference
     public BNO055IMU imu;
@@ -56,22 +54,60 @@ public class RobotHardware extends OpMode {
 
     // The motors on the robot, must be the same names defined in the robot's Configuration file.
     public enum MotorName {
-        DRIVE_FRONT_LEFT,
-        DRIVE_FRONT_RIGHT,
-        DRIVE_BACK_LEFT,
-        DRIVE_BACK_RIGHT,
-        LIFT_WINCH
+        DRIVE_FRONT_LEFT("DRIVE_FRONT_LEFT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_FRONT_RIGHT("DRIVE_FRONT_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_LEFT("DRIVE_BACK_LEFT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER);
+
+        private final String configName;
+        private final ExpansionHubs expansionHub;
+        private final DcMotor.Direction direction;
+        private final DcMotor.ZeroPowerBehavior zeroPowerBehavior;
+        private final DcMotor.RunMode runMode;
+
+        MotorName(String configName, ExpansionHubs expansionHub, DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, DcMotor.RunMode runMode) {
+            this.configName = configName;
+            this.expansionHub = expansionHub;
+            this.direction = direction;
+            this.zeroPowerBehavior = zeroPowerBehavior;
+            this.runMode = runMode;
+        }
+
+        public String getConfigName() {
+            return configName;
+        }
+
+        public ExpansionHubs getExpansionHub() {
+            return expansionHub;
+        }
+
+        public DcMotor.Direction getDirection() {
+            return direction;
+        }
+
+        public DcMotor.ZeroPowerBehavior getZeroPowerBehavior() {
+            return zeroPowerBehavior;
+        }
+
+        public DcMotor.RunMode getRunMode() {
+            return runMode;
+        }
     }
 
-    public enum DriveMotors {
-        DRIVE_FRONT_LEFT,
-        DRIVE_FRONT_RIGHT,
-        DRIVE_BACK_LEFT,
-        DRIVE_BACK_RIGHT
-    }
+    private enum ExpansionHubs {
+        DRIVE("Expansion Hub 2"),
+        ARM("Expansion Hub 1");
 
-    public enum ArmMotors {
-        LIFT_WINCH
+        private final String hubName;
+
+        ExpansionHubs(String hubName) {
+            this.hubName = hubName;
+        }
+
+        public String getHubName() {
+            return hubName;
+        }
     }
 
     /**
@@ -114,19 +150,17 @@ public class RobotHardware extends OpMode {
     public int getEncoderValue(MotorName motor) {
         ExpansionHubMotor m = allMotors.get(motor.ordinal());
         if(m != null) {
-            for (DriveMotors driveMotors : DriveMotors.values()) {
-                if(bulkDataDrive == null) break;
-                if(driveMotors.name().equals(motor.name())) {
-                    return bulkDataDrive.getMotorCurrentPosition(m);
+            RevBulkData bulkData;
+            for (MotorName motorName : MotorName.values()) {
+                bulkData = motorName.getExpansionHub().equals(ExpansionHubs.DRIVE) ? bulkDataDrive : bulkDataArm;
+
+                if(bulkData == null) break;
+
+                if(motorName.name().equals(motor.name())) {
+                    return bulkData.getMotorCurrentPosition(m);
                 }
             }
-            for (ArmMotors armMotors : ArmMotors.values()) {
-                if(bulkDataArm == null) break;
-                if(armMotors.name().equals(motor.name())) {
-                    return bulkDataArm.getMotorCurrentPosition(m);
-                }
-            }
-            Log.w("RobotHardware","Not using bulk reads for motor: " + motor.toString());
+            Log.w("RobotHardware","Not using bulk reads for motor: " + motor.name());
             return m.getCurrentPosition();
         } else {
             telemetry.addData("Motor Missing: ", motor.name());
@@ -140,6 +174,15 @@ public class RobotHardware extends OpMode {
     public void stopAllMotors() {
         for (MotorName m : MotorName.values()) {
             setPower(m, 0);
+        }
+    }
+
+    public void resetAndStopMotor(MotorName motor) {
+        ExpansionHubMotor m = allMotors.get(motor.ordinal());
+        if(m == null) {
+            telemetry.addData("Motor Missing: " ,motor.name());
+        } else {
+            m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
 
@@ -163,10 +206,10 @@ public class RobotHardware extends OpMode {
      * RUN_TO_POSITION is used with setTargetPosition()
      * STOP_AND_RESET_ENCODER.
      *
-     * @param runMode
      */
     protected void setDriveMotorsRunMode(DcMotor.RunMode runMode) {
-        for (MotorName motor : driveMotorNames) {
+        for (MotorName motor : MotorName.values()) {
+            if(!motor.getExpansionHub().equals(ExpansionHubs.DRIVE)) continue;
             ExpansionHubMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
                 telemetry.addData("Motor Missing: ", motor.name());
@@ -183,7 +226,8 @@ public class RobotHardware extends OpMode {
      */
     protected void setDriveMotorsZeroPowerBraking(boolean zeroPowerBraking) {
         DcMotor.ZeroPowerBehavior brakingMode = zeroPowerBraking ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
-        for (MotorName motor : driveMotorNames) {
+        for (MotorName motor : MotorName.values()) {
+            if(!motor.getExpansionHub().equals(ExpansionHubs.DRIVE)) continue;
             ExpansionHubMotor m = allMotors.get(motor.ordinal());
             if (m == null) {
                 telemetry.addData("Motor Missing: ", motor.name());
@@ -242,10 +286,18 @@ public class RobotHardware extends OpMode {
 
     // The servos on the robot, names must be defined in robot Configure file
     public enum ServoName {
-        CLAW_LEFT,
-        CLAW_RIGHT,
-        FOUNDATION,
-        AUTO_ARM
+        CLAW_LEFT(Servo.Direction.FORWARD),
+        CLAW_RIGHT(Servo.Direction.FORWARD);
+
+        private final Servo.Direction direction;
+
+        ServoName(Servo.Direction direction) {
+            this.direction = direction;
+        }
+
+        public Servo.Direction getDirection() {
+            return direction;
+        }
     }
 
     // Servo methods
@@ -259,7 +311,7 @@ public class RobotHardware extends OpMode {
     public void setAngle(ServoName servo, double position) {
         Servo s = allServos.get(servo.ordinal());
         if (s == null) {
-            telemetry.addData("Servo Missing", servo.name() + ": " + df.format(position));
+            telemetry.addData("Servo Missing: ", servo.name() + ": " + df.format(position));
         } else {
             s.setPosition(position);
         }
@@ -274,7 +326,7 @@ public class RobotHardware extends OpMode {
     public double getAngle(ServoName servo) {
         Servo s = allServos.get(servo.ordinal());
         if (s == null) {
-            telemetry.addData("Servo Missing", servo.name());
+            telemetry.addData("Servo Missing: ", servo.name());
             return -1;
         } else {
             return s.getPosition();
@@ -343,7 +395,7 @@ public class RobotHardware extends OpMode {
 
     // The color sensors on the robot.
     public enum ColorSensorName {
-//        MINERAL_COLOR,
+
     }
 
     /**
@@ -413,6 +465,12 @@ public class RobotHardware extends OpMode {
         return vuforiaLicenseKey;
     }
 
+
+    public void loadVision(RobotHardware opmode, Color.Ftc teamColor) {
+        skystoneDetector = new SkystoneDetector(opmode, teamColor);
+        skystoneDetector.init(new AveragingPipeline());
+    }
+
     // IMU Names (Could support multiple REV IMUs)
     public enum IMUNames {
         IMU,
@@ -454,76 +512,49 @@ public class RobotHardware extends OpMode {
     }
 
     /**
-     * Initialize all motors, servos, sensors, set motor direction, motor runMode
-     * Output whether or not the defined motors, servos, sensors could not be found
-     */
-
-    /**
      * Provides an entry point for fake timing during unit testing.
-     * @return
      */
     public ElapsedTime getNewElapsedTime() {
         return new ElapsedTime();
     }
 
+    /**
+     * Initialize all motors, servos, sensors, set motor direction, motor runMode
+     * Output whether or not the defined motors, servos, sensors could not be found
+     */
     public void init() {
 
         // Setup expansion hubs for bulk reads.
         try {
-            expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
-            expansionHubArm = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+            expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, ExpansionHubs.DRIVE.getHubName());
+            expansionHubArm = hardwareMap.get(ExpansionHubEx.class, ExpansionHubs.ARM.getHubName());
         } catch (Exception e) {
-            telemetry.addData("Couldn't find expansion hub",e.getMessage());
+            telemetry.addData("Could not find expansion hub", e.getMessage());
         }
 
         allMotors = new ArrayList<>();
         for (MotorName m : MotorName.values()) {
             try {
-                allMotors.add(hardwareMap.get(ExpansionHubMotor.class, m.name()));
+                ExpansionHubMotor motor = hardwareMap.get(ExpansionHubMotor.class, m.getConfigName());
+                allMotors.add(motor);
+                resetAndStopMotor(m);
+                motor.setMode(m.getRunMode());
+                motor.setDirection(m.getDirection());
+                motor.setZeroPowerBehavior(m.getZeroPowerBehavior());
             } catch (Exception e) {
-                telemetry.addData("Motor Missing", m.name());
+                telemetry.addData("Motor Missing", m.getConfigName());
                 allMotors.add(null);
             }
         }
 
-        // Collect a list of only the drive motors.
-        driveMotorNames = new ArrayList<>();
-        driveMotorNames.add(MotorName.DRIVE_FRONT_LEFT);
-        driveMotorNames.add(MotorName.DRIVE_FRONT_RIGHT);
-        driveMotorNames.add(MotorName.DRIVE_BACK_LEFT);
-        driveMotorNames.add(MotorName.DRIVE_BACK_RIGHT);
-
-        resetAndStopAllMotors();
         initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
-
-        // Set motor directions.
-        try {
-            allMotors.get(MotorName.DRIVE_FRONT_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotorSimple.Direction.FORWARD);
-        } catch (Exception e) {
-            telemetry.addData("Error", "Unable to set motor direction");
-        }
-
-        // Set drive motors to use encoders
-        setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        setDriveMotorsZeroPowerBraking(true);
-
-        // Set arm motor to brake
-        try {
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        } catch (Exception e) {
-            telemetry.addData("Error", "Unable to set arm motor to zero power brake or encoder use");
-        }
 
         allServos = new ArrayList<>();
         for (ServoName s : ServoName.values()) {
             try {
-                allServos.add(hardwareMap.get(Servo.class, s.name()));
+                Servo servo = hardwareMap.get(Servo.class, s.name());
+                allServos.add(servo);
+                servo.setDirection(s.getDirection());
             } catch (Exception e) {
                 telemetry.addData("Servo Missing: ", s.name());
                 allServos.add(null);
@@ -539,10 +570,6 @@ public class RobotHardware extends OpMode {
                 allColorSensors.add(null);
             }
         }
-
-        // Add Decimal Formats for easy to read telemetry
-        df = new DecimalFormat("0.00");
-        df_prec = new DecimalFormat("0.0000");
 
         interactiveInit = new InteractiveInit(this);
 
@@ -582,13 +609,14 @@ public class RobotHardware extends OpMode {
     }
 
 
-    public static double K_P = 2.5;
-    public static double K_I = 0.1;
-    public static double K_D = 0.2;
-    public static double K_F = 0.0;
+    // Todo Fix PIDF tuner due to changing the motor enums from 3 to 1 enum.
+    public double K_P = 2.5;
+    public double K_I = 0.1;
+    public double K_D = 0.2;
+    public double K_F = 0.0;
 
     public void initializePID() {
-        PIDFCoefficients pidfOrig = allMotors.get(driveMotorNames.get(0).ordinal()).getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients pidfOrig = allMotors.get(0).getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         K_P = pidfOrig.p;
         K_I = pidfOrig.i;
         K_D = pidfOrig.d;
@@ -596,7 +624,7 @@ public class RobotHardware extends OpMode {
     }
 
     public void configureDriveMotorVelocityPID(double K_P, double K_I, double K_D, double K_F) {
-        for(MotorName motorName: driveMotorNames) {
+        for(MotorName motorName : MotorName.values()) {
             configureMotorVelocityPID(motorName,K_P,K_I,K_D,K_F);
         }
     }
@@ -655,18 +683,6 @@ public class RobotHardware extends OpMode {
             default:
                 return this.K_F;
         }
-    }
-
-    public int liftArmTicksForLevelFoundationKnob(int level_1to6, boolean withFoundation, boolean withKnob) {
-        double liftTicks = (level_1to6 - 1) * 4 * Constants.LIFT_TICKS_PER_INCH;
-        if(withFoundation) liftTicks += Constants.LIFT_FOUNDATION_HEIGHT_TICKS;
-        if(withKnob) liftTicks += Constants.LIFT_KNOB_HEIGHT_TICKS;
-        return (int) liftTicks;
-    }
-
-    public void loadVision(RobotHardware opmode, Color.Ftc teamColor) {
-        skystoneDetector = new SkystoneDetector(opmode, teamColor);
-        skystoneDetector.init(new AveragingPipeline());
     }
 }
 

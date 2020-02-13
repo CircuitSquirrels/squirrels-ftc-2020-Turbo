@@ -32,6 +32,13 @@ public class Constants {
     public static final double LIFT_FOUNDATION_HEIGHT_TICKS = 148 + (LIFT_TICKS_PER_INCH * 2);
     public static final double LIFT_KNOB_HEIGHT_TICKS = 92;
 
+    public static int liftArmTicksForLevelFoundationKnob(int level_1to6, boolean withFoundation, boolean withKnob) {
+        double liftTicks = (level_1to6 - 1) * 4 * Constants.LIFT_TICKS_PER_INCH;
+        if(withFoundation) liftTicks += Constants.LIFT_FOUNDATION_HEIGHT_TICKS;
+        if(withKnob) liftTicks += Constants.LIFT_KNOB_HEIGHT_TICKS;
+        return (int) liftTicks;
+    }
+
 
     
     // Simplify initializing mecanum navigation.
