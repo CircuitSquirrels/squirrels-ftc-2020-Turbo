@@ -2,46 +2,41 @@ package org.firstinspires.ftc.teamcode.DeadWheels;
 
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.*;
 
-/**
- * def wrong
- */
 public class OdometryLocalizer {
 
     private OdometryConfig odometryConfig;
 
     // Positive center rotations are to the left
-    private OdometryTicks previousEncoderPosition = new OdometryTicks(0,0,0);
     private OdometryTicks deltaEncoderPosition = new OdometryTicks(0,0,0);
-    private OdometryTicks currentEncoderPosition = null;
-    private Navigation2D previousAbsolutePosition = new Navigation2D(0,0,0);
-    private Navigation2D currentAbsolutePosition = new Navigation2D(0,0,0);
+    private OdometryTicks encoderPosition = new OdometryTicks(0,0,0);
+    private Navigation2D absolutePosition = new Navigation2D(0,0,0);
 
     OdometryLocalizer(OdometryConfig odometryConfig) {
         this.odometryConfig = odometryConfig;
     }
 
     public void setCurrentPosition(Navigation2D currentPosition) {
-        currentAbsolutePosition = currentPosition;
+        absolutePosition = currentPosition;
     }
 
     public void setEncoderPosition(OdometryTicks encoderPosition) {
-        currentEncoderPosition = encoderPosition;
+        this.encoderPosition = encoderPosition;
     }
 
     public boolean isInitialized() {
-        return currentEncoderPosition == null;
+        return encoderPosition == null;
     }
 
     public void update(OdometryTicks newTicks) {
         Navigation2D rotatingFrameMotion;
         Navigation2D deltaPositionInRobotFrame;
 
-        currentEncoderPosition = newTicks;
-        deltaEncoderPosition = newTicks.subtractAndReturn(previousEncoderPosition);
+        deltaEncoderPosition = newTicks.subtractAndReturn(encoderPosition);
+        encoderPosition = newTicks;
 
         rotatingFrameMotion = calculateRotatingFrameMotion(deltaEncoderPosition);
         deltaPositionInRobotFrame = calculateRelativeRobotMotionFromRotating(rotatingFrameMotion);
-        currentAbsolutePosition = calculateNewAbsolutePositionFromDelta(deltaPositionInRobotFrame);
+        absolutePosition = calculateNewAbsolutePositionFromDelta(deltaPositionInRobotFrame);
     }
 
     public Navigation2D calculateRotatingFrameMotion(OdometryTicks deltaTicks) {
@@ -75,7 +70,8 @@ public class OdometryLocalizer {
     }
 
     public Navigation2D calculateNewAbsolutePositionFromDelta(Navigation2D deltaPosition) {
-        
-        return new Navigation2D(0,0,0);
+        Frame2D oldRobotPosition = new Frame2D(absolutePosition.copy());
+        deltaPosition.referenceFrame = oldRobotPosition;
+        return deltaPosition.getNav2DInWorldFrame();
     }
 }

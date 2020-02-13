@@ -92,14 +92,14 @@ public class Frame2DTest {
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE,0);
 
         // This frame will be the marker for pivoting the waypoints, and must be identified in the new position
-        Frame2D foundationDropOffFrame = new Frame2D(waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_DROP_OFF).copy());
+        Frame2D foundationDropOffFrame = new Frame2D(waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_PLACE).copy());
         // New location of the foundation indicated
         Frame2D foundationDropOffFrame_moved = new Frame2D(foundationDropOffFrame.positionInReferenceFrame.addAndReturn(-10,10,Math.toRadians(135)));
         // Populate stone locations on platform
         ArrayList<Navigation2D> foundationDropLocations = new ArrayList<>();
         for(int i = 0; i<=2; ++i) {
             System.out.println("Waypoint index:" + i);
-            Navigation2D positionInGlobalFrame = waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_DROP_OFF).addAndReturn(-8.0*i, 0, 0);
+            Navigation2D positionInGlobalFrame = waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_PLACE).addAndReturn(-8.0*i, 0, 0);
 //            System.out.println("Initial Position, Global Frame:");
 //            describeNav2dFrame(positionInGlobalFrame);
 
@@ -111,7 +111,7 @@ public class Frame2DTest {
             Navigation2D positionOfRelocatedPointsInGlobalFrame = positionInInitialFoundationFrame.getNav2DInWorldFrame();
             foundationDropLocations.add(positionOfRelocatedPointsInGlobalFrame);
             System.out.println("Moved Position, Global Frame:");
-            describeNav2dFrame(positionOfRelocatedPointsInGlobalFrame);
+            describeNav2dFrame(positionInInitialFoundationFrame);
 
         }
 
