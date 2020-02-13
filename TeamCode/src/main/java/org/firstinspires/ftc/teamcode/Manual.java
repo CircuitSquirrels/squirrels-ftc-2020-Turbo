@@ -3,29 +3,21 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
-import org.firstinspires.ftc.teamcode.Utilities.Constants;
-import org.firstinspires.ftc.teamcode.Utilities.Controller;
-import org.firstinspires.ftc.teamcode.Utilities.Executive;
-import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
-import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
-import org.firstinspires.ftc.teamcode.Utilities.Mutable;
+import org.firstinspires.ftc.teamcode.Utilities.*;
 
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.ARM;
-import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
 
 @TeleOp (name="Manual",group="Competition")
 public class Manual extends RobotHardware {
 
-    Executive.StateMachine<Manual> stateMachine;
+    private Executive.StateMachine<Manual> stateMachine;
 
     // Adding interactive init variables
+    private Mutable<Double> DriveSpeed = new Mutable<>(0.7);
+    private Mutable<Double> RotationSpeed = new Mutable<>(0.75);
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
-    private Mutable<Boolean> CoPilot = new Mutable<>(false);
+    private Mutable<Boolean> CoPilot = new Mutable<>(true);
     private Mutable<Double> Exponential = new Mutable<>(1.0);
-    private Mutable<Double> DriveSpeed = new Mutable<>(1.0);
-    private Mutable<Double> RotationSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> Debug = new Mutable<>(false);
 
     // Define interactive init variable holders
@@ -35,10 +27,10 @@ public class Manual extends RobotHardware {
     private double driveSpeed;
 
     // Define the MecanumNav and other useful variables
-    private double triggerThreshold = 0.1;
+    private final double triggerThreshold = 0.1;
     private boolean precisionMode = false;
-    private double precisionSpeed = 0.3;
-    public Controller clawController;
+    private final double precisionSpeed = 0.3;
+    private Controller clawController;
     private MecanumNavigation.Navigation2D waypoint = new MecanumNavigation.Navigation2D(0, 0, 0);
 
     @Override
@@ -50,12 +42,12 @@ public class Manual extends RobotHardware {
         clawController = controller2;
 
         //Adding Interactive init options
-        interactiveInit.addOption(LiftSpeed, "Lifter speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
-                    .addOption(DriveSpeed, "Drive Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75)
-                    .addOption(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0, 0.75)
-                    .addOption(Exponential, "Exponential", 3.0, 1.0)
-                    .addOption(CoPilot, "Copilot Enable", false, true)
-                    .addOption(Debug, "Debug", false, true);
+        interactiveInit.addOption(DriveSpeed, "Drive Speed Multiplier",  0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
+                    .addOption(LiftSpeed, "Lifter speed", 0.25, 0.5, 0.75, 1.0)
+                    .addOption(RotationSpeed, "Rotation Speed Multiplier",  0.25, 0.5, 0.75, 1.0)
+                    .addOption(Exponential, "Exponential",1.0, 3.0)
+                    .addOption(CoPilot, "Copilot Enable", true, false)
+                    .addOption(Debug, "Debug", true, false);
     }
 
     @Override
@@ -72,7 +64,7 @@ public class Manual extends RobotHardware {
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
-        stateMachine = new Executive.StateMachine(this);
+        stateMachine = new Executive.StateMachine<>(this);
         stateMachine.changeState(DRIVE, new ManageArmStates());
         stateMachine.init();
 
@@ -103,7 +95,7 @@ public class Manual extends RobotHardware {
 
         if(controller1.AOnce()) precisionMode = !precisionMode;
         double precisionOutput = precisionMode ? precisionSpeed : 1;
-        telemetry.addData("Precision Mode", precisionMode);
+        telemetry.addData("Precision Mode: ", precisionMode);
         
         imuUtilities.update();
         telemetry.addData("IMU Heading: ", imuUtilities.getCompensatedHeading());
@@ -166,7 +158,7 @@ public class Manual extends RobotHardware {
      * @param rampThreshold The position when the robot will start slowing the motor down before its destination
      * @return Returns whether or not the motor arrived to the specified position
      */
-    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
+    private boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 0;
         int arrivedDistance = 50;
@@ -191,17 +183,10 @@ public class Manual extends RobotHardware {
      * @param power The power at which the robot will be driven
      * @return Returns whether or not the motor arrived to the specified position
      */
-    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+    private boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
         int rampDistanceTicks = 400;
         return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);
     }
-
-    public boolean gotoManualArmControl() {
-        double threshold = 0.1;
-        if(copilotEnabled) return Math.abs(clawController.right_stick_y) > threshold;
-        else return Math.abs(clawController.left_stick_y) > threshold;
-    }
-
 
     private class ManageArmStates extends Executive.StateBase<Manual> {
         private int placeIndex = 1;
@@ -228,11 +213,14 @@ public class Manual extends RobotHardware {
                 placeIndex++;
             } else if(armController.dpadDownOnce()) {
                 placeIndex--;
+            } else if(armController.rightStickButtonOnce()) {
+                offset_encoder = 0;
             } else if(arrived) {
                 stateMachine.changeState(ARM, new ManualArmControl());
             }
 
             offset_encoder += (int) -armController.right_stick_y * 250 * getAveragePeriodSec();
+
             telemetry.addLine("---Lifter---");
             telemetry.addData("Offset", offset_encoder);
             telemetry.addData("Place Index", placeIndex);
@@ -270,6 +258,12 @@ public class Manual extends RobotHardware {
                 arrived = driveMotorToPos(MotorName.LIFT_WINCH, offset_encoder, lifterSpeed);
                 lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
             }
+        }
+
+        private boolean gotoManualArmControl() {
+            double threshold = 0.1;
+            if(copilotEnabled) return Math.abs(clawController.right_stick_y) > threshold;
+            else return Math.abs(clawController.left_stick_y) > threshold;
         }
     }
 }

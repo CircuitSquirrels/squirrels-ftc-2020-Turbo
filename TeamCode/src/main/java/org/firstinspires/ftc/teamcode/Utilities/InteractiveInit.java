@@ -19,10 +19,9 @@ public class InteractiveInit {
     private Telemetry telemetry;
     private Gamepad gamepad1;
     private Controller controller;
-    private boolean interactiveMode = true;
 
 
-    private boolean unlocked = false;
+    private boolean unlocked = true;
     private ArrayList<VarOption> options = new ArrayList<>();
     private int cursor_location = 0;
 
@@ -35,7 +34,7 @@ public class InteractiveInit {
     /**
      *      Applies the selected value to the Mutables.
      */
-    public void apply() {
+    private void apply() {
         for (VarOption arg : options) {
             arg.apply();
         }
@@ -49,6 +48,7 @@ public class InteractiveInit {
             options.get(cursor_location).next();
         }
     }
+
     /**
      *      Go to the previous variable listed on the menu.
      */
@@ -91,8 +91,7 @@ public class InteractiveInit {
     }
 
 
-    public void displayMenu() {
-
+    private void displayMenu() {
         String margin = "       ";
         String cursor = " >> ";
         int n = size();
@@ -137,13 +136,13 @@ public class InteractiveInit {
     // Lock our selection and apply our selected settings
     public void lock() {
         apply();
+        unlocked = false;
         displayMenu(); // Display 'locked' version of menu
         telemetry.update();
-        interactiveMode = false;
     }
 
-    public void unlock() {
-        interactiveMode = true;
+    private void unlock() {
+        unlocked = true;
     }
 
     /*
@@ -153,13 +152,13 @@ public class InteractiveInit {
     private void updateInputs() {
         // Inputs are updated using the gamepad controls.
         controller.update();
-        // Returns if gamepad is null
+
         if(gamepad1 == null) {
-            interactiveMode = false;
+            lock();
             return;
         }
 
-        if (interactiveMode) {
+        if (unlocked) {
             if (controller.dpadDownOnce()) {
                 ++cursor_location;
                 if (cursor_location >= size())
@@ -177,7 +176,7 @@ public class InteractiveInit {
             }
         } else {
             if (controller.BOnce()) {
-                interactiveMode = true;
+                unlock();
             }
         }
     }

@@ -51,13 +51,13 @@ public class Executive {
             this.opMode = opMode;
         }
 
-        public void changeState(boolean isActive, StateType stateType, StateBase state) {
+        public void changeState(boolean isActive, StateType stateType, StateBase<T_opmode> state) {
             if (!isActive) return;
             stateMap.put(stateType, state);
             state.init(this);
         }
 
-        public void changeState(StateType stateType, StateBase state) {
+        public void changeState(StateType stateType, StateBase<T_opmode> state) {
             changeState(true, stateType, state);
         }
 
@@ -190,7 +190,7 @@ public class Executive {
             // Handled by allowing init to take a stateMachine argument.
         }
 
-        public StateBase(int iteration) {
+        StateBase(int iteration) {
             this.iteration = iteration;
         }
 

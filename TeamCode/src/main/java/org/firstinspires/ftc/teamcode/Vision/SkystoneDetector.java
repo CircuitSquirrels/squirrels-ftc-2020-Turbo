@@ -6,13 +6,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotHardware;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-
+import org.openftc.easyopencv.*;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 
-import static org.firstinspires.ftc.teamcode.Vision.TernarySkystonePipeline.NormalizedValue;
 import static org.firstinspires.ftc.teamcode.Vision.TernarySkystonePipeline.NormalizedRectangle;
 
 import java.util.ArrayList;
@@ -25,10 +21,10 @@ import java.util.ArrayList;
  */
 public class SkystoneDetector {
 
-    RobotHardware opmode;
-    HardwareMap hardwareMap;
-    Color.Ftc teamColor;
-    public OpenCvCamera webcam;
+    private RobotHardware opmode;
+    private HardwareMap hardwareMap;
+    private Color.Ftc teamColor;
+    private  OpenCvCamera webcam;
     public AveragingPipeline averagingPipeline;
 
     private final int rows = 640;
