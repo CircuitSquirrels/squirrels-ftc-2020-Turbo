@@ -10,7 +10,9 @@ import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
+import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -223,6 +225,12 @@ public class StateMachineTest {
                 System.out.print(mecanumNavigation.currentPosition.toString() + "   " + padStringTo(formatWaypointFieldWidth, autoDrive.lastTargetPosition.getLabel()));
                 System.out.println("LiftWinch: " + String.format("%5d",opMode.getEncoderValue(RobotHardware.MotorName.LIFT_WINCH)));
                 notStopped = !(robotStateContext.getCurrentState().startsWith("Stop_State") || robotStateContext.getCurrentState().startsWith("A_Manual"));
+
+//                Frame2D robotFrame = mecanumNavigation.getRobotFrame();
+//                Frame2D gripperFrame = new Frame2D(9,0,0,robotFrame);
+//                Waypoints waypoints = new Waypoints(Color.Ftc.RED,1);
+//                System.out.println("stone 1 relative to gripper frame: " + (waypoints.stoneLocations.get(1)).getNav2DInLocalFrame(gripperFrame).toString());
+
             }
 
             mecanumNavigation.update(); // Update navigation

@@ -51,6 +51,10 @@ public class MecanumNavigation {
                 opMode.getEncoderValue(RobotHardware.MotorName.DRIVE_BACK_RIGHT)));
     }
 
+    public Frame2D  getRobotFrame() {
+        return new Frame2D(currentPosition);
+    }
+
     public void displayPosition() {
         opMode.telemetry.addData("X: ", opMode.df.format(currentPosition.x));
         opMode.telemetry.addData("Y: ", opMode.df.format(currentPosition.y));
@@ -202,11 +206,7 @@ public class MecanumNavigation {
         public Navigation2D copyAndLabel(String newLabel) {
             Navigation2D copied_n2d = new Navigation2D(this.x,this.y,this.theta);
             copied_n2d.label = newLabel;
-            if(this.referenceFrame == null) {
-                copied_n2d.referenceFrame = null;
-            } else {
-                copied_n2d.referenceFrame = this.referenceFrame.copy();
-            }
+            copied_n2d.referenceFrame = this.referenceFrame; // Same frame reference, not copied.
             return copied_n2d;
         }
 
@@ -342,7 +342,7 @@ public class MecanumNavigation {
             if (pointInParentFrame.referenceFrame.referenceFrame == null) {
                 pointInParentFrame.referenceFrame = null;
             } else {
-                pointInParentFrame.referenceFrame = pointInParentFrame.referenceFrame.referenceFrame.copy();
+                pointInParentFrame.referenceFrame = pointInParentFrame.referenceFrame.referenceFrame; // Same reference, not copied.
             }
 
             return pointInParentFrame;
@@ -376,7 +376,7 @@ public class MecanumNavigation {
             // original heading.
             localPoint.rotateDegrees(-Math.toDegrees(localFrameOriginInWorld_N2D.theta));
             // Correct localFrame set
-            localPoint.referenceFrame = localFrame; // TODO DEBUG Frame Not copied
+            localPoint.referenceFrame = localFrame; // Same reference, not copied.
 
 
             return localPoint;
@@ -388,8 +388,8 @@ public class MecanumNavigation {
      * reference coordinates.
      */
     public static class Frame2D {
-        public Navigation2D positionInReferenceFrame = new Navigation2D(0,0,0);
-        public Frame2D referenceFrame = null;
+        public Navigation2D positionInReferenceFrame;
+        public Frame2D referenceFrame;
 
         public Frame2D() {
             this.positionInReferenceFrame = new Navigation2D(0,0,0);
@@ -402,7 +402,7 @@ public class MecanumNavigation {
             if (referenceFrame == null) {
                 this.referenceFrame = null;  // Breaks recursion, null safe
             } else {
-                this.referenceFrame = referenceFrame.copy();
+                this.referenceFrame = referenceFrame; // Same reference, not copied.
             }
         }
 
@@ -414,8 +414,12 @@ public class MecanumNavigation {
             this(new Navigation2D(x,y,theta),null);
         }
 
+        public Frame2D(double x, double y, double theta, Frame2D frame2D) {
+            this(new Navigation2D(x,y,theta),frame2D); // Parent frame maintains reference.
+        }
+
         public Frame2D copy() {
-            return new Frame2D(this.positionInReferenceFrame, this.referenceFrame);
+            return new Frame2D(this.positionInReferenceFrame.copy(), this.referenceFrame); // Same parent frame reference, not copied.
         }
 
         public boolean isWorldFrame() {

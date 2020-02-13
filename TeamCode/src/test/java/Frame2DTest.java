@@ -8,6 +8,9 @@ import java.util.ArrayList;
 
 import static org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import static org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
+import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
+
+
 public class Frame2DTest {
 
 
@@ -115,7 +118,47 @@ public class Frame2DTest {
 
         }
 
+    }
 
+    @Test
+    public void calculateLastBlockWaypoint() {
+        Waypoints waypoints = new Waypoints(Color.Ftc.BLUE,2);
+        Navigation2D wallStone = waypoints.stoneLocations.get(5);
+        Navigation2D currentStonePickupLocation = waypoints.loading.get(Waypoints.LocationLoading.GRAB_SKYSTONE_B);
+
+        // Setup robot frame. This can be moved later (by adjusting
+        Frame2D robotFrame = new Frame2D();
+        robotFrame.positionInReferenceFrame = waypoints.loading.get(INITIAL_POSITION); // This is how the frame can be moved.
+        Navigation2D grabber = new Navigation2D(9.0,0,0,robotFrame);
+        Navigation2D rightWheel = new Navigation2D(8.0,-17.0/2.0,0,robotFrame);
+        Navigation2D leftWheel = new Navigation2D(8.0,17.0/2.0,0,robotFrame);
+
+
+        double approachAngleDegrees = -55;
+        // Initial setup: find alignment and grab positions on a given angle
+        Frame2D stoneFrame = new Frame2D(wallStone.addAndReturn(0,0,Math.toRadians(approachAngleDegrees)));
+        Navigation2D grab1_local = new Navigation2D(-9,0,0, stoneFrame);
+        Navigation2D align_local = new Navigation2D(-20, 0, 0, stoneFrame);
+
+        System.out.println(approachAngleDegrees);
+        System.out.println("Alignment Position");
+        describeNav2dFrame(align_local);
+        // Check for interference between wheel and wall
+        robotFrame.positionInReferenceFrame = align_local.getNav2DInWorldFrame();
+        System.out.println("Front Right Wheel Location:  " + rightWheel.getNav2DInWorldFrame());
+
+        System.out.println("Grab Position");
+        describeNav2dFrame(grab1_local);
+        // Check for interference between wheel and wall
+        robotFrame.positionInReferenceFrame = grab1_local.getNav2DInWorldFrame();
+        System.out.println("Front Right Wheel Location:  " + rightWheel.getNav2DInWorldFrame());
+
+
+
+        // Wheel pivot method (right wheel, blue side)
+        Frame2D rightWheelFrame = new Frame2D(rightWheel,robotFrame);
+        Frame2D robotFrameInWheelFrame = new Frame2D(robotFrame.positionInReferenceFrame.getNav2DInLocalFrame(rightWheelFrame),rightWheelFrame);
+//        describeNav2dFrame(robotFrameInWheelFrame);
 
 
     }
