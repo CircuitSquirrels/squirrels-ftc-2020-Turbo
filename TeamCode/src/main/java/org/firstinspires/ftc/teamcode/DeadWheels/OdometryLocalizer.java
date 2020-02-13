@@ -11,7 +11,7 @@ public class OdometryLocalizer {
     private OdometryTicks encoderPosition = new OdometryTicks(0,0,0);
     private Navigation2D absolutePosition = new Navigation2D(0,0,0);
 
-    OdometryLocalizer(OdometryConfig odometryConfig) {
+    public OdometryLocalizer(OdometryConfig odometryConfig) {
         this.odometryConfig = odometryConfig;
     }
 
@@ -25,6 +25,10 @@ public class OdometryLocalizer {
 
     public boolean isInitialized() {
         return encoderPosition == null;
+    }
+
+    public Navigation2D getCurrentPosition() {
+        return absolutePosition;
     }
 
     public void update(OdometryTicks newTicks) {
@@ -41,25 +45,34 @@ public class OdometryLocalizer {
 
     public Navigation2D calculateRotatingFrameMotion(OdometryTicks deltaTicks) {
         double forward_in = odometryConfig.inchesFromTicks((deltaTicks.right + deltaTicks.left) / 2.0);
-        double rotation_degrees_CCW = odometryConfig.inchesFromTicks((deltaTicks.right - deltaTicks.left) / 2.0) / (odometryConfig.wheelDiameter * Math.PI) * 360.0;
+        double rotation_degrees_CCW = odometryConfig.inchesFromTicks((deltaTicks.right - deltaTicks.left) / 2.0) /
+                (odometryConfig.outerWheelDistance * Math.PI) * 360.0;
         double strafeCorrection_in = rotation_degrees_CCW * odometryConfig.strafeErrorPerDegrees;
         double strafe_in = odometryConfig.inchesFromTicks(deltaTicks.center) - strafeCorrection_in;
 
-        return new Navigation2D(forward_in, strafe_in, rotation_degrees_CCW);
+        return new Navigation2D(forward_in, strafe_in, rotation_degrees_CCW * Math.PI / 180.0);
     }
 
     public Navigation2D calculateRelativeRobotMotionFromRotating(Navigation2D rotatingFrameMotion) {
         // Arc length
         double translationDistance = Math.sqrt(Math.pow(rotatingFrameMotion.x, 2.0) + Math.pow(rotatingFrameMotion.y, 2.0));
         // Direction of travel relative to forward
-        double translationAngle = Math.atan2(rotatingFrameMotion.x, rotatingFrameMotion.y);
+        double translationAngle = Math.atan2(rotatingFrameMotion.y, rotatingFrameMotion.x);
 
-        double pathCircumference = Math.abs(translationDistance * (2.0 * Math.PI) / (rotatingFrameMotion.theta));
-        double pathRadius = (pathCircumference / (Math.PI * 2.0));
+        double deltaX, deltaY;
+        // Start by assuming all motion is in the X (forward) direction
+        // If theta does not equal 0 then calculate path radius
+        if(rotatingFrameMotion.theta != 0) {
+            double pathCircumference = Math.abs(translationDistance * (2.0 * Math.PI) / (rotatingFrameMotion.theta));
+            double pathRadius = (pathCircumference / (Math.PI * 2.0));
 
-        double deltaX = Math.abs(pathRadius * Math.sin(rotatingFrameMotion.theta));
-        double thetaSign = rotatingFrameMotion.theta / Math.abs(rotatingFrameMotion.theta);
-        double deltaY = Math.abs(pathRadius - pathRadius * Math.cos(rotatingFrameMotion.theta)) * thetaSign;
+            deltaX = Math.abs(pathRadius * Math.sin(rotatingFrameMotion.theta));
+            double thetaSign = rotatingFrameMotion.theta / Math.abs(rotatingFrameMotion.theta);
+            deltaY = Math.abs(pathRadius - pathRadius * Math.cos(rotatingFrameMotion.theta)) * thetaSign;
+        } else {
+            deltaX = translationDistance;
+            deltaY = 0.0;
+        }
 
         // probably wrong
         Navigation2D robotFrameOffset = new  Navigation2D(deltaX,deltaY,rotatingFrameMotion.theta);
