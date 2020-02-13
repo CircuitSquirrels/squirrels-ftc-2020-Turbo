@@ -151,11 +151,15 @@ public class MecanumNavigation {
             this.theta = theta;
         }
 
-        public void rotate (double degrees) {
-            double radians = degrees * Math.PI / 180;
-            this.x = x * Math.cos(radians) - y * Math.sin(radians);
-            this.y = x * Math.sin(radians) + y * Math.cos(radians);
-            this.theta += radians;
+        public void rotateDegrees(double degrees) {
+            double radians, xNew, yNew, thetaNew;
+            radians = degrees * Math.PI / 180;
+            xNew = x * Math.cos(radians) - y * Math.sin(radians);
+            yNew = x * Math.sin(radians) + y * Math.cos(radians);
+            thetaNew = this.theta + radians;
+            this.x = xNew;
+            this.y = yNew;
+            this.theta = thetaNew;
         }
 
         public void reflectInX() {
@@ -165,7 +169,7 @@ public class MecanumNavigation {
 
         public Navigation2D rotateCopy (double degrees) {
             Navigation2D nav2D_copy = (Navigation2D) this.clone();
-            nav2D_copy.rotate(degrees);
+            nav2D_copy.rotateDegrees(degrees);
             return nav2D_copy;
         }
 
