@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
@@ -62,6 +64,9 @@ public class Manual extends RobotHardware {
         // Initialize the Mecanum Navigation for use
         mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
+        odometryLocalizer = new OdometryLocalizer(odometryConfig);
+        odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
+        odometryLocalizer.setEncoderPosition(new OdometryTicks(0,0,0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
 
         stateMachine = new Executive.StateMachine<>(this);
@@ -88,10 +93,12 @@ public class Manual extends RobotHardware {
         controller1.update();
         controller2.update();
         mecanumNavigation.update();
+        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
 
         telemetry.addLine("---Drive---");
         // Display the robot's position compared to where it started
         mecanumNavigation.displayPosition();
+        telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
 
         if(controller1.AOnce()) precisionMode = !precisionMode;
         double precisionOutput = precisionMode ? precisionSpeed : 1;

@@ -134,7 +134,7 @@ public class Frame2DTest {
         Navigation2D leftWheel = new Navigation2D(8.0,17.0/2.0,0,robotFrame);
 
 
-        double approachAngleDegrees = -55;
+        double approachAngleDegrees = -45;
         // Initial setup: find alignment and grab positions on a given angle
         Frame2D stoneFrame = new Frame2D(wallStone.addAndReturn(0,0,Math.toRadians(approachAngleDegrees)));
         Navigation2D grab1_local = new Navigation2D(-9,0,0, stoneFrame);

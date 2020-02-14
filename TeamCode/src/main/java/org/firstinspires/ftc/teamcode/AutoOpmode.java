@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Vision.*;
 
@@ -129,6 +132,9 @@ public class AutoOpmode extends RobotHardware {
         mecanumNavigation = new MecanumNavigation(this, Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
+        odometryLocalizer = new OdometryLocalizer(odometryConfig);
+        odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
+        odometryLocalizer.setEncoderPosition(new OdometryTicks(0,0,0));
 
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
@@ -179,8 +185,9 @@ public class AutoOpmode extends RobotHardware {
             writeTelemetryToFile();
             timingMonitor.checkpoint("POST telemetry recorder");
         }
-
+        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
         mecanumNavigation.displayPosition();
+        telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
@@ -294,20 +301,18 @@ public class AutoOpmode extends RobotHardware {
 
     /**
      * Updates the mecanumNavigation heading from the imu heading.
-     * Careful, this function forces the IMU to refresh immediately, which
-     * causes up to 20ms of latency.
+     * This function forces the IMU to refresh immediately, which
+     * causes up to 6ms of latency.
      * Use this once per state in a state machine, or on a timer.
      * Do not call this repeatedly in the main loop!
      */
     public void updateMecanumHeadingFromGyroNow() {
-        {
-            // Modify current position to account for rotation during descent measured by gyro.
-            imuUtilities.updateNow();
-            double gyroHeading = imuUtilities.getCompensatedHeading();
-            MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
-            currentPosition.theta = Math.toRadians(gyroHeading);
-            mecanumNavigation.setCurrentPosition(currentPosition);
-        }
+        // Modify current position to account for rotation during descent measured by gyro.
+        imuUtilities.updateNow();
+        double gyroHeading = imuUtilities.getCompensatedHeading();
+        MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
+        currentPosition.theta = Math.toRadians(gyroHeading);
+        mecanumNavigation.setCurrentPosition(currentPosition);
     }
 
     public boolean shouldContinue() {

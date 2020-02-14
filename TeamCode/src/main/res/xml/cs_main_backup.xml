@@ -3,6 +3,9 @@
     <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ2EOPAW" parentModuleAddress="1">
         <LynxModule name="Expansion Hub 1" port="1">
             <Motor name="LIFT_WINCH" port="0" />
+            <Motor name="RIGHT_WHEEL" port="1" />
+            <Motor name="CENTER_WHEEL" port="2" />
+            <Motor name="LEFT_WHEEL" port="3" />
             <Servo name="CLAW_LEFT" port="0" />
             <Servo name="CLAW_RIGHT" port="1" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />

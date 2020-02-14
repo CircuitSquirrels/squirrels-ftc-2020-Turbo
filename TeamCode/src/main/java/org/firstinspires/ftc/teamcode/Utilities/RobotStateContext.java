@@ -763,7 +763,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = armControl(OPEN, opMode.liftArmTicksForLevelFoundationKnob(foundationLevel, true, true), true);
+            arrived = armControl(OPEN, Constants.liftArmTicksForLevelFoundationKnob(foundationLevel, true, true), true);
         }
     }
 

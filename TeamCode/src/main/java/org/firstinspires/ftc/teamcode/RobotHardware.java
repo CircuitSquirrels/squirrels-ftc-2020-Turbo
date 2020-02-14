@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Vision.*;
 import org.openftc.revextensions2.*;
@@ -21,10 +23,8 @@ public class RobotHardware extends OpMode {
     private ArrayList<ExpansionHubMotor> allMotors;
 
     // Expansion hubs and bulk reads
-    private ExpansionHubEx expansionHubDrive;
-    private ExpansionHubEx expansionHubArm;
-    private RevBulkData bulkDataDrive;
-    private RevBulkData bulkDataArm;
+    private ExpansionHubEx expansionHubDrive, expansionHubArm;
+    private RevBulkData bulkDataDrive, bulkDataArm;
 
 
     // All servos on the robot, in order of ServoName.
@@ -46,6 +46,8 @@ public class RobotHardware extends OpMode {
 
     public Controller controller1, controller2;
     public MecanumNavigation mecanumNavigation;
+    public OdometryConfig odometryConfig = new OdometryConfig();
+    public OdometryLocalizer odometryLocalizer;
     public AutoDrive autoDrive;
     public IMUUtilities imuUtilities;
     public SkystoneDetector skystoneDetector;
@@ -58,7 +60,10 @@ public class RobotHardware extends OpMode {
         DRIVE_FRONT_RIGHT("DRIVE_FRONT_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         DRIVE_BACK_LEFT("DRIVE_BACK_LEFT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER);
+        LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         private final String configName;
         private final ExpansionHubs expansionHub;
