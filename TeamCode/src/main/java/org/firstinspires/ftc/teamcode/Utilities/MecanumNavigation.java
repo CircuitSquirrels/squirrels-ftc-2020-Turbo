@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
+import java.io.Serializable;
+
 /**
  * Created by Ashley on 12/8/2017.
  */
@@ -136,7 +138,7 @@ public class MecanumNavigation {
      * y is in inches, left
      * theta is in radians, CCW
      */
-    public static class Navigation2D implements Cloneable{
+    public static class Navigation2D implements Cloneable, Serializable {
         public double x = 0;
         public double y = 0;
         // Rotation degrees CCW
