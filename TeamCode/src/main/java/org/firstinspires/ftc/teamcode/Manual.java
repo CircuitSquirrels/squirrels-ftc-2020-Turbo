@@ -93,7 +93,7 @@ public class Manual extends RobotHardware {
         controller1.update();
         controller2.update();
         mecanumNavigation.update();
-        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
+        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
 
         telemetry.addLine("---Drive---");
         // Display the robot's position compared to where it started
@@ -142,10 +142,10 @@ public class Manual extends RobotHardware {
                 autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
             }
         }
-
-        // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
+        
         telemetry.addData("CoPilot Mode", copilotEnabled);
 
+        // Add claw servo controls, operated by Driver if copilot is disabled, or copilot if enabled.
         if (clawController.leftBumper()) {
             commandClaw(ClawPositions.CLOSED);
             telemetry.addData("Claw: ", "CLOSED");

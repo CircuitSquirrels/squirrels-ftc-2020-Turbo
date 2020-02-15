@@ -45,11 +45,11 @@ public class DiagnosticOpMode extends Manual {
         telemetry.addLine();
         timingMonitor.displayMaxTimes();
         telemetry.addLine();
-        showPIDFTelemetry();
+//        showPIDFTelemetry();
         timingMonitor.checkpoint("Telemetry Displayed");
 
         // Control Tuning
-        manualControlTuning();
+//        manualControlTuning();
     }
 
 

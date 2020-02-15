@@ -552,7 +552,7 @@ public class RobotHardware extends OpMode {
             }
         }
 
-        initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
+//        initializePID(); // Makes current drive PIDF parameters available as K_P, K_I, K_D, K_F.
 
         allServos = new ArrayList<>();
         for (ServoName s : ServoName.values()) {

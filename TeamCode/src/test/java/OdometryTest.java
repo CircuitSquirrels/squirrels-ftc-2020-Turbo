@@ -8,8 +8,8 @@ import static org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigat
 
 public class OdometryTest {
 
-    OdometryLocalizer odometryLocalizer;
-    OdometryConfig odometryConfig = new OdometryConfig();
+    private OdometryLocalizer odometryLocalizer;
+    private final OdometryConfig odometryConfig = new OdometryConfig();
 
     @Before
     public void initialize() {
@@ -21,7 +21,14 @@ public class OdometryTest {
     @Test
     public void stuff() {
         System.out.println(odometryLocalizer.getCurrentPosition());
-        odometryLocalizer.update(new OdometryTicks(8192, 0, 8192));
+        for (int i = 0; i < 201; i++) {
+            odometryLocalizer.update(new OdometryTicks(1, 100, 1).addAndReturn(odometryLocalizer.getEncoderPosition()));
+            if(i % 50 == 0) {
+                System.out.println(odometryLocalizer.getCurrentPosition());
+                System.out.println(i);
+            }
+        }
+        odometryLocalizer.update(new OdometryTicks(0, 2000, 0));
         System.out.println(odometryLocalizer.getCurrentPosition());
 
         odometryLocalizer.update(new OdometryTicks(-8192.0 * (9.0 / 10.0), 8192.0 * (9.0 / 10.0) * (1.5 / 8.5), 8192.0 * (9.0 / 10.0)));
