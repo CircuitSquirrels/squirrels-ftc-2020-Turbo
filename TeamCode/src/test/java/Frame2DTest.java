@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import TestUtilities.AssertFTC;
+
 import static org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import static org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
 import static org.firstinspires.ftc.teamcode.Utilities.Waypoints.LocationLoading.*;
@@ -32,13 +34,13 @@ public class Frame2DTest {
     @Test
     public void localPoints_toWorldFrame() {
         describeNav2dFrame(point0);
-        TestFTC.assertWaypoint_Equal(point0,point0.getNav2DInWorldFrame());
+        AssertFTC.assertWaypoint_Equal(point0,point0.getNav2DInWorldFrame());
 
         describeNav2dFrame(point1);
-        TestFTC.assertWaypoint_Equal(point0,point1.getNav2DInWorldFrame());
+        AssertFTC.assertWaypoint_Equal(point0,point1.getNav2DInWorldFrame());
 
         describeNav2dFrame(point2);
-        TestFTC.assertWaypoint_Equal(point0,point2.getNav2DInWorldFrame());
+        AssertFTC.assertWaypoint_Equal(point0,point2.getNav2DInWorldFrame());
     }
 
     @Test
@@ -51,13 +53,13 @@ public class Frame2DTest {
         Navigation2D local2 = point0.getNav2DInLocalFrame(f2);
 
         describeNav2dFrame(point0);
-        TestFTC.assertWaypoint_Equal(point0,local0);
+        AssertFTC.assertWaypoint_Equal(point0,local0);
 
         describeNav2dFrame(point1);
-        TestFTC.assertWaypoint_Equal(point1,local1);
+        AssertFTC.assertWaypoint_Equal(point1,local1);
 
         describeNav2dFrame(point2);
-        TestFTC.assertWaypoint_Equal(point2,local2);
+        AssertFTC.assertWaypoint_Equal(point2,local2);
     }
 
     
@@ -84,7 +86,7 @@ public class Frame2DTest {
             for( Frame2D localFrame : localFrames) {
                 localIntermediate = point.getNav2DInLocalFrame(localFrame);
                 globalReconstruction = localIntermediate.getNav2DInWorldFrame();
-                TestFTC.assertWaypoint_Equal(point,globalReconstruction);
+                AssertFTC.assertWaypoint_Equal(point,globalReconstruction);
                 describeNav2dFrame(localIntermediate);
             }
         }
