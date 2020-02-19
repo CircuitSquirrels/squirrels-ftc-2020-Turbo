@@ -33,16 +33,24 @@ public class PositionControllerTest {
     @Test
     public void run() {
         double stepTime = 0.02;
-        double maxTime = 20.0;
-        Navigation2D targetPosition = new Navigation2D(10, 0, Math.toRadians(90));
+        double maxTime = 10.0;
+        int displaysPerSecond = 10;
+        opMode.setAveragePeriodSec(stepTime);
+        Navigation2D targetPosition;
 
         printHeading();
         while (simTime <= maxTime) {
+
             //Move
+            if(simTime < 1.0) {
+                targetPosition = new Navigation2D(20, 20, Math.toRadians(90));
+            } else {
+                targetPosition = new Navigation2D(0, 0, Math.toRadians(0));
+            }
             arrived = drive.driveTo(targetPosition, 1);
 
             // Display
-            if(SimFormat.isDisplayInterval(2,simTime,stepTime)) {
+            if(SimFormat.isDisplayInterval(displaysPerSecond,simTime,stepTime)) {
                 printStatus();
             }
 
@@ -59,7 +67,7 @@ public class PositionControllerTest {
         System.out.println(padStringTo(8, "SimTime") +
                 padStringTo(13,"|   Arrived") +
                 padStringTo(32,"|      Current Position") +
-                padStringTo(17,"|                 "));
+                padStringTo(17,"|  Robot Frame Power"));
         System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
     }
 
@@ -70,7 +78,9 @@ public class PositionControllerTest {
 //        System.out.print("Arrived: ");
         System.out.print( padStringTo(12,String.valueOf(arrived)));
 //        System.out.print("Position:    ");
-        System.out.println(mecanumNavigation.getCurrentPosition());
+//        System.out.print(drive.);
+        System.out.print(padStringTo(30, mecanumNavigation.getCurrentPosition().toString()));
+        System.out.println(drive.robotFramePower.toStringPure());
     }
 
 

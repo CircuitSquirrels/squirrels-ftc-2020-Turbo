@@ -373,12 +373,15 @@ public class MecanumNavigation implements Localizer {
         }
 
         public String toString() {
-//            DecimalFormat df = new DecimalFormat(" 00.00;-00.00");
-//            DecimalFormat df_deg = new DecimalFormat(" 00.0;-00.0");
-//            return df.format(x) + ",  " + df.format(y) + ", " + df_deg.format(theta*180/Math.PI) + " deg";
             String format_xy = "%6.2f";
             String format_deg = "%6.1f";
             return String.format(format_xy,x) + ",  " + String.format(format_xy,y) + ", " + String.format(format_deg,theta*180/Math.PI) + " deg";
+        }
+
+        public String toStringPure() {
+            String format_xy = "%6.2f";
+            String format_deg = "%6.2f";
+            return String.format(format_xy,x) + ",  " + String.format(format_xy,y) + ", " + String.format(format_deg,theta) + "";
         }
 
         // Default value of reference frame is null, which indicates absolute, or world frame.
