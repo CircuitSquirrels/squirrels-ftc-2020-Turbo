@@ -67,7 +67,7 @@ public class Manual extends RobotHardware {
         odometryLocalizer = new OdometryLocalizer(odometryConfig);
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
-        autoDrive = new AutoDrive(this, mecanumNavigation,mecanumNavigation);
+        autoDrive = new AutoDrive(this, mecanumNavigation,odometryLocalizer);
 
         stateMachine = new Executive.StateMachine<>(this);
         stateMachine.changeState(DRIVE, new ManageArmStates());
