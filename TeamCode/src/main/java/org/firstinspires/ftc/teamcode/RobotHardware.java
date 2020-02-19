@@ -62,7 +62,7 @@ public class RobotHardware extends OpMode {
         DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
-        CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
         LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         private final String configName;

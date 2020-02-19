@@ -132,6 +132,7 @@ public class Manual extends RobotHardware {
         if(controller1.YOnce()) {
             imuUtilities.setCompensatedHeading(0);
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+            odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         }
         if(Debug.get()) {
             if (controller1.left_trigger > 0.1) {

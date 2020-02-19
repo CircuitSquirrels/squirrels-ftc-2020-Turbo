@@ -7,9 +7,9 @@ public class OdometryConfig {
     public final double wheelDiameter = 60.0 * 0.0393701; // 60mm diameter, 7.417" circumference
     public final double ticksPerRotation = 8192.0;
 
-    public double outerWheelDistance = 8.5;
+    public double outerWheelDistance = 9.028;
     public double outerWheelXPos = -1.0;
-    public double centerWheelXPos = -1.5;
+    public double centerWheelXPos = -1.091;
     public double strafeErrorPerDegrees = centerWheelXPos * 2.0 * Math.PI / 360.0;
 
     private final Navigation2D leftWheel = new Navigation2D(outerWheelXPos,outerWheelDistance/2.0,0.0);

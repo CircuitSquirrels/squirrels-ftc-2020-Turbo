@@ -15,30 +15,6 @@ public class OdometryLocalizer {
         this.odometryConfig = odometryConfig;
     }
 
-    public void setCurrentPosition(Navigation2D currentPosition) {
-        absolutePosition = currentPosition;
-    }
-
-    public void setEncoderPosition(OdometryTicks encoderPosition) {
-        this.encoderPosition = encoderPosition;
-    }
-
-    public boolean isInitialized() {
-        return encoderPosition == null;
-    }
-
-    public Navigation2D getCurrentPosition() {
-        return absolutePosition;
-    }
-
-    public OdometryTicks getEncoderPosition() {
-        return encoderPosition;
-    }
-
-    public Frame2D getRobotFrame() {
-        return new Frame2D(absolutePosition);
-    }
-
     public void update(OdometryTicks newTicks) {
         Navigation2D rotatingFrameMotion;
         Navigation2D deltaPositionInRobotFrame;
@@ -82,7 +58,6 @@ public class OdometryLocalizer {
             deltaY = 0.0;
         }
 
-        // probably wrong
         Navigation2D robotFrameOffset = new  Navigation2D(deltaX,deltaY,rotatingFrameMotion.theta);
         robotFrameOffset.rotateDegrees(Math.toDegrees(translationAngle));
         robotFrameOffset.addInPlace(0,0,-translationAngle);
@@ -94,5 +69,30 @@ public class OdometryLocalizer {
         Frame2D oldRobotPosition = new Frame2D(absolutePosition.copy());
         deltaPosition.referenceFrame = oldRobotPosition;
         return deltaPosition.getNav2DInWorldFrame();
+    }
+
+    public void setCurrentPosition(Navigation2D currentPosition) {
+        this.absolutePosition = currentPosition;
+    }
+
+    public void setEncoderPosition(OdometryTicks encoderPosition) {
+        this.encoderPosition = encoderPosition;
+
+    }
+
+    public boolean isInitialized() {
+        return encoderPosition == null;
+    }
+
+    public Navigation2D getCurrentPosition() {
+        return absolutePosition;
+    }
+
+    public OdometryTicks getEncoderPosition() {
+        return encoderPosition;
+    }
+
+    public Frame2D getRobotFrame() {
+        return new Frame2D(absolutePosition);
     }
 }
