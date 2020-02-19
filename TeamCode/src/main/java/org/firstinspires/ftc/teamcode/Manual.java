@@ -66,8 +66,8 @@ public class Manual extends RobotHardware {
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         odometryLocalizer = new OdometryLocalizer(odometryConfig);
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-        odometryLocalizer.setEncoderPosition(new OdometryTicks(0,0,0));
-        autoDrive = new AutoDrive(this, mecanumNavigation);
+        odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
+        autoDrive = new AutoDrive(this, mecanumNavigation,mecanumNavigation);
 
         stateMachine = new Executive.StateMachine<>(this);
         stateMachine.changeState(DRIVE, new ManageArmStates());
@@ -136,7 +136,7 @@ public class Manual extends RobotHardware {
         }
         if(Debug.get()) {
             if (controller1.left_trigger > 0.1) {
-                waypoint = mecanumNavigation.currentPosition.copy();
+                waypoint = mecanumNavigation.getCurrentPosition();
             }
 
             if (controller1.B()) {

@@ -57,7 +57,7 @@ public class AutoDriveTest {
 
         mecanumNavigation = new MecanumNavigation(opMode, Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0,0,0));
-        autoDrive = new AutoDrive(opMode,mecanumNavigation);
+        autoDrive = new AutoDrive(opMode,mecanumNavigation,mecanumNavigation);
 
         simTime = 0.0;
     }
@@ -83,7 +83,7 @@ public class AutoDriveTest {
 
             if(isDisplayInterval(5, simTime,simulationStepTime)) {
                 System.out.print("SimTime:  " + df.format(simTime) + "   Arrived:  " + arrived + "    ");
-                System.out.println(mecanumNavigation.currentPosition.toString());
+                System.out.println(mecanumNavigation.getCurrentPosition().toString());
 //                System.out.println();
             }
 

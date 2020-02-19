@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import org.firstinspires.ftc.teamcode.DeadWheels.Localizer;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.*;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.miniPID.MiniPID;
@@ -7,14 +8,14 @@ import org.firstinspires.ftc.teamcode.miniPID.MiniPID;
 public class PositionController {
 
     private RobotHardware opMode;
-    private MecanumNavigation mecanumNavigation;
+    private Localizer localizer;
     private MiniPID pidX;
     private MiniPID pidY;
     private MiniPID pidTheta;
 
-    public PositionController(RobotHardware opMode, MecanumNavigation mecanumNavigation) {
+    public PositionController(RobotHardware opMode, Localizer localizer) {
         this.opMode = opMode;
-        this.mecanumNavigation = mecanumNavigation;
+        this.localizer = localizer;
         initializePID();
     }
 
@@ -47,7 +48,7 @@ public class PositionController {
     }
 
     public boolean driveTo(Navigation2D targetPosition, double rate) {
-        Navigation2D positionError = targetPosition.substractAndReturn(mecanumNavigation.currentPosition);
+        Navigation2D positionError = targetPosition.substractAndReturn(localizer.getCurrentPosition());
 
         if(hasArrived(positionError, 0.5, Math.toRadians(5))) return true;
 
@@ -55,7 +56,7 @@ public class PositionController {
         Navigation2D robotFramePower;
 
         setTarget(targetPosition);
-        absPower = getOutput(mecanumNavigation.currentPosition);
+        absPower = getOutput(localizer.getCurrentPosition());
         robotFramePower = toRobotFrame(absPower);
         opMode.setDriveForSimpleMecanum(robotFramePower.y, -robotFramePower.x, robotFramePower.theta, 0);
         return false;
@@ -67,8 +68,9 @@ public class PositionController {
 
     public Navigation2D toRobotFrame(Navigation2D pointInFieldFrame) {
         Navigation2D pointInRobotFrame = pointInFieldFrame.copy();
-        pointInRobotFrame.subtractInPlace(new Navigation2D(mecanumNavigation.currentPosition.x, mecanumNavigation.currentPosition.y, 0));
-        pointInRobotFrame.rotateDegrees(Math.toDegrees(-mecanumNavigation.currentPosition.theta));
+        Navigation2D currentPosition = localizer.getCurrentPosition();
+        pointInRobotFrame.subtractInPlace(new Navigation2D(currentPosition.x, currentPosition.y, 0));
+        pointInRobotFrame.rotateDegrees(Math.toDegrees(-currentPosition.theta));
         return pointInRobotFrame;
     }
 }

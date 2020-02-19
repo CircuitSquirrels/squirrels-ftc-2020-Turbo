@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import org.firstinspires.ftc.teamcode.DeadWheels.Localizer;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
 /**
  * Created by Ashley on 12/8/2017.
  */
 
-public class MecanumNavigation {
+public class MecanumNavigation implements Localizer {
 
     private RobotHardware opMode;
     public DriveTrainMecanum driveTrainMecanum;
-    public Navigation2D currentPosition;
+    private Navigation2D currentPosition;
     public Navigation2D previousPosition;
     public WheelTicks wheelTicks;
 
@@ -34,6 +35,10 @@ public class MecanumNavigation {
         this.currentPosition = currentPosition;
     }
 
+    public Navigation2D getCurrentPosition() {
+       return currentPosition.copy();
+    }
+
     public void update(WheelTicks newWheelTicks) {
         WheelTicks deltaWheelTicks = newWheelTicks.getDeltaFromPrevious(wheelTicks);
         this.wheelTicks = (WheelTicks)newWheelTicks.clone();
@@ -41,6 +46,14 @@ public class MecanumNavigation {
         Navigation2D deltaPosition = deltaPositionFromDeltaWheelTicks(deltaWheelTicks);
         this.previousPosition = (Navigation2D)currentPosition.clone();
         this.currentPosition.addRelativeDeltaToAbsolute(deltaPosition);
+    }
+
+    public void update(RobotHardware robotHardware) {
+        update(new MecanumNavigation.WheelTicks(
+                robotHardware.getEncoderValue(RobotHardware.MotorName.DRIVE_FRONT_LEFT),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.DRIVE_FRONT_RIGHT),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.DRIVE_BACK_LEFT),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.DRIVE_BACK_RIGHT)));
     }
 
     public void update() {
@@ -100,6 +113,24 @@ public class MecanumNavigation {
         return deltaWheelsFromBodyRelativeMotion(new Navigation2D(bodyX, bodyY, bodyTheta));
     }
 
+    /**
+     * Static to break AutoDrive dependence on MecanumNavigation.
+     * @param currentPosition
+     * @param targetPosition
+     * @return
+     */
+    static public Mecanum.Wheels deltaWheelsFromPosition(Navigation2D currentPosition, Navigation2D targetPosition, DriveTrainMecanum driveTrainMecanum) {
+        double deltaX = targetPosition.x - currentPosition.x;
+        double deltaY = targetPosition.y - currentPosition.y;
+        double deltaTheta = targetPosition.theta - currentPosition.theta;
+
+        double bodyX = deltaX * Math.cos(currentPosition.theta) + deltaY * Math.sin(currentPosition.theta);
+        double bodyY = -deltaX * Math.sin(currentPosition.theta) + deltaY * Math.cos(currentPosition.theta);
+        double bodyTheta = deltaTheta;
+
+        return deltaWheelsFromBodyRelativeMotion(new Navigation2D(bodyX, bodyY, bodyTheta), driveTrainMecanum);
+    }
+
 
     /**
      * Return a wheels object to move in the 3 specified body relative directions.
@@ -128,6 +159,34 @@ public class MecanumNavigation {
         wheels.coupledScaleToOne();
         return wheels;
     }
+
+    /**
+     * Static to break AutoDrive dependence on MecanumNavigation.
+     * @param bodyRelativeMovement
+     * @return
+     */
+    static public Mecanum.Wheels deltaWheelsFromBodyRelativeMotion(Navigation2D bodyRelativeMovement, DriveTrainMecanum driveTrainMecanum) {
+        double deltaX = bodyRelativeMovement.x;
+        double deltaY = bodyRelativeMovement.y;
+        deltaY /= driveTrainMecanum.lateralScaling;
+        double deltaTheta = bodyRelativeMovement.theta;
+
+        double K = driveTrainMecanum.getK();
+
+        double R_inv = 1.0 / (driveTrainMecanum.wheelDiameter/2);
+
+        // remove time by multiplying by the elapsed time
+        double frontLeft = driveTrainMecanum.radiansToTicks(R_inv * (deltaX - deltaY - K * deltaTheta));
+        double backLeft = driveTrainMecanum.radiansToTicks(R_inv * (deltaX + deltaY - K * deltaTheta));
+        double backRight = driveTrainMecanum.radiansToTicks(R_inv * (deltaX - deltaY + K * deltaTheta));
+        double frontRight = driveTrainMecanum.radiansToTicks(R_inv * (deltaX + deltaY + K * deltaTheta));
+
+        Mecanum.Wheels wheels =  new Mecanum.Wheels(frontLeft, frontRight, backLeft, backRight);
+        wheels.coupledScaleToOne();
+        return wheels;
+    }
+
+
 
 
     /**

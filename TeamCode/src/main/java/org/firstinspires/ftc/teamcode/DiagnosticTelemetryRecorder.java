@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 /**
  * Created by Ashley on 12/19/2017.
@@ -54,10 +56,10 @@ public class DiagnosticTelemetryRecorder extends DiagnosticOpMode {
         for (MotorName m : MotorName.values()) {
             csvWriter.addFieldToRecord(m.name()+"_power", getPower(m));
         }
-        // Capture mecanumNavigation current position
-        csvWriter.addFieldToRecord("x_in",mecanumNavigation.currentPosition.x);
-        csvWriter.addFieldToRecord("y_in",mecanumNavigation.currentPosition.y);
-        csvWriter.addFieldToRecord("theta_rad",mecanumNavigation.currentPosition.theta);
+        Navigation2D currentPosition = mecanumNavigation.getCurrentPosition();
+        csvWriter.addFieldToRecord("x_in",currentPosition.x);
+        csvWriter.addFieldToRecord("y_in",currentPosition.y);
+        csvWriter.addFieldToRecord("theta_rad",currentPosition.theta);
 
         // Add IMU data to current csvWriter record
         //addIMUToRecord(csvWriter);

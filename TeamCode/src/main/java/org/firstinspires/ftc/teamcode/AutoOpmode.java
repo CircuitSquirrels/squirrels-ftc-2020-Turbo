@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Vision.*;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 public class AutoOpmode extends RobotHardware {
 
@@ -131,10 +132,10 @@ public class AutoOpmode extends RobotHardware {
         // Navigation and control
         mecanumNavigation = new MecanumNavigation(this, Constants.getDriveTrainMecanum());
         mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
-        autoDrive = new AutoDrive(this, mecanumNavigation);
         odometryLocalizer = new OdometryLocalizer(odometryConfig);
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-        odometryLocalizer.setEncoderPosition(new OdometryTicks(0,0,0));
+        odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
+        autoDrive = new AutoDrive(this, mecanumNavigation, mecanumNavigation);
 
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
@@ -268,9 +269,10 @@ public class AutoOpmode extends RobotHardware {
             csvWriter.addFieldToRecord(m.name()+"_power", getPower(m));
         }
         // Capture mecanumNavigation current position
-        csvWriter.addFieldToRecord("x_in",mecanumNavigation.currentPosition.x);
-        csvWriter.addFieldToRecord("y_in",mecanumNavigation.currentPosition.y);
-        csvWriter.addFieldToRecord("theta_rad",mecanumNavigation.currentPosition.theta);
+        Navigation2D currentPosition = mecanumNavigation.getCurrentPosition();
+        csvWriter.addFieldToRecord("x_in",currentPosition.x);
+        csvWriter.addFieldToRecord("y_in",currentPosition.y);
+        csvWriter.addFieldToRecord("theta_rad",currentPosition.theta);
         if(imuUtilities != null) {
             csvWriter.addFieldToRecord("IMU_heading",imuUtilities.getCompensatedHeading());
         }
@@ -310,7 +312,7 @@ public class AutoOpmode extends RobotHardware {
         // Modify current position to account for rotation during descent measured by gyro.
         imuUtilities.updateNow();
         double gyroHeading = imuUtilities.getCompensatedHeading();
-        MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
+        MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.getCurrentPosition();
         currentPosition.theta = Math.toRadians(gyroHeading);
         mecanumNavigation.setCurrentPosition(currentPosition);
     }

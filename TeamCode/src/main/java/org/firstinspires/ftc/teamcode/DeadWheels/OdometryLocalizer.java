@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.DeadWheels;
 
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.*;
+import org.firstinspires.ftc.teamcode.RobotHardware;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
+import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
-public class OdometryLocalizer {
+public class OdometryLocalizer implements Localizer {
 
     private OdometryConfig odometryConfig;
 
@@ -11,8 +13,22 @@ public class OdometryLocalizer {
     private OdometryTicks encoderPosition = new OdometryTicks(0,0,0);
     private Navigation2D absolutePosition = new Navigation2D(0,0,0);
 
+    public OdometryLocalizer() {
+        this.odometryConfig = new OdometryConfig();
+    }
+
     public OdometryLocalizer(OdometryConfig odometryConfig) {
         this.odometryConfig = odometryConfig;
+    }
+
+    /** update() supporting the Localizer interface.
+     *
+     * @param robotHardware
+     */
+    public void update(RobotHardware robotHardware){
+        update(new OdometryTicks(robotHardware.getEncoderValue(RobotHardware.MotorName.LEFT_WHEEL),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.CENTER_WHEEL),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.RIGHT_WHEEL)));
     }
 
     public void update(OdometryTicks newTicks) {
@@ -77,7 +93,13 @@ public class OdometryLocalizer {
 
     public void setEncoderPosition(OdometryTicks encoderPosition) {
         this.encoderPosition = encoderPosition;
+    }
 
+    public void setEncoderPosition(RobotHardware robotHardware) {
+        this.encoderPosition =
+                new OdometryTicks(robotHardware.getEncoderValue(RobotHardware.MotorName.LEFT_WHEEL),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.CENTER_WHEEL),
+                robotHardware.getEncoderValue(RobotHardware.MotorName.RIGHT_WHEEL));
     }
 
     public boolean isInitialized() {

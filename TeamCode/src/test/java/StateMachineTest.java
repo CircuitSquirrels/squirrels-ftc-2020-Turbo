@@ -76,7 +76,7 @@ public class StateMachineTest {
         mecanumNavigation = new MecanumNavigation(opMode, Constants.getDriveTrainMecanum());
         opMode.initializeFakeOpMode();
 
-        autoDrive = new AutoDrive(opMode,mecanumNavigation);
+        autoDrive = new AutoDrive(opMode,mecanumNavigation,mecanumNavigation);
         mecanumNavigation.initialize(new Navigation2D(0,0,0));
 
         opMode.setAutoDrive(autoDrive);
@@ -222,7 +222,7 @@ public class StateMachineTest {
             if(isNewState || isDisplayInterval(outputUpdatesPerSecond, simTime,simulationStepTime) && !showTransitionsOnly) {
                 System.out.print("SimTime: " + String.format("%5.2f",simTime) + "   ");
                 System.out.print(padStringTo(formatStateFieldWidth,robotStateContext.getCurrentState()));
-                System.out.print(mecanumNavigation.currentPosition.toString() + "   " + padStringTo(formatWaypointFieldWidth, autoDrive.lastTargetPosition.getLabel()));
+                System.out.print(mecanumNavigation.getCurrentPosition().toString() + "   " + padStringTo(formatWaypointFieldWidth, autoDrive.lastTargetPosition.getLabel()));
                 System.out.println("LiftWinch: " + String.format("%5d",opMode.getEncoderValue(RobotHardware.MotorName.LIFT_WINCH)));
                 notStopped = !(robotStateContext.getCurrentState().startsWith("Stop_State") || robotStateContext.getCurrentState().startsWith("A_Manual"));
 

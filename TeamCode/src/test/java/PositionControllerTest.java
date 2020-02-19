@@ -29,9 +29,9 @@ public class PositionControllerTest {
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new Thread(() -> {
             System.out.println("Arrived: " + arrived
-                    + "\nX: " + mecanumNavigation.currentPosition.x
-                    + "\nY: " + mecanumNavigation.currentPosition.y
-                    + "\nTheta: " + mecanumNavigation.currentPosition.theta
+                    + "\nX: " + mecanumNavigation.getCurrentPosition().x
+                    + "\nY: " + mecanumNavigation.getCurrentPosition().y
+                    + "\nTheta: " + mecanumNavigation.getCurrentPosition().theta
                     + "\nOuput: " );
         }), 2, 2, TimeUnit.SECONDS);
     }
