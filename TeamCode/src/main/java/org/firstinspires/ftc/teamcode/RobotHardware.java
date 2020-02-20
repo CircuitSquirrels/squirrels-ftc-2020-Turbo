@@ -49,6 +49,7 @@ public class RobotHardware extends OpMode {
     public OdometryConfig odometryConfig = new OdometryConfig();
     public OdometryLocalizer odometryLocalizer;
     public AutoDrive autoDrive;
+    public PositionController positionController;
     public IMUUtilities imuUtilities;
     public SkystoneDetector skystoneDetector;
     public InteractiveInit interactiveInit;
