@@ -56,6 +56,17 @@ public class FakeRobotHardware extends RobotHardware {
         return this.time;
     }
 
+    private double averagePeriodSec = 0.02;
+
+    @Override
+    public double getAveragePeriodSec() {
+        return averagePeriodSec;
+    }
+
+    public void setAveragePeriodSec(double averagePeriodSec) {
+        this.averagePeriodSec = averagePeriodSec;
+    }
+
     public ElapsedTime getNewElapsedTime() {
         return new FakeElapsedTime(this);
     }

@@ -72,6 +72,11 @@ public class Mecanum {
                 backRight /= max;
             }
         }
+
+        public String toString() {
+            return backLeft + " , " + backRight + " , " + frontLeft + " , " + frontRight;
+        }
+
     }
 
     public static class Command {
@@ -109,6 +114,12 @@ public class Mecanum {
                 this.av *= scalar;
             }
 
+        }
+
+        public String toString() {
+            String format_command = "%6.2f";
+            return String.format(format_command,vx) + ",  " + String.format(format_command,vy) + ", " + String.format(format_command,av) + "";
+//            return (vx + ", " + vy + ", " + av);
         }
 
     }

@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import FakeHardware.FakeAutoOpmode;
 import FakeHardware.FakeIMUUtilities;
 import FakeHardware.FakeSkystoneDetector;
+import static TestUtilities.SimFormat.*;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -36,22 +37,7 @@ public class StateMachineTest {
 
     DecimalFormat df;
     DecimalFormat df_prec;
-
-    private void assertMecanumWheelEqual(Mecanum.Wheels wheels1, Mecanum.Wheels wheels2) {
-        assertThat(wheels1.backLeft).isEqualTo(wheels2.backLeft);
-        assertThat(wheels1.backRight).isEqualTo(wheels2.backRight);
-        assertThat(wheels1.frontLeft).isEqualTo(wheels2.frontLeft);
-        assertThat(wheels1.frontRight).isEqualTo(wheels2.frontRight);
-    }
-
-    private void printWheels(Mecanum.Wheels wheels) {
-        System.out.println( wheels.backLeft + " , " + wheels.backRight + " , " + wheels.frontLeft + " , " + wheels.frontRight);
-    }
-
-    private void printCommand(Mecanum.Command command) {
-        System.out.println(command.vx + ", " + command.vy + ", " + command.av);
-    }
-
+    
 
 
     double simTime = 0.0;
@@ -242,45 +228,8 @@ public class StateMachineTest {
         System.out.println();
     }
 
-    private boolean isDisplayInterval(int displaysPerSecond, double simTime, double simulationTimeStep) {
-        int simStep = (int) Math.floor( simTime/simulationTimeStep );
-        int stepsPerSecond = (int) Math.floor(1/simulationTimeStep);
-        int stepsPerDisplay = stepsPerSecond / displaysPerSecond;
-        return (simStep % stepsPerDisplay) == 0;
-    }
-
-    public String padStringTo(int desiredLength, String currentString) {
-        return currentString.concat(getPaddingString(desiredLength,currentString));
-    }
-
-    public String getPaddingString(int desiredLength, String currentString) {
-        return getPaddingString(desiredLength,currentString.length());
-    }
-
-    public String getPaddingString(int desiredLength, int currentLength) {
-        String padding = new String("");
-        if (desiredLength > currentLength) {
-            for(int i = 0; i < desiredLength - currentLength; ++i) {
-                padding = padding.concat(" ");
-            }
-        }
-        return padding;
-    }
 
 
-    class SimulationTime {
-        private double time = 0.0;
 
-        public void setTime(double time) {
-            this.time = time;
-        }
 
-        public void incrementTime(double timeStep) {
-            this.time += timeStep;
-        }
-
-        public double time() {
-            return time;
-        }
-    }
 }
