@@ -170,6 +170,9 @@ public class AutoOpmode extends RobotHardware {
         mecanumNavigation.update();
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
 
+        odometryLocalizer.update(this);
+        timingMonitor.checkpoint("POST odometryLocalizer.update()");
+
         robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
 
@@ -186,7 +189,6 @@ public class AutoOpmode extends RobotHardware {
             writeTelemetryToFile();
             timingMonitor.checkpoint("POST telemetry recorder");
         }
-        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
         mecanumNavigation.displayPosition();
         telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
         telemetry.addLine();

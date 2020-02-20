@@ -93,7 +93,7 @@ public class Manual extends RobotHardware {
         controller1.update();
         controller2.update();
         mecanumNavigation.update();
-        odometryLocalizer.update(new OdometryTicks(getEncoderValue(MotorName.LEFT_WHEEL), getEncoderValue(MotorName.CENTER_WHEEL), getEncoderValue(MotorName.RIGHT_WHEEL)));
+        odometryLocalizer.update(this);
 
         telemetry.addLine("---Drive---");
         // Display the robot's position compared to where it started
