@@ -41,6 +41,10 @@ public class MiniPID{
 
     private double setpointRange=0;
 
+    public double getErrorSum() {
+        return errorSum;
+    }
+
     //**********************************
     // Constructor functions
     //**********************************

@@ -13,8 +13,9 @@ public class PositionController {
     private MiniPID pidY;
     private MiniPID pidTheta;
 
-    public Navigation2D absFramePower; // Power in field coordinates
-    public Navigation2D robotFramePower; // Power in robot coordinates
+    public Navigation2D absFramePower = new Navigation2D(0,0,0);// Power in field coordinates
+    public Navigation2D robotFramePower = new Navigation2D(0,0,0); // Power in robot coordinates
+    public Mecanum.Command movementCommand = new Mecanum.Command(0,0,0);
     public Navigation2D target; // Public target
 
     double rampRateTranslation_powerPerSecond;
@@ -26,12 +27,18 @@ public class PositionController {
         initializePID();
     }
 
+
+    // Could activate and deactivate I when very near target.
+    // Ex: I not active until target is overshot, then allowed to accumulate.
+    // Everytime setpoint is overshot, error is purged. (reset? It blanks I and D)
+    // I is only active and accumulating when within a 'basket' ?
     public void initializePID() {
         // Linear Translation Parameters
         double p_linear = 0.1;
         double i_linear = 0.0;
         double d_linear = 0.1;
         double maxPower_linear = 1.0;
+        double maxIOutput_linear = 0.3;
         rampRateTranslation_powerPerSecond = 3.0;
 
         // Rotation Parameters
@@ -39,7 +46,8 @@ public class PositionController {
         double p_rotation = 0.7;
         double i_rotation = 0.0;
         double d_rotation = 0.3;
-        double maxPower_rotation = 1.0;
+        double maxPower_rotation = 0.7;
+        double maxIOutput_rotation = 0.3;
         rampRateRotation_powerPerSecond = 3.0;
 
         // Setup
@@ -50,6 +58,10 @@ public class PositionController {
         pidX.setOutputLimits(maxPower_linear);
         pidY.setOutputLimits(maxPower_linear);
         pidTheta.setOutputLimits(maxPower_rotation);
+
+        pidX.setMaxIOutput(maxIOutput_linear);
+        pidY.setMaxIOutput(maxIOutput_linear);
+        pidTheta.setMaxIOutput(maxIOutput_rotation);
 
         // Just the initial setting, updateRampRate calibrates this in getOutput().
         pidX.setOutputRampRate(rampRateTranslation_powerPerSecond * .02);
@@ -90,7 +102,10 @@ public class PositionController {
         setTarget(targetPosition);
         this.absFramePower = getOutput(localizer.getCurrentPosition());
         this.robotFramePower = toRobotFrameOrientation(absFramePower);
-        opMode.setDriveForSimpleMecanum(-robotFramePower.y, -robotFramePower.x, -robotFramePower.theta, 0);
+        movementCommand = new Mecanum.Command(robotFramePower.x,robotFramePower.y,robotFramePower.theta);
+        movementCommand.normalizeJointly();
+        opMode.setDriveForMecanumCommand(movementCommand);
+//        opMode.setDriveForSimpleMecanum(-robotFramePower.y, -robotFramePower.x, -robotFramePower.theta, 0);
         return false;
     }
 
@@ -101,9 +116,13 @@ public class PositionController {
     public Navigation2D toRobotFrameOrientation(Navigation2D pointInFieldFrame) {
         Navigation2D pointInRobotFrame = pointInFieldFrame.copy();
         Navigation2D currentPosition = localizer.getCurrentPosition();
-//        pointInRobotFrame.subtractInPlace(new Navigation2D(currentPosition.x, currentPosition.y, 0));
         pointInRobotFrame.rotateDegrees(Math.toDegrees(-currentPosition.theta));
         pointInRobotFrame.subtractInPlace(new Navigation2D(0, 0, -currentPosition.theta));
         return pointInRobotFrame;
+    }
+
+    public String getErrorSum() {
+        String format_error = "%6.2f";
+        return String.format(format_error,pidX.getErrorSum()) + ",  " + String.format(format_error,pidY.getErrorSum()) + ", " + String.format(format_error,pidTheta.getErrorSum()) + "";
     }
 }

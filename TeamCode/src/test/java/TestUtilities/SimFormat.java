@@ -15,6 +15,18 @@ public class SimFormat {
         return currentString.concat(getPaddingString(desiredLength,currentString));
     }
 
+    /**
+     * Centered within padding.
+     * @param desiredLength
+     * @param currentString
+     * @return
+     */
+    public static String padCenteredStringTo(int desiredLength, String currentString) {
+        StringBuffer paddingString = new StringBuffer(getPaddingString(desiredLength,currentString));
+        paddingString.insert(paddingString.length()/2,currentString);
+        return paddingString.toString();
+    }
+
     public static String getPaddingString(int desiredLength, String currentString) {
         return getPaddingString(desiredLength,currentString.length());
     }

@@ -117,7 +117,9 @@ public class Mecanum {
         }
 
         public String toString() {
-            return (vx + ", " + vy + ", " + av);
+            String format_command = "%6.2f";
+            return String.format(format_command,vx) + ",  " + String.format(format_command,vy) + ", " + String.format(format_command,av) + "";
+//            return (vx + ", " + vy + ", " + av);
         }
 
     }
