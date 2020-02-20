@@ -1,12 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
 import org.firstinspires.ftc.teamcode.Utilities.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;
 
@@ -83,6 +91,21 @@ public class Manual extends RobotHardware {
         exponential = Exponential.get();
         driveSpeed = DriveSpeed.get();
         copilotEnabled = CoPilot.get();
+
+        try {
+            Json json = new Json();
+            JSONObject object = new JSONObject();
+            object.put("Waypoint", json.createNav2D(new MecanumNavigation.Navigation2D(10, 0, -30)));
+
+            json.saveData(AppUtil.getInstance().getSettingsFile("file.json").getAbsolutePath(), object);
+
+            object = new JSONObject(json.getFileContents(AppUtil.getInstance().getSettingsFile("file.json").getAbsolutePath()));
+            Log.wtf("JSON", object.toString(3));
+
+            Log.wtf("JSON", json.getNav2D(object.getJSONObject("Waypoint")).toString());
+        } catch (JSONException | IOException e) {
+            Log.w("Error", e);
+        }
     }
 
     @Override
