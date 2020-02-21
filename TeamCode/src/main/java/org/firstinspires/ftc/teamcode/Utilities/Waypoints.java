@@ -6,25 +6,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
 
+import static org.firstinspires.ftc.teamcode.Utilities.Color.Ftc.BLUE;
 
+/**
+ * @author Christian, Ashley
+ *
+ * Class used to manage all autonomous based waypoints.
+ * Allows for easy tweaking, better readability.
+ * Depending on alliance color, waypoints will automatically be mirrored from blue.
+ * The alliance color can be changed via the constructor.
+ * The constructor also requres the detected skystone position [0-2]
+ * @see org.firstinspires.ftc.teamcode.Vision.AveragingPipeline
+ */
 public class Waypoints {
 
-    // Both Build and Load waypoints are built for given Color.
-    Color.Ftc teamColor;
+    private Color.Ftc teamColor;
+    private int skystoneDetectionPosition;
 
-    // Value should be 0-5, where 0 is near the center of the field, and 5 is adjacent to the outer wall.
-    private int skystoneDetectionPosition = 0;
-
-    public Color.Ftc getTeamColor() {
-        return teamColor;
-    }
-
-    public int getSkystoneDetectionPosition() {
-        return skystoneDetectionPosition;
-    }
-
-    // Constructor, color and skystone detection position.
-    // skystoneDetectionPosition is 0-5, from field center to the front wall.
     public Waypoints(Color.Ftc teamColor, int skystoneDetectionPosition) {
         this.teamColor = teamColor;
         this.skystoneDetectionPosition = skystoneDetectionPosition;
@@ -32,83 +30,163 @@ public class Waypoints {
     }
 
     public Waypoints(Color.Ftc teamColor) {
-        // Default skystone position to 0.
         this(teamColor, 0);
     }
 
-    /**
-     * @param skystoneDetectionPosition
-     * Sets the skystone position and recalculates the waypoint positions by calling customizeWaypoints()
-     */
-    public void setSkystoneDetectionPosition(int skystoneDetectionPosition) {
-        skystoneDetectionPosition = skystoneDetectionPosition < 0 ? 0 : skystoneDetectionPosition;
-        skystoneDetectionPosition = skystoneDetectionPosition > 2 ? 2 : skystoneDetectionPosition;
-        this.skystoneDetectionPosition = skystoneDetectionPosition;
-        customizeWaypoints(teamColor, skystoneDetectionPosition);
+    public Waypoints() {
+        this(BLUE, 0);
     }
 
-
     /**
-     * blueLoading waypoints are first defined to be used as a template.
-     * Then a reflection on the X axis is used to define generic waypoints
-     * team color.
-     *
-     * These initial waypoints for blueLoading are generated from
-     * a list of parameters to ease tweaking.
-     *
-     * Constructor uses skystoneDetectionPosition as an input, numbered 0-5
-     * from field center to front wall.
+     * Loading side waypoints.
+     * All values are based off the blue side.
      */
-
-    /**
-     * public waypoints customized for starting location
-      */
-
-    //Todo Convert enums to storing their own XY Theta instead of assigning it later?
     public enum LocationLoading {
-        INITIAL_POSITION,
-        GRAB_SKYSTONE_A,
-        ALIGNMENT_POSITION_A,
-        BUILD_ZONE,
-        GRAB_SKYSTONE_B,
-        ALIGNMENT_POSITION_B,
-        GRAB_EXTRA_STONE_A,
-        ALIGN_EXTRA_STONE_A,
-        GRAB_EXTRA_STONE_B,
-        ALIGN_EXTRA_STONE_B,
-        FOUNDATION_ALIGNMENT_A,
-        FOUNDATION_PLACE,
-        DRAG_FOUNDATION_INSIDE_WALL,
-        DRAG_FOUNDATION_OUTSIDE_WALL,
-        STRAFE_AWAY_FROM_FOUNDATION,
-        BRIDGE_ALIGNMENT_OUTER,
-        BRIDGE_ALIGNMENT_INNER,
-        PARK_OUTER,
-        PARK_INNER,
-        SIMPLE_ALIGNMENT_INNER,
+        INITIAL_POSITION(-33, 65, -90),
+
+        ALIGNMENT_POSITION_A(0,0,0),
+        GRAB_SKYSTONE_A(0,0,0),
+
+        ALIGNMENT_POSITION_B(0,0,0),
+        GRAB_SKYSTONE_B(0,0,0),
+        // Set extra stone A to the 1st stone. If the stone is already taken it'll change it to the 2nd stone.
+        ALIGN_EXTRA_STONE_A(-26,37.5,-90),
+        GRAB_EXTRA_STONE_A(-26,31.5,-90),
+        // Set extra stone B to the 2nd stone. If the stone is already taken it'll change it to the 3rd stone.
+        ALIGN_EXTRA_STONE_B(-34,37.5,-90),
+        GRAB_EXTRA_STONE_B(-34,31.5,-90),
+
+        BUILD_ZONE(24, 37.5, -90),
+
+        FOUNDATION_ALIGNMENT(50, 37.5, -90),
+        FOUNDATION_PLACE(50, 30.5, -90),
+
+        PULL_FOUNDATION(27, 40.5, 0),
+        PUSH_FOUNDATION(45, 40.5, 0),
+
+        PARK_OUTER(0, 60.5, -90),
+        PARK_INNER(0, 37.5, -90),
+
+        SIMPLE_ALIGNMENT_INNER(-33, 37.5, -90);
+
+        private double x;
+        private double y;
+        private double theta;
+        private Navigation2D nav2D;
+
+        /**
+         * @param x Waypoint X coordinate
+         * @param y Waypoint Y coordinate
+         * @param theta Waypoint Theta, Degrees CCW
+         */
+        LocationLoading(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = Math.toRadians(theta);
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setX(double x) {
+            this.x = x;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setY(double y) {
+            this.y = y;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setTheta(double theta) {
+            this.theta = theta;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public Navigation2D getNav2D() {
+            return nav2D;
+        }
+
+        public Navigation2D getNewNavigation2D(){
+            return new Navigation2D(x, y, theta);
+        }
+
+        public void set(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = theta;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void set(Navigation2D navigation2D) {
+            this.x = navigation2D.x;
+            this.y = navigation2D.y;
+            this.theta = navigation2D.theta;
+            this.nav2D = getNewNavigation2D();
+        }
     }
 
     public enum LocationBuild {
-        INITIAL_POSITION,
-        PARK_OUTER,
-        PARK_INNER,
-        SIMPLE_ALIGNMENT_INNER,
+        INITIAL_POSITION(0,0,0),
+        PARK_OUTER(0,0,0),
+        PARK_INNER(0,0,0),
+        SIMPLE_ALIGNMENT_INNER(0,0,0);
+
+        private double x;
+        private double y;
+        private double theta;
+        private Navigation2D nav2D;
+
+        /**
+         * @param x Waypoint X coordinate
+         * @param y Waypoint Y coordinate
+         * @param theta Waypoint Theta, Degrees CCW
+         */
+        LocationBuild(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = Math.toRadians(theta);
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setX(double x) {
+            this.x = x;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setY(double y) {
+            this.y = y;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void setTheta(double theta) {
+            this.theta = theta;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public Navigation2D getNav2D() {
+            return nav2D;
+        }
+
+        public Navigation2D getNewNavigation2D(){
+            return new Navigation2D(x, y, theta);
+        }
+
+        public void set(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = theta;
+            this.nav2D = getNewNavigation2D();
+        }
+
+        public void set(Navigation2D navigation2D) {
+            this.x = navigation2D.x;
+            this.y = navigation2D.y;
+            this.theta = navigation2D.theta;
+            this.nav2D = getNewNavigation2D();
+        }
     }
 
-    // Waypoint locations.
-    public Map<LocationLoading,Navigation2D> loading = new EnumMap<>(LocationLoading.class);
-    public Map<LocationBuild,Navigation2D> building = new EnumMap<>(LocationBuild.class);
-
-    //Blue is used as the template.
-    private Map<LocationLoading,Navigation2D> blueLoading = new EnumMap<>(LocationLoading.class);
-    private Map<LocationBuild,Navigation2D> blueBuild = new EnumMap<>(LocationBuild.class);
-
-    // Skystone locations (6 stones from field center to wall numbered from 0-5)
-    // Waypoint customized by color.
-    public List<Navigation2D> stoneLocations = new ArrayList();
-    private List<Navigation2D> blueStoneLocations = new ArrayList();
-
-
+    public List<Navigation2D> stoneLocations = new ArrayList<>();
+    private List<Navigation2D> blueStoneLocations = new ArrayList<>();
 
     /**
      * Template parameter constants
@@ -143,7 +221,7 @@ public class Waypoints {
 
     // Skystone index is numbered from 0 to 5, starting from field center.
     public double skystoneXFromIndex(int index) {
-        return -halfField + stoneLength * (5.5 - index);
+        return -70 + stoneLength * (5.5 - index);
     }
 
     public double skystoneIndexFromX(double skystoneX) {
@@ -159,8 +237,8 @@ public class Waypoints {
         /**
          * Blue Quarry Stone Positions
          */
-        List<Navigation2D> blueStonePickupLocations = new ArrayList(); // Location from which to pickup stone 0-5
-        List<Navigation2D> blueStoneAlignmentLocations = new ArrayList(); // Location from which to align, scan, or drive under bridge from stone 0-5
+        List<Navigation2D> blueStonePickupLocations = new ArrayList<>(); // Location from which to pickup stone 0-5
+        List<Navigation2D> blueStoneAlignmentLocations = new ArrayList<>(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),31.5, Math.toRadians(-90)));
             // Add robot's length for correct grab position.
@@ -171,87 +249,77 @@ public class Waypoints {
         /**
          * Blue Loading Waypoints
          */
-        blueLoading.put(LocationLoading.INITIAL_POSITION,new Navigation2D(-33, 65, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_A, blueStonePickupLocations.get(skystoneDetectionPosition).copy());
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_A, blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
-        blueLoading.put(LocationLoading.BUILD_ZONE, new Navigation2D(24, blueStoneAlignmentLocations.get(skystoneDetectionPosition).y, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.GRAB_SKYSTONE_B, blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
-        blueLoading.put(LocationLoading.ALIGNMENT_POSITION_B, blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
-        blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_A,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
-        blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_A,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 1 : 0).copy());
-        blueLoading.put(LocationLoading.GRAB_EXTRA_STONE_B,  blueStonePickupLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
-        blueLoading.put(LocationLoading.ALIGN_EXTRA_STONE_B,  blueStoneAlignmentLocations.get(skystoneDetectionPosition == 0 ? 4 : 3).copy());
-        blueLoading.put(LocationLoading.FOUNDATION_ALIGNMENT_A, new Navigation2D(50, 37.5, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.FOUNDATION_PLACE, new Navigation2D(50, 30.5, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, Math.toRadians(-90)));
-        blueLoading.put(LocationLoading.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.PARK_INNER, new Navigation2D(0, halfField - 1.8 * tileBody + robotFrontPadding, degreesToRadians(-90)));
-        blueLoading.put(LocationLoading.SIMPLE_ALIGNMENT_INNER, new Navigation2D(-tileBody - robotSidePadding, halfField - 1.2 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        LocationLoading.ALIGNMENT_POSITION_A.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
+        LocationLoading.GRAB_SKYSTONE_A.set(blueStonePickupLocations.get(skystoneDetectionPosition).copy());
+        LocationLoading.ALIGNMENT_POSITION_B.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition + 2).copy());
+        LocationLoading.GRAB_SKYSTONE_B.set(blueStonePickupLocations.get(skystoneDetectionPosition + 2).copy());
+        switch (getSkystoneDetectionPosition()) {
+            case 0:
+                LocationLoading.ALIGN_EXTRA_STONE_A.set(blueStoneAlignmentLocations.get(1).copy());
+                LocationLoading.GRAB_EXTRA_STONE_A.set(blueStoneAlignmentLocations.get(1).copy());
+                LocationLoading.ALIGN_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(2).copy());
+                LocationLoading.GRAB_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(2).copy());
+                break;
+            case 2:
+                LocationLoading.ALIGN_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(1).copy());
+                LocationLoading.GRAB_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(1).copy());
+                break;
+        }
 
         /**
          * Blue Build positions
          */
-        blueBuild.put(LocationBuild.INITIAL_POSITION, new Navigation2D(+tileBody + robotSidePadding, halfField - robotBackPadding, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.ALIGN_FOUNDATION, new Navigation2D(49, blueStoneAlignmentLocations.get(0).y, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.FOUNDATION, new Navigation2D(50.125, 26.74 + 4 + 2, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_OUTER, new Navigation2D(0, halfField - tileTabs - robotSidePadding, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.BRIDGE_ALIGNMENT_INNER, new Navigation2D(0, innerTileAlignment_Y, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.DRAG_FOUNDATION_INSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.DRAG_FOUNDATION_OUTSIDE_WALL, new Navigation2D(blueLoading.get(LocationLoading.FOUNDATION_ALIGNMENT).x, blueLoading.get(LocationLoading.INITIAL_POSITION).y + 7, degreesToRadians(-90)));
-//        blueBuild.put(LocationBuild.STRAFE_AWAY_FROM_FOUNDATION, new Navigation2D(24, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.PARK_OUTER, new Navigation2D(0, halfField - robotBackPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.PARK_INNER, new Navigation2D(0, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
-        blueBuild.put(LocationBuild.SIMPLE_ALIGNMENT_INNER, new Navigation2D(+tileBody + robotSidePadding, halfField - 1.5 * tileBody + robotFrontPadding, degreesToRadians(-90)));
+        //Todo get Build waypoint positions
     }
 
-    // skystoneDetectionPosition is 0-5, from field center to the front wall.
+    /**
+     * Creates the waypoints
+     * @param teamColor Alliance team color.
+     * @see Color
+     * @param skystoneDetectionPosition The detected skystone's position [0-2]
+     * @see org.firstinspires.ftc.teamcode.Vision.AveragingPipeline
+     */
     private void customizeWaypoints(Color.Ftc teamColor, int skystoneDetectionPosition) {
-        this.teamColor = teamColor;
-        this.skystoneDetectionPosition = skystoneDetectionPosition; // ensure class property is set.
-        create_blue_waypoints(); // gets skystoneDetectionPosition from class property.
-        if(teamColor == Color.Ftc.BLUE) {
-            activate_blue_waypoints();
-        } else if (teamColor == Color.Ftc.RED) {
-            activate_red_waypoints();
-        } else {
-            throw new IllegalStateException("Invalid Team Color");
+        create_blue_waypoints();
+        switch (teamColor) {
+            case BLUE:
+                activate_blue_waypoints();
+                break;
+            case RED:
+                activate_red_waypoints();
+                break;
+            default:
+                throw new IllegalStateException("Invalid Team Color");
         }
+        
         labelAllWaypointsFromEnums();
     }
 
 
     void activate_blue_waypoints() {
-        loading.putAll(blueLoading);
-        building.putAll(blueBuild);
         stoneLocations.addAll(blueStoneLocations);
     }
 
     void activate_red_waypoints() {
-        loading.putAll(blueLoading);
-        building.putAll(blueBuild);
         stoneLocations.addAll(blueStoneLocations);
         x_reflectGenericWaypointsAndStoneLocationsInPlace();
-        // I apologize in advance for the stupidity of our code
-        loading.get(LocationLoading.FOUNDATION_PLACE).addInPlace(redDropOffFudgeFactor);
-        loading.get(LocationLoading.FOUNDATION_ALIGNMENT_A).addInPlace(redDropOffFudgeFactor);
-        loading.get(LocationLoading.BUILD_ZONE).addInPlace(redDropOffFudgeFactor);
+
+        LocationLoading.FOUNDATION_PLACE.nav2D.addInPlace(redDropOffFudgeFactor);
+        LocationLoading.FOUNDATION_ALIGNMENT.nav2D.addInPlace(redDropOffFudgeFactor);
+        LocationLoading.BUILD_ZONE.nav2D.addInPlace(redDropOffFudgeFactor);
     }
 
 
     void x_reflectGenericWaypointsAndStoneLocationsInPlace() {
         // reflect the generic waypoints around x axis, storing
         // back into the generic waypoints.
-        for(Navigation2D waypoint: loading.values()) {
-            waypoint.reflectInX(); // Reflects in place, by reference.
+        for(LocationLoading waypoint : LocationLoading.values()) {
+            waypoint.nav2D.reflectInX(); // Reflects in place, by reference.
         }
 
         // for Building
-        for(Navigation2D waypoint: building.values()) {
-            waypoint.reflectInX(); // Reflects in place, by reference.
+        for(LocationBuild waypoint: LocationBuild.values()) {
+            waypoint.nav2D.reflectInX(); // Reflects in place, by reference.
         }
 
         // for stone locations
@@ -261,23 +329,23 @@ public class Waypoints {
     }
 
     public void labelAllWaypointsFromEnums() {
-        for(LocationLoading locationLoading: LocationLoading.values()) {
-            loading.get(locationLoading).setLabel(locationLoading.toString());
+        for(LocationLoading locationLoading : LocationLoading.values()) {
+            locationLoading.nav2D.setLabel(locationLoading.name());
         }
 
-        for(LocationBuild locationBuild: LocationBuild.values()) {
-            building.get(locationBuild).setLabel(locationBuild.toString());
+        for(LocationBuild locationBuild : LocationBuild.values()) {
+            locationBuild.nav2D.setLabel(locationBuild.name());
         }
 
         for(int iStone=0; iStone<=5; ++iStone) {
-            stoneLocations.get(iStone).setLabel("Stone_" + String.valueOf(iStone));
+            stoneLocations.get(iStone).setLabel("Stone_" + iStone);
         }
     }
 
     public List<Navigation2D> getLabeledWaypointListForLoad() {
         ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
         for(LocationLoading locationLoading: LocationLoading.values()) {
-            labeledWaypoints.add(loading.get(locationLoading).copyAndLabel(locationLoading.toString()));
+            labeledWaypoints.add(locationLoading.nav2D.copyAndLabel(locationLoading.toString()));
         }
         return labeledWaypoints;
     }
@@ -285,18 +353,28 @@ public class Waypoints {
     public List<Navigation2D> getLabeledWaypointListForBuild() {
         ArrayList<Navigation2D> labeledWaypoints = new ArrayList<>();
         for(LocationBuild locationBuild: LocationBuild.values()) {
-            labeledWaypoints.add(building.get(locationBuild).copyAndLabel(locationBuild.toString()));
+            labeledWaypoints.add(locationBuild.nav2D.copyAndLabel(locationBuild.toString()));
         }
         return labeledWaypoints;
     }
 
-    // Utility
-    double degreesToRadians(double degrees) {
-        return degrees * Math.PI / 180;
+
+    /**
+     * @param skystoneDetectionPosition
+     * Sets the skystone position and recalculates the waypoint positions by calling customizeWaypoints()
+     */
+    public void setSkystoneDetectionPosition(int skystoneDetectionPosition) {
+        skystoneDetectionPosition = skystoneDetectionPosition < 0 ? 0 : skystoneDetectionPosition;
+        skystoneDetectionPosition = skystoneDetectionPosition > 2 ? 2 : skystoneDetectionPosition;
+        this.skystoneDetectionPosition = skystoneDetectionPosition;
+        customizeWaypoints(teamColor, skystoneDetectionPosition);
     }
 
-    double radiansToDegrees(double radians) {
-        return radians * 180 / Math.PI;
+    public int getSkystoneDetectionPosition() {
+        return skystoneDetectionPosition;
     }
 
+    public Color.Ftc getTeamColor() {
+        return teamColor;
+    }
 }

@@ -28,7 +28,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     private boolean manualEnd = false;
 
-    private final int liftRaised = 750;
+    private final int liftRaised = 500;
     private final int liftLowered = 0;
     private final double courseTolerance = 0.5;
     private final double liftSpeed = 1.0;
@@ -77,8 +77,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     public String getCurrentState() {
         return stateMachine.getCurrentStates();
     }
-    
-    
+
+
 
     /**
      * Define Concrete State Classes
@@ -91,11 +91,11 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.init(stateMachine);
             switch (startPosition) {
                 case FIELD_LOADING:
-                    setupInitialPosition(waypoints.loading.get(Waypoints.LocationLoading.INITIAL_POSITION));
+                    setupInitialPosition(Waypoints.LocationLoading.INITIAL_POSITION.getNewNavigation2D());
                     nextState(DRIVE, new Start_Loading_Side());
                     break;
                 case FIELD_BUILD:
-                    setupInitialPosition(waypoints.building.get(Waypoints.LocationBuild.INITIAL_POSITION));
+                    setupInitialPosition(Waypoints.LocationBuild.INITIAL_POSITION.getNewNavigation2D());
                     nextState(DRIVE, new Start_Building_Side());
                     break;
                 default:
@@ -171,23 +171,23 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_A),
+                    arrived = driveTo(ALIGNMENT_POSITION_A.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 case 1:
                     if(waypoints.getSkystoneDetectionPosition() == 2)  // Waypoint offset adjusted to match WallStone Alignment state.
-                        arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(15, 0, 0),
+                        arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D().addAndReturn(15, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                     else
-                        arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B),
+                        arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_A),
+                    arrived = driveTo(ALIGN_EXTRA_STONE_A.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 case 3:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_B),
+                    arrived = driveTo(ALIGN_EXTRA_STONE_B.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 default:
@@ -217,19 +217,19 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_A),
+                    arrived = driveTo(GRAB_SKYSTONE_A.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
+                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(GRAB_EXTRA_STONE_A),
+                    arrived = driveTo(GRAB_EXTRA_STONE_A.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 3:
-                    arrived = driveTo(waypoints.loading.get(GRAB_EXTRA_STONE_B),
+                    arrived = driveTo(GRAB_EXTRA_STONE_B.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
@@ -263,16 +263,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if (!isArmArrived()) return;
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_A), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGNMENT_POSITION_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_A), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGN_EXTRA_STONE_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 3:
-                    arrived = driveTo(waypoints.loading.get(ALIGN_EXTRA_STONE_B), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGN_EXTRA_STONE_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Backup Index was out of bounds.");
@@ -305,7 +305,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(BUILD_ZONE),
+            arrived = driveTo(BUILD_ZONE.getNewNavigation2D(),
                     getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
 
             if(!arrived) return;
@@ -368,17 +368,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Add offset class vars
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default:
@@ -398,7 +398,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B),
+            arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(),
                     getDriveScale(stateTimer.seconds()) * driveSpeed);
 
             if(!arrived) return;
@@ -415,10 +415,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             if(teamColor.equals(Color.Ftc.BLUE))
-                arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(0, -5, degreesToRadians(-30)),
+                arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, -5, degreesToRadians(-30)),
                         getDriveScale(stateTimer.seconds()) * wallStoneSpeed);
             else
-                arrived = driveTo(waypoints.loading.get(GRAB_SKYSTONE_B).addAndReturn(0, 3, degreesToRadians(30)),
+                arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, 3, degreesToRadians(30)),
                         getDriveScale(stateTimer.seconds()) * wallStoneSpeed);
 
             if(!arrived) return;
@@ -447,7 +447,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             if(!isArmArrived()) return;
 
-            arrived = driveTo(waypoints.loading.get(ALIGNMENT_POSITION_B).addAndReturn(3, 0, 0),
+            arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D().addAndReturn(3, 0, 0),
                     getDriveScale(stateTimer.seconds()) * driveSpeed);
 
             if (!arrived) return;
@@ -473,17 +473,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_PLACE).addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
+                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -518,16 +518,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute)
-                        arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A).addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
 
                 case 2:
-                    arrived = driveTo(waypoints.loading.get(FOUNDATION_ALIGNMENT_A),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -573,13 +573,10 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Check if delay is necessary, if not remove it!
             if(!isArmArrived() && stateTimer.seconds() > 0.6) return;
 
-            arrived = driveTo(waypoints.loading.get(DRAG_FOUNDATION_OUTSIDE_WALL),
-                    getDriveScale(stateTimer.seconds()) * foundationDragSpeed);
             if(!arrived) return;
 
             nextArmState(OPEN, liftRaised, true);
-            // Reset robot's current position to compensate for slippage from dragging foundation.
-            opMode.mecanumNavigation.setCurrentPosition(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL));
+
             if(opMode.FoundationPark.get()) {
                 if(parkInner)
                     nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
@@ -604,7 +601,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            driveTo(waypoints.loading.get(DRAG_FOUNDATION_INSIDE_WALL).addAndReturn(7, 0, 0), getDriveScale(stateTimer.seconds()) * foundationDragSpeed);
         }
     }
     /**
@@ -621,8 +617,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(STRAFE_AWAY_FROM_FOUNDATION),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             if(parkInner)
@@ -639,8 +633,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(BRIDGE_ALIGNMENT_OUTER),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());
@@ -660,7 +652,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(PARK_OUTER),
+            arrived = driveTo(PARK_OUTER.getNewNavigation2D(),
                     getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
@@ -678,8 +670,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(BRIDGE_ALIGNMENT_INNER),
-                    getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             nextState(DRIVE, new Park_Inner(), opMode.shouldContinue());
@@ -699,7 +689,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            arrived = driveTo(waypoints.loading.get(PARK_INNER),
+            arrived = driveTo(PARK_INNER.getNewNavigation2D(),
                     getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
@@ -730,8 +720,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
         @Override
         public String getAuxData() {
-//            return " " + positions.toString() + " " + liftPos + " wait: " + String.valueOf(wait);
-            return " " + positions.toString() + " " + liftPos + " " + wait;
+            return " " + positions.name() + " " + liftPos + " " + wait;
         }
     }
 
@@ -787,7 +776,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
-            if(parkInner) arrived = driveTo(waypoints.loading.get(SIMPLE_ALIGNMENT_INNER), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            if(parkInner) arrived = driveTo(SIMPLE_ALIGNMENT_INNER.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
             else arrived = true;
             if(arrived) {
                 if(opMode.shouldContinue()) {
@@ -802,8 +791,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
 
-            if(parkInner) arrived = driveTo(waypoints.loading.get(PARK_INNER), getDriveScale(stateTimer.seconds()) * driveSpeed);
-            else arrived = driveTo(waypoints.loading.get(PARK_OUTER), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            if(parkInner) arrived = driveTo(PARK_INNER.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            else arrived = driveTo(PARK_OUTER.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(arrived) {
                 if(opMode.shouldContinue()) {
                     stateMachine.changeState(opMode.shouldContinue(), DRIVE, new Stop_State());
@@ -834,7 +823,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                 opMode.commandClaw(OPEN);
             else if(controller1.leftBumper())
                 opMode.commandClaw(CLOSED);
-            
+
             for (RobotHardware.MotorName m : RobotHardware.MotorName.values()) {
                 opMode.telemetry.addData(m.name() + ": ", opMode.getEncoderValue(m));
             }

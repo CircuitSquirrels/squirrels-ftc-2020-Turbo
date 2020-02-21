@@ -35,7 +35,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
     @Override
     public void start() {
         super.start();
-        mecanumNavigation.setCurrentPosition(waypoints.loading.get(Waypoints.LocationLoading.INITIAL_POSITION));
+        mecanumNavigation.setCurrentPosition(Waypoints.LocationLoading.INITIAL_POSITION.getNewNavigation2D());
     }
 
     @Override

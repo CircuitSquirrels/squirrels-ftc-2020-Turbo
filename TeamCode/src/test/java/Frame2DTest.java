@@ -97,14 +97,14 @@ public class Frame2DTest {
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE,0);
 
         // This frame will be the marker for pivoting the waypoints, and must be identified in the new position
-        Frame2D foundationDropOffFrame = new Frame2D(waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_PLACE).copy());
+        Frame2D foundationDropOffFrame = new Frame2D(Waypoints.LocationLoading.FOUNDATION_PLACE.getNewNavigation2D());
         // New location of the foundation indicated
         Frame2D foundationDropOffFrame_moved = new Frame2D(foundationDropOffFrame.positionInReferenceFrame.addAndReturn(-10,10,Math.toRadians(135)));
         // Populate stone locations on platform
         ArrayList<Navigation2D> foundationDropLocations = new ArrayList<>();
         for(int i = 0; i<=2; ++i) {
             System.out.println("Waypoint index:" + i);
-            Navigation2D positionInGlobalFrame = waypoints.loading.get(Waypoints.LocationLoading.FOUNDATION_PLACE).addAndReturn(-8.0*i, 0, 0);
+            Navigation2D positionInGlobalFrame = Waypoints.LocationLoading.FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(-8.0*i, 0, 0);
 //            System.out.println("Initial Position, Global Frame:");
 //            describeNav2dFrame(positionInGlobalFrame);
 
@@ -126,11 +126,11 @@ public class Frame2DTest {
     public void calculateLastBlockWaypoint() {
         Waypoints waypoints = new Waypoints(Color.Ftc.BLUE,2);
         Navigation2D wallStone = waypoints.stoneLocations.get(5);
-        Navigation2D currentStonePickupLocation = waypoints.loading.get(Waypoints.LocationLoading.GRAB_SKYSTONE_B);
+        Navigation2D currentStonePickupLocation = Waypoints.LocationLoading.GRAB_SKYSTONE_B.getNewNavigation2D();
 
         // Setup robot frame. This can be moved later (by adjusting
         Frame2D robotFrame = new Frame2D();
-        robotFrame.positionInReferenceFrame = waypoints.loading.get(INITIAL_POSITION); // This is how the frame can be moved.
+        robotFrame.positionInReferenceFrame = Waypoints.LocationLoading.INITIAL_POSITION.getNewNavigation2D(); // This is how the frame can be moved.
         Navigation2D grabber = new Navigation2D(9.0,0,0,robotFrame);
         Navigation2D rightWheel = new Navigation2D(8.0,-17.0/2.0,0,robotFrame);
         Navigation2D leftWheel = new Navigation2D(8.0,17.0/2.0,0,robotFrame);

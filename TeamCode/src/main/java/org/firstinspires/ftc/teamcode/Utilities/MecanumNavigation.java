@@ -237,6 +237,10 @@ public class MecanumNavigation implements Localizer {
             this.theta = -theta; // Allows negative angles.
         }
 
+        public Navigation2D reflectInXReturn() {
+            return new Navigation2D(this.x, -this.y,-this.theta );
+        }
+
         public Navigation2D rotateCopy (double degrees) {
             Navigation2D nav2D_copy = (Navigation2D) this.clone();
             nav2D_copy.rotateDegrees(degrees);
@@ -255,7 +259,7 @@ public class MecanumNavigation implements Localizer {
         }
 
         public Navigation2D copy() {
-            if(this.label == "") {
+            if(this.label.equals("")) {
                 return this.copyAndLabel("");
             } else {
                 return this.copyAndLabel(label.concat("_copy"));

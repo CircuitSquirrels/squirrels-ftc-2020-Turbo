@@ -55,11 +55,11 @@ public class WaypointGenerationTest {
         Waypoints waypoints = new Waypoints(Color.Ftc.RED,1);
         waypoints.setSkystoneDetectionPosition(3);
 
-        Navigation2D initialPosition_n2d = waypoints.loading.get(INITIAL_POSITION);
+        Navigation2D initialPosition_n2d = INITIAL_POSITION.getNewNavigation2D();
         System.out.println(INITIAL_POSITION.toString());
         System.out.println(initialPosition_n2d.toString());
 
-        Navigation2D alignmentA_n2d = waypoints.loading.get(ALIGNMENT_POSITION_A);
+        Navigation2D alignmentA_n2d = ALIGNMENT_POSITION_A.getNewNavigation2D();
         System.out.println(ALIGNMENT_POSITION_A.toString());
         System.out.println(alignmentA_n2d.toString());
 
@@ -139,8 +139,8 @@ public class WaypointGenerationTest {
 
             // Add data
             for(Navigation2D waypoint: labeledWaypoints) {
-                csvWriter.append(waypoint.getLabel() + ",");
-                csvWriter.append(waypoint.toString() + ";\n");
+                csvWriter.append(waypoint.getLabel()).append(",");
+                csvWriter.append(waypoint.toString()).append(";\n");
             }
             System.out.println("\n"+"Wrote file:  " + filename);
         } catch (IOException ioException) {
