@@ -2,6 +2,8 @@
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
@@ -44,6 +46,7 @@ public class StateMachineTest {
 
     FakeAutoOpmode opMode;
     MecanumNavigation mecanumNavigation;
+    OdometryLocalizer odometryLocalizer;
     AutoDrive autoDrive;
     RobotStateContext robotStateContext;
     FakeIMUUtilities imuUtilities;
@@ -65,8 +68,13 @@ public class StateMachineTest {
         autoDrive = new AutoDrive(opMode,mecanumNavigation,mecanumNavigation);
         mecanumNavigation.initialize(new Navigation2D(0,0,0));
 
+        odometryLocalizer = new OdometryLocalizer(new OdometryConfig());
+        odometryLocalizer.setCurrentPosition(new Navigation2D(0,0,0));
+        odometryLocalizer.setEncoderPosition(opMode);
+
         opMode.setAutoDrive(autoDrive);
         opMode.setMecanumNavigation(mecanumNavigation);
+        opMode.setOdometryLocalizer(odometryLocalizer);
         imuUtilities = new FakeIMUUtilities(opMode,"IMU_1");
         opMode.setIMUUtilities(imuUtilities);
         opMode.controller1 = new Controller(opMode.gamepad1);

@@ -5,6 +5,7 @@ package FakeHardware;// Mockito
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
+import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
@@ -34,6 +35,10 @@ public class FakeAutoOpmode extends AutoOpmode {
 
     public void setMecanumNavigation(MecanumNavigation mecanumNavigation) {
         this.mecanumNavigation = mecanumNavigation;
+    }
+
+    public void setOdometryLocalizer(OdometryLocalizer odometryLocalizer) {
+        this.odometryLocalizer = odometryLocalizer;
     }
 
     public void setAutoDrive(AutoDrive autoDrive) {
