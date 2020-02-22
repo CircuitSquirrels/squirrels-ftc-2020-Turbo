@@ -712,6 +712,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         double targetServoAngle;
         double servoDelay_sec = 0;
         double servoDelayPerAngle = 1.5;
+        // Used in logic for putting the servo delay AFTER arrived is true
+        boolean previousArrivedState;
+        double arrivedTime = 0.0;
 
         Arm_Control(RobotHardware.ClawPositions clawPositions, Integer liftTicks, boolean servoWaitForArm) {
             this.positions = clawPositions;

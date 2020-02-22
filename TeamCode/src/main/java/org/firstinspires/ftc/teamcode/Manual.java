@@ -21,7 +21,7 @@ public class Manual extends RobotHardware {
     private Mutable<Double> RotationSpeed = new Mutable<>(0.75);
     private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
     private Mutable<Boolean> CoPilot = new Mutable<>(true);
-    private Mutable<Double> Exponential = new Mutable<>(1.0);
+    private Mutable<Double> Exponential = new Mutable<>(3.0);
     private Mutable<Boolean> Debug = new Mutable<>(false);
 
     // Define interactive init variable holders
@@ -33,6 +33,7 @@ public class Manual extends RobotHardware {
     // Define the MecanumNav and other useful variables
     private final double triggerThreshold = 0.1;
     private boolean precisionMode = false;
+    private boolean liftArmSoftStop = true;
     private final double precisionSpeed = 0.3;
     private Controller clawController;
     private MecanumNavigation.Navigation2D waypoint = new MecanumNavigation.Navigation2D(0, 0, 0);
@@ -103,9 +104,11 @@ public class Manual extends RobotHardware {
         telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
 
         if(controller1.AOnce()) precisionMode = !precisionMode;
+        if(controller1.XOnce()) liftArmSoftStop = !liftArmSoftStop;
         double precisionOutput = precisionMode ? precisionSpeed : 1;
         telemetry.addData("Precision Mode: ", precisionMode);
-        
+        telemetry.addData("Lift SoftStop: ", liftArmSoftStop);
+
         imuUtilities.update();
         telemetry.addData("IMU Heading: ", imuUtilities.getCompensatedHeading());
         // Mecanum Drive Control
@@ -240,8 +243,14 @@ public class Manual extends RobotHardware {
             public void update() {
                 super.update();
                 if(Math.abs(armController.left_stick_y) > 0.05) {
-                    setPower(MotorName.LIFT_WINCH, Math.pow(-armController.left_stick_y, exponential) * lifterSpeed);
                     lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
+                    // Reasons to NOT go down:
+                    if(liftArmSoftStop && lastEncoderPosition <= 0 && -armController.left_stick_y > 0 ) {
+                        // Don't move, you're going down too far!
+                        setPower(MotorName.LIFT_WINCH,0);
+                    } else {
+                        setPower(MotorName.LIFT_WINCH, Math.pow(-armController.left_stick_y, exponential) * lifterSpeed);
+                    }
                 } else {
                     driveMotorToPos(MotorName.LIFT_WINCH, lastEncoderPosition, lifterSpeed);
                 }
