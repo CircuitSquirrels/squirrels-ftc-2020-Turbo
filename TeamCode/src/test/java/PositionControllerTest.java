@@ -1,7 +1,7 @@
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
-import org.firstinspires.ftc.teamcode.Utilities.PositionController;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +11,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import FakeHardware.FakeRobotHardware;
 import TestUtilities.SimFormat;
 
-import static TestUtilities.SimFormat.padStringTo;
 import static TestUtilities.SimFormat.padCenteredStringTo;
 
 public class PositionControllerTest {

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
-import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;

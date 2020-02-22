@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 
 import static org.firstinspires.ftc.teamcode.Utilities.Executive.StateMachine.StateType.*;

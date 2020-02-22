@@ -5,16 +5,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.RobotHardware;
-import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
-import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateContext;
-import org.firstinspires.ftc.teamcode.Utilities.Waypoints;
 import org.junit.Before;
 import org.junit.Test;
 

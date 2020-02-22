@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.util.*;
 
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Vision.*;
 import org.openftc.revextensions2.*;

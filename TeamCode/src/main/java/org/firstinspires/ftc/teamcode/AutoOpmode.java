@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;
-import org.firstinspires.ftc.teamcode.Vision.*;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 public class AutoOpmode extends RobotHardware {
