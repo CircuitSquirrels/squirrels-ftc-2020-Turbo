@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.DeadWheels.Localizer;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.*;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.miniPID.MiniPID;
+import org.firstinspires.ftc.teamcode.miniPID.MiniPID.MiniPIDConfiguration;
 
 public class PositionController {
 
@@ -34,39 +35,44 @@ public class PositionController {
     // I is only active and accumulating when within a 'basket' ?
     public void initializePID() {
         // Linear Translation Parameters
-        double p_linear = 0.05;
-        double i_linear = 0.0;
-        double d_linear = 0.0;
-        double maxPower_linear = 0.8;
-        double maxIOutput_linear = 0.3;
-        rampRateTranslation_powerPerSecond = 2.0;
+        MiniPIDConfiguration translationPIDConfig = new MiniPIDConfiguration
+                (0.05, 0.0, 0.0, 0.8, 0.3, 2.0, 0.5);
 
         // Rotation Parameters
         // Note that distances are in radians, so 90 degrees = 1.57
-        double p_rotation = 0.5;
-        double i_rotation = 0.0;
-        double d_rotation = 0.0;
-        double maxPower_rotation = 0.7;
-        double maxIOutput_rotation = 0.3;
-        rampRateRotation_powerPerSecond = 2.0;
+        MiniPIDConfiguration rotationPIDConfig = new MiniPIDConfiguration
+                (0.05, 0.0, 0.0, 0.7, 0.3, 2.0, Math.toRadians(5.0));
+
+        PositionControllerConfiguration basicConfig = new PositionControllerConfiguration(translationPIDConfig,rotationPIDConfig);
+        setPIDParameters(basicConfig);
+    }
+
+    public void setPIDParameters(PositionControllerConfiguration config) {
 
         // Setup
-        pidX = new MiniPID(p_linear, i_linear, d_linear);
-        pidY = new MiniPID(p_linear, i_linear, d_linear);
-        pidTheta = new MiniPID(p_rotation, i_rotation, d_rotation);
+        pidX = new MiniPID(config.translationPIDConfig.P, config.translationPIDConfig.I, config.translationPIDConfig.D);
+        pidY = new MiniPID(config.translationPIDConfig.P, config.translationPIDConfig.I, config.translationPIDConfig.D);
+        pidTheta = new MiniPID(config.rotationPIDConfig.P, config.rotationPIDConfig.I, config.rotationPIDConfig.D);
 
-        pidX.setOutputLimits(maxPower_linear);
-        pidY.setOutputLimits(maxPower_linear);
-        pidTheta.setOutputLimits(maxPower_rotation);
+        pidX.setOutputLimits(config.translationPIDConfig.maxOutput);
+        pidY.setOutputLimits(config.translationPIDConfig.maxOutput);
+        pidTheta.setOutputLimits(config.rotationPIDConfig.maxOutput);
 
-        pidX.setMaxIOutput(maxIOutput_linear);
-        pidY.setMaxIOutput(maxIOutput_linear);
-        pidTheta.setMaxIOutput(maxIOutput_rotation);
+        pidX.setMaxIOutput(config.translationPIDConfig.maxIOutput);
+        pidY.setMaxIOutput(config.translationPIDConfig.maxIOutput);
+        pidTheta.setMaxIOutput(config.rotationPIDConfig.maxIOutput);
 
+        pidX.positionTolerance = config.translationPIDConfig.positionTolerance;
+        pidY.positionTolerance = config.translationPIDConfig.positionTolerance;
+        pidTheta.positionTolerance = config.rotationPIDConfig.positionTolerance;
+
+        this.rampRateTranslation_powerPerSecond = config.translationPIDConfig.rampRate;
+        this.rampRateRotation_powerPerSecond = config.rotationPIDConfig.rampRate;
         // Just the initial setting, updateRampRate calibrates this in getOutput().
         pidX.setOutputRampRate(rampRateTranslation_powerPerSecond * .02);
         pidY.setOutputRampRate(rampRateTranslation_powerPerSecond * .02);
         pidTheta.setOutputRampRate(rampRateRotation_powerPerSecond * .02);
+
     }
 
     /**
@@ -98,7 +104,7 @@ public class PositionController {
 
     public boolean driveTo(Navigation2D targetPosition, double rate) {
         Navigation2D positionError = targetPosition.substractAndReturn(localizer.getCurrentPosition());
-        if(hasArrived(positionError, 0.5, Math.toRadians(5))) return true;
+        if(hasArrived(positionError, pidX.positionTolerance, pidTheta.positionTolerance)) return true;
         setTarget(targetPosition);
         this.absFramePower = getOutput(localizer.getCurrentPosition());
         this.robotFramePower = toRobotFrameOrientation(absFramePower);
@@ -124,5 +130,16 @@ public class PositionController {
     public String getErrorSum() {
         String format_error = "%6.2f";
         return String.format(format_error,pidX.getErrorSum()) + ",  " + String.format(format_error,pidY.getErrorSum()) + ", " + String.format(format_error,pidTheta.getErrorSum()) + "";
+    }
+
+    static public class PositionControllerConfiguration {
+        private MiniPIDConfiguration translationPIDConfig;
+        private MiniPIDConfiguration rotationPIDConfig;
+
+        public PositionControllerConfiguration(MiniPIDConfiguration translationPIDConfig, MiniPIDConfiguration rotationPIDConfig) {
+            this.translationPIDConfig = translationPIDConfig;
+            this.rotationPIDConfig = rotationPIDConfig;
+
+        }
     }
 }
