@@ -245,11 +245,11 @@ public class Manual extends RobotHardware {
                 if(Math.abs(armController.left_stick_y) > 0.05) {
                     lastEncoderPosition = getEncoderValue(MotorName.LIFT_WINCH);
                     // Reasons to NOT go down:
-                    if(liftArmSoftStop && lastEncoderPosition <= 0 && -armController.left_stick_y > 0 ) {
+                    if(liftArmSoftStop && lastEncoderPosition <= 0 && armController.left_stick_y > 0 ) {
                         // Don't move, you're going down too far!
                         setPower(MotorName.LIFT_WINCH,0);
                     } else {
-                        setPower(MotorName.LIFT_WINCH, Math.pow(-armController.left_stick_y, exponential) * lifterSpeed);
+                        setPower(MotorName.LIFT_WINCH, Math.pow(-armController.left_stick_y, exponential) * lifterSpeed * 0.6);
                     }
                 } else {
                     driveMotorToPos(MotorName.LIFT_WINCH, lastEncoderPosition, lifterSpeed);
