@@ -1,3 +1,4 @@
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionControllerConfigurations;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
@@ -10,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import FakeHardware.FakeRobotHardware;
 import TestUtilities.SimFormat;
+import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionControllerConfigurations;
 
 import static TestUtilities.SimFormat.padCenteredStringTo;
 
@@ -73,6 +75,7 @@ public class PositionControllerTest {
 
     @Test
     public void run_path() {
+        drive.setPIDParameters(PositionControllerConfigurations.deadDebug);
         double stepTime = 0.02;
         double maxTime = 10.0;
         int displaysPerSecond = 10;

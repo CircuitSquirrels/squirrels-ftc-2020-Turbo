@@ -36,16 +36,16 @@ public class PositionController {
     // I is only active and accumulating when within a 'basket' ?
     public void initializePID() {
         // Linear Translation Parameters
-        MiniPIDConfiguration translationPIDConfig = new MiniPIDConfiguration
-                (0.05, 0.0, 0.0, 0.8, 0.3, 2.0, 0.5);
-
-        // Rotation Parameters
-        // Note that distances are in radians, so 90 degrees = 1.57
-        MiniPIDConfiguration rotationPIDConfig = new MiniPIDConfiguration
-                (0.05, 0.0, 0.0, 0.7, 0.3, 2.0, Math.toRadians(5.0));
-
-        PositionControllerConfiguration basicConfig = new PositionControllerConfiguration(translationPIDConfig,rotationPIDConfig);
-        setPIDParameters(basicConfig);
+//        MiniPIDConfiguration translationPIDConfig = new MiniPIDConfiguration
+//                (0.05, 0.0, 0.0, 0.8, 0.3, 2.0, 0.0,0.5);
+//
+//        // Rotation Parameters
+//        // Note that distances are in radians, so 90 degrees = 1.57
+//        MiniPIDConfiguration rotationPIDConfig = new MiniPIDConfiguration
+//                (0.05, 0.0, 0.0, 0.7, 0.3, 2.0, 0.0,Math.toRadians(5.0));
+//
+//        PositionControllerConfiguration basicConfig = new PositionControllerConfiguration(translationPIDConfig,rotationPIDConfig);
+        setPIDParameters(PositionControllerConfigurations.simpleProportional);
     }
 
     public void setPIDParameters(PositionControllerConfiguration config) {
@@ -63,9 +63,13 @@ public class PositionController {
         pidY.setMaxIOutput(config.translationPIDConfig.maxIOutput);
         pidTheta.setMaxIOutput(config.rotationPIDConfig.maxIOutput);
 
-        pidX.positionTolerance = config.translationPIDConfig.positionTolerance;
-        pidY.positionTolerance = config.translationPIDConfig.positionTolerance;
-        pidTheta.positionTolerance = config.rotationPIDConfig.positionTolerance;
+        pidX.setPositionTolerance(config.translationPIDConfig.positionTolerance);
+        pidY.setPositionTolerance(config.translationPIDConfig.positionTolerance);
+        pidTheta.setPositionTolerance(config.rotationPIDConfig.positionTolerance);
+
+        pidX.setMinimumAboveToleranceOutputMagnitude(config.translationPIDConfig.minimumAboveToleranceOutputMagnitude);
+        pidY.setMinimumAboveToleranceOutputMagnitude(config.translationPIDConfig.minimumAboveToleranceOutputMagnitude);
+        pidTheta.setMinimumAboveToleranceOutputMagnitude(config.rotationPIDConfig.minimumAboveToleranceOutputMagnitude);
 
         this.rampRateTranslation_powerPerSecond = config.translationPIDConfig.rampRate;
         this.rampRateRotation_powerPerSecond = config.rotationPIDConfig.rampRate;
@@ -105,7 +109,7 @@ public class PositionController {
 
     public boolean driveTo(Navigation2D targetPosition, double rate) {
         Navigation2D positionError = targetPosition.substractAndReturn(localizer.getCurrentPosition());
-        if(hasArrived(positionError, pidX.positionTolerance, pidTheta.positionTolerance)) return true;
+        if(hasArrived(positionError, pidX.getPositionTolerance(), pidTheta.getPositionTolerance())) return true;
         setTarget(targetPosition);
         this.absFramePower = getOutput(localizer.getCurrentPosition());
         this.robotFramePower = toRobotFrameOrientation(absFramePower);

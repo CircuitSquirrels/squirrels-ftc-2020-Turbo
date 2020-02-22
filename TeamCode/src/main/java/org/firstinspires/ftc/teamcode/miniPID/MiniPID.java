@@ -41,7 +41,9 @@ public class MiniPID {
 
     private double setpointRange = 0;
 
-    public double positionTolerance = 1.0;
+    private double positionTolerance = 1.0;
+
+    private double minimumAboveToleranceOutputMagnitude = 0.0;
 
     public double getErrorSum() {
         return errorSum;
@@ -251,6 +253,35 @@ public class MiniPID {
         this.reversed = reversed;
     }
 
+    /**
+     * Indicates when the PositionController will consider the error low enough to say we've arrived.
+     *
+     * @param positionTolerance
+     */
+    public void setPositionTolerance(double positionTolerance) {
+        this.positionTolerance = Math.abs(positionTolerance);
+    }
+
+    public double getPositionTolerance() {
+        return this.positionTolerance;
+    }
+
+    /**
+     * If > 0, and if positionTolerance > 0, will ensure that while the output is > 0, it is
+     * also above this minimumOutput.
+     * The intent is to ensure the system has enough power to get to the setpoint, without stalling
+     * out when the error is low, and without forcing us to use a high P or I.
+     *
+     * @param minimumAboveToleranceOutputMagnitude
+     */
+    public void setMinimumAboveToleranceOutputMagnitude(double minimumAboveToleranceOutputMagnitude) {
+        this.minimumAboveToleranceOutputMagnitude = Math.abs(minimumAboveToleranceOutputMagnitude);
+    }
+
+    public double getMinimumAboveToleranceOutputMagnitude() {
+        return this.minimumAboveToleranceOutputMagnitude;
+    }
+
     //**********************************
     // Primary operating functions
     //**********************************
@@ -349,6 +380,17 @@ public class MiniPID {
         }
         if (outputFilter != 0) {
             output = lastOutput * outputFilter + output * (1 - outputFilter);
+        }
+
+        // Ensure a minimum output level is applied when error is still outside the tolerance range
+        // This helps ensure that the system 'arrives' at the setpoint to within the required tolerance.
+        if ( minimumAboveToleranceOutputMagnitude > 0.0 && Math.abs(error) > positionTolerance &&
+                Math.abs(output) < minimumAboveToleranceOutputMagnitude) {
+           if (error > 0) {
+               output = minimumAboveToleranceOutputMagnitude;
+           } else{
+                   output = -minimumAboveToleranceOutputMagnitude;
+           }
         }
 
         // Get a test printline with lots of details about the internal
@@ -503,10 +545,11 @@ public class MiniPID {
         public double maxIOutput = 0;
         public double rampRate = 2.0;
 
+        public double minimumAboveToleranceOutputMagnitude;
         // Used externally to decide when output has arrived at setpoint.
         public double positionTolerance = 1.0;
 
-        public MiniPIDConfiguration(double P, double I, double D, double maxOutput, double maxIOutput, double rampRate, double positionTolerance) {
+        public MiniPIDConfiguration(double P, double I, double D, double maxOutput, double maxIOutput, double rampRate,double minimumAboveToleranceOutputMagnitude, double positionTolerance) {
             this.P = P;
             this.I = I;
             this.D = D;
@@ -515,6 +558,7 @@ public class MiniPID {
             this.maxIOutput = maxIOutput;
             this.rampRate = rampRate;
 
+            this.minimumAboveToleranceOutputMagnitude = minimumAboveToleranceOutputMagnitude;
             this.positionTolerance = positionTolerance;
         }
 
