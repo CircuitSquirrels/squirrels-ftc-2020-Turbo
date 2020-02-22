@@ -222,7 +222,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
+                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D(),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 2:
@@ -707,23 +707,34 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     class Arm_Control extends Executive.StateBase<AutoOpmode> {
         RobotHardware.ClawPositions positions;
         Integer liftPos;
-        boolean wait;
+        boolean servoWaitForArm;
+        double initialServoAngle;
+        double targetServoAngle;
+        double servoDelay_sec = 0;
+        double servoDelayPerAngle = 1.5;
 
-        Arm_Control(RobotHardware.ClawPositions clawPositions, Integer liftTicks, boolean waitForArm) {
+        Arm_Control(RobotHardware.ClawPositions clawPositions, Integer liftTicks, boolean servoWaitForArm) {
             this.positions = clawPositions;
             this.liftPos = liftTicks;
-            this.wait = waitForArm;
+            this.servoWaitForArm = servoWaitForArm;
+
+            this.initialServoAngle = opMode.getAngle(RobotHardware.ServoName.CLAW_LEFT);
+            this.targetServoAngle = clawPositions.getLeftPos();
+            this.servoDelay_sec = Math.abs(targetServoAngle - initialServoAngle) * servoDelayPerAngle;
         }
 
         @Override
         public void update() {
             super.update();
-            arrived = armControl(positions, liftPos, wait);
+            arrived = armControl(positions, liftPos, servoWaitForArm);
+            if (!servoWaitForArm && stateTimer.seconds() < servoDelay_sec) {
+                arrived = false;
+            }
         }
 
         @Override
         public String getAuxData() {
-            return " " + positions.name() + " " + liftPos + " " + wait;
+            return " " + positions.name() + " " + liftPos + " " + servoWaitForArm;
         }
     }
 
