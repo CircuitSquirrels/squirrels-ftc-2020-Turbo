@@ -104,7 +104,7 @@ public class Manual extends RobotHardware {
         telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
 
         if(controller1.AOnce()) precisionMode = !precisionMode;
-        if(controller1.XOnce()) liftArmSoftStop = !liftArmSoftStop;
+        if(controller2.dpadLeftOnce()) liftArmSoftStop = !liftArmSoftStop;
         double precisionOutput = precisionMode ? precisionSpeed : 1;
         telemetry.addData("Precision Mode: ", precisionMode);
         telemetry.addData("Lift SoftStop: ", liftArmSoftStop);
