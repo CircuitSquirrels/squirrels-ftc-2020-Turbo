@@ -228,7 +228,8 @@ public class Executive {
         }
 
         public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed) {
-            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+//            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+            return opMode.positionController.driveTo(waypoint, driveSpeed);  // New positioning system
         }
 
         public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed, double tolerance) {

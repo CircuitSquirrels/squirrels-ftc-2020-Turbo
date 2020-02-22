@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
@@ -71,6 +72,7 @@ public class Manual extends RobotHardware {
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
         autoDrive = new AutoDrive(this, mecanumNavigation,odometryLocalizer);
+        positionController = new PositionController(this, odometryLocalizer);
 
         stateMachine = new Executive.StateMachine<>(this);
         stateMachine.changeState(DRIVE, new ManageArmStates());
@@ -137,6 +139,8 @@ public class Manual extends RobotHardware {
             imuUtilities.setCompensatedHeading(0);
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
             odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
+            setDriveMotorsRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         if(Debug.get()) {
             if (controller1.left_trigger > 0.1) {
@@ -145,6 +149,10 @@ public class Manual extends RobotHardware {
 
             if (controller1.B()) {
                 autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+            }
+
+            if (controller1.X()) {
+                positionController.driveTo(waypoint, driveSpeed);
             }
         }
         

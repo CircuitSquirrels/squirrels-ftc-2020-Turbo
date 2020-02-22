@@ -34,21 +34,21 @@ public class PositionController {
     // I is only active and accumulating when within a 'basket' ?
     public void initializePID() {
         // Linear Translation Parameters
-        double p_linear = 0.1;
+        double p_linear = 0.05;
         double i_linear = 0.0;
-        double d_linear = 0.1;
-        double maxPower_linear = 1.0;
+        double d_linear = 0.0;
+        double maxPower_linear = 0.8;
         double maxIOutput_linear = 0.3;
-        rampRateTranslation_powerPerSecond = 3.0;
+        rampRateTranslation_powerPerSecond = 2.0;
 
         // Rotation Parameters
         // Note that distances are in radians, so 90 degrees = 1.57
-        double p_rotation = 0.7;
+        double p_rotation = 0.5;
         double i_rotation = 0.0;
-        double d_rotation = 0.3;
+        double d_rotation = 0.0;
         double maxPower_rotation = 0.7;
         double maxIOutput_rotation = 0.3;
-        rampRateRotation_powerPerSecond = 3.0;
+        rampRateRotation_powerPerSecond = 2.0;
 
         // Setup
         pidX = new MiniPID(p_linear, i_linear, d_linear);

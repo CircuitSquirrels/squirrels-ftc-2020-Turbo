@@ -136,6 +136,7 @@ public class AutoOpmode extends RobotHardware {
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
         autoDrive = new AutoDrive(this, mecanumNavigation, odometryLocalizer);
+        positionController = new PositionController(this,odometryLocalizer);
 
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
