@@ -62,7 +62,7 @@ public class Waypoints {
         FOUNDATION_PLACE(50.5, 30.75, -90),
 
         PULL_FOUNDATION(27, 40.5, 0),
-        PUSH_FOUNDATION(45, 40.5, 0),
+        PUSH_FOUNDATION(44, 40.5, 0),
 
         PARK_OUTER(0, 60.5, -90),
         PARK_INNER(0, 40.5, -90),

@@ -239,7 +239,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if(!arrived) return;
 
             if(!armStateSet)
-                nextArmState(CLOSED, liftLowered, true);
+                nextArmState(CLOSED, liftLowered, false);
 
             if(isArmArrived())
                 nextState(DRIVE, new Backup_Skystone(getIteration()), opMode.shouldContinue());
@@ -557,6 +557,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
         }
     }
+
     /**
      * Loading Drive State
      * Drags foundation to build site
@@ -572,9 +573,22 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             //Todo Check if delay is necessary, if not remove it!
-            if(!isArmArrived() && stateTimer.seconds() > 0.6) return;
+            if(!isArmArrived() || stateTimer.seconds() < 2) return;
 
-            driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            arrived = driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+
+            if(!arrived) return;
+
+            nextState(DRIVE, new Push_Foundation(), opMode.shouldContinue());
+        }
+    }
+
+    class Push_Foundation extends Executive.StateBase<AutoOpmode> {
+
+        @Override
+        public void update() {
+            super.update();
+            arrived = driveTo(PUSH_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
 
             if(!arrived) return;
 
@@ -590,6 +604,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
         }
     }
+
     /**
      * Loading Drive State
      * Gets rid of the arm states
@@ -710,7 +725,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         boolean servoWaitForArm;
         double initialServoAngle;
         double targetServoAngle;
-        double servoDelay_sec = 0;
+        double servoDelay_sec = 2f;
         double servoDelayPerAngle = 1.5;
         // Used in logic for putting the servo delay AFTER arrived is true
         boolean previousArrivedState;
@@ -721,9 +736,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             this.liftPos = liftTicks;
             this.servoWaitForArm = servoWaitForArm;
 
-            this.initialServoAngle = opMode.getAngle(RobotHardware.ServoName.CLAW_LEFT);
-            this.targetServoAngle = clawPositions.getLeftPos();
-            this.servoDelay_sec = Math.abs(targetServoAngle - initialServoAngle) * servoDelayPerAngle;
+//            this.initialServoAngle = opMode.getAngle(RobotHardware.ServoName.CLAW_LEFT);
+//            this.targetServoAngle = clawPositions.getLeftPos();
+//            this.servoDelay_sec = Math.abs(targetServoAngle - initialServoAngle) * servoDelayPerAngle;
         }
 
         @Override
