@@ -50,24 +50,24 @@ public class Waypoints {
         ALIGNMENT_POSITION_B(0,0,0),
         GRAB_SKYSTONE_B(0,0,0),
         // Set extra stone A to the 1st stone. If the stone is already taken it'll change it to the 2nd stone.
-        ALIGN_EXTRA_STONE_A(-26,37.5,-90),
-        GRAB_EXTRA_STONE_A(-26,31.5,-90),
+        ALIGN_EXTRA_STONE_A(-26.5,40.5,-90),
+        GRAB_EXTRA_STONE_A(-26.5,31.5,-90),
         // Set extra stone B to the 2nd stone. If the stone is already taken it'll change it to the 3rd stone.
-        ALIGN_EXTRA_STONE_B(-34,37.5,-90),
-        GRAB_EXTRA_STONE_B(-34,31.5,-90),
+        ALIGN_EXTRA_STONE_B(-34.5,40.5,-90),
+        GRAB_EXTRA_STONE_B(-34.5,31.5,-90),
 
-        BUILD_ZONE(24, 37.5, -90),
+        BUILD_ZONE(24.5, 37.5, -90),
 
-        FOUNDATION_ALIGNMENT(50, 37.5, -90),
-        FOUNDATION_PLACE(50, 30.5, -90),
+        FOUNDATION_ALIGNMENT(50.5, 40.75, -90),
+        FOUNDATION_PLACE(50.5, 30.75, -90),
 
         PULL_FOUNDATION(27, 40.5, 0),
         PUSH_FOUNDATION(45, 40.5, 0),
 
         PARK_OUTER(0, 60.5, -90),
-        PARK_INNER(0, 37.5, -90),
+        PARK_INNER(0, 40.5, -90),
 
-        SIMPLE_ALIGNMENT_INNER(-33, 37.5, -90);
+        SIMPLE_ALIGNMENT_INNER(-33, 40.5, -90);
 
         private double x;
         private double y;
@@ -242,8 +242,8 @@ public class Waypoints {
         for(int i = 0; i<=5; ++i) {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),31.5, Math.toRadians(-90)));
             // Add robot's length for correct grab position.
-            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(0,grabOffset_X_Forward,0));
-            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), 37.5, Math.toRadians(-90)));
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(.5,0,0));
+            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), 40.5, Math.toRadians(-90)));
         }
 
         /**
@@ -291,7 +291,7 @@ public class Waypoints {
             default:
                 throw new IllegalStateException("Invalid Team Color");
         }
-        
+
         labelAllWaypointsFromEnums();
     }
 

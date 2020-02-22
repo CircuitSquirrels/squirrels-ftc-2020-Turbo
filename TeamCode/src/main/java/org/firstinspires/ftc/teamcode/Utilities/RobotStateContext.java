@@ -38,6 +38,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     // Delays
     private final double start_Delay = 0.25;
     private final double scan_Delay = 0.5;
+    private final double grab_Delay = 4;
     private final double placeFoundation_Delay = 0.25;
 
     private Controller controller1;
@@ -163,7 +164,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
-            nextArmState(OPEN, liftLowered, false);
+            nextArmState(OPEN, liftLowered, true);
         }
 
         @Override
@@ -368,12 +369,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             //Todo Add offset class vars
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
@@ -473,12 +474,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(-12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
@@ -518,12 +519,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
+                    arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 case 1:
                     if(!conservativeRoute)
-                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(-12, 0, 0),
+                        arrived = driveTo(FOUNDATION_ALIGNMENT.getNewNavigation2D().addAndReturn(12, 0, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
 
                 case 2:
@@ -572,6 +573,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
             //Todo Check if delay is necessary, if not remove it!
             if(!isArmArrived() && stateTimer.seconds() > 0.6) return;
+
+            driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
 
             if(!arrived) return;
 

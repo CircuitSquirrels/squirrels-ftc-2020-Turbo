@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
@@ -106,7 +108,6 @@ public class Manual extends RobotHardware {
         
         imuUtilities.update();
         telemetry.addData("IMU Heading: ", imuUtilities.getCompensatedHeading());
-
         // Mecanum Drive Control
         setDriveForSimpleMecanum(
                 Math.pow(controller1.left_stick_x, exponential) * driveSpeed * precisionOutput,

@@ -317,6 +317,8 @@ public class AutoOpmode extends RobotHardware {
         MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.getCurrentPosition();
         currentPosition.theta = Math.toRadians(gyroHeading);
         mecanumNavigation.setCurrentPosition(currentPosition);
+
+        odometryLocalizer.setCurrentPosition(new Navigation2D(odometryLocalizer.getCurrentPosition().x, odometryLocalizer.getCurrentPosition().y, Math.toRadians(gyroHeading)));
     }
 
     public boolean shouldContinue() {
