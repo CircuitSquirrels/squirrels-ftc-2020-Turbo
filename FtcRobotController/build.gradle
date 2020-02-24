@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 35
         versionName "5.3"
     }
@@ -45,7 +45,7 @@ dependencies {
     stockApi 'org.openftc:hardware-stock:5.3'
     stockApi 'org.openftc:onbotjava-stock:5.3'
     stockApi 'org.openftc:robotserver-stock:5.3'
-    stockApi 'com.android.support:support-compat:26.0.0'
+    stockApi 'com.android.support:support-compat:28.0.0'
 
     /*
      * Things needed regardless of turbo/extremeTurbo/stock
@@ -60,4 +60,5 @@ dependencies {
      * External
      */
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.acmerobotics.dashboard:dashboard:0.3.8' // build.release.gradle was missing, so I put this here.
 }
