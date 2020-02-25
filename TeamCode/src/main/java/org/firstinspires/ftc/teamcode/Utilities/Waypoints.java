@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.Utilities;
+import android.util.Log;
+
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.EnumMap;
 
 import static org.firstinspires.ftc.teamcode.Utilities.Color.Ftc.BLUE;
 
@@ -58,11 +58,11 @@ public class Waypoints {
 
         BUILD_ZONE(24.5, 37.5, -90),
 
-        FOUNDATION_ALIGNMENT(50.5, 40.75, -90),
-        FOUNDATION_PLACE(50.5, 30.75, -90),
+        FOUNDATION_ALIGNMENT(51.5, 40.75, -90),
+        FOUNDATION_PLACE(51.5, 30.75, -90),
 
-        PULL_FOUNDATION(27, 40.5, 0),
-        PUSH_FOUNDATION(44, 40.5, 0),
+        PULL_FOUNDATION(27, 42.5, 0),
+        PUSH_FOUNDATION(44, 42.5, 0),
 
         PARK_OUTER(0, 60.5, -90),
         PARK_INNER(0, 40.5, -90),
@@ -228,8 +228,6 @@ public class Waypoints {
         return skystoneX = 5.5 -(skystoneX + halfField) / stoneLength;
     }
 
-
-
     /**
      * Blue Loading positions set and used as templates
      */
@@ -240,10 +238,10 @@ public class Waypoints {
         List<Navigation2D> blueStonePickupLocations = new ArrayList<>(); // Location from which to pickup stone 0-5
         List<Navigation2D> blueStoneAlignmentLocations = new ArrayList<>(); // Location from which to align, scan, or drive under bridge from stone 0-5
         for(int i = 0; i<=5; ++i) {
-            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i),31.5, Math.toRadians(-90)));
+            blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i) - 1,22, Math.toRadians(-90)));
             // Add robot's length for correct grab position.
-            blueStonePickupLocations.add(i, blueStoneLocations.get(i).copy().addAndReturn(.5,0,0));
-            blueStoneAlignmentLocations.add(i, new Navigation2D(skystoneXFromIndex(i), 40.5, Math.toRadians(-90)));
+            blueStonePickupLocations.add(i, blueStoneLocations.get(i).addAndReturn(0,9,0));
+            blueStoneAlignmentLocations.add(i, blueStoneLocations.get(i).addAndReturn(0, 28, 0));
         }
 
         /**
@@ -251,8 +249,9 @@ public class Waypoints {
          */
         LocationLoading.ALIGNMENT_POSITION_A.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition).copy());
         LocationLoading.GRAB_SKYSTONE_A.set(blueStonePickupLocations.get(skystoneDetectionPosition).copy());
-        LocationLoading.ALIGNMENT_POSITION_B.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition + 2).copy());
-        LocationLoading.GRAB_SKYSTONE_B.set(blueStonePickupLocations.get(skystoneDetectionPosition + 2).copy());
+        LocationLoading.ALIGNMENT_POSITION_B.set(blueStoneAlignmentLocations.get(skystoneDetectionPosition + 3).copy());
+        LocationLoading.GRAB_SKYSTONE_B.set(blueStonePickupLocations.get(skystoneDetectionPosition + 3).copy());
+
         switch (getSkystoneDetectionPosition()) {
             case 0:
                 LocationLoading.ALIGN_EXTRA_STONE_A.set(blueStoneAlignmentLocations.get(1).copy());
@@ -263,6 +262,14 @@ public class Waypoints {
             case 2:
                 LocationLoading.ALIGN_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(1).copy());
                 LocationLoading.GRAB_EXTRA_STONE_B.set(blueStoneAlignmentLocations.get(1).copy());
+
+                Navigation2D wallstonePosition = blueStoneLocations.get(5);
+                double frameRotation = -55;
+                MecanumNavigation.Frame2D stoneFrame = new MecanumNavigation.Frame2D(wallstonePosition.addAndReturn(0,0,Math.toRadians(frameRotation)));
+                Navigation2D align_local = new Navigation2D(-20, -4, -Math.toRadians(frameRotation), stoneFrame);
+                Navigation2D grab1_local = new Navigation2D(-8,1,0, stoneFrame);
+                LocationLoading.ALIGNMENT_POSITION_B.set(align_local.getNav2DInWorldFrame());
+                LocationLoading.GRAB_SKYSTONE_B.set(grab1_local.getNav2DInWorldFrame());
                 break;
         }
 

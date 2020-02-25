@@ -91,11 +91,16 @@ public class AutoDrive {
         }
 
     }
+
     public boolean driveToPositionTranslateOnly(Navigation2D targetPosition, double rate) {
-        return driveToPositionTranslateOnly(targetPosition, rate, 0.5);
+        return driveToPositionTranslateOnly(targetPosition, rate,0.05, 0.5);
     }
 
-    public boolean driveToPositionTranslateOnly(Navigation2D targetPosition, double rate, double distanceThresholdInches) {
+    public boolean driveToPositionTranslateOnly(Navigation2D targetPosition, double rate, double minRate) {
+        return driveToPositionTranslateOnly(targetPosition, rate, minRate, 0.5);
+    }
+
+    public boolean driveToPositionTranslateOnly(Navigation2D targetPosition, double rate, double minRate, double distanceThresholdInches) {
         lastTargetPosition = targetPosition;
         double angleThresholdRadians = 2.0 * (Math.PI/180.0);
         rate = Range.clip(rate,0,1);
@@ -112,7 +117,7 @@ public class AutoDrive {
             translationTarget.x = targetPosition.x;
             translationTarget.y = targetPosition.y;
             Mecanum.Wheels wheels = MecanumNavigation.deltaWheelsFromPosition(localizer.getCurrentPosition(),targetPosition,mecanumNavigation.driveTrainMecanum);
-            rateScale = rampDown(deltaDistance, 10, 1, 0.05);
+            rateScale = rampDown(deltaDistance, 10, 1, minRate);
             wheels = wheels.scaleWheelPower(rateScale * rate);
             opMode.setDriveForMecanumWheels(wheels);
             return false;

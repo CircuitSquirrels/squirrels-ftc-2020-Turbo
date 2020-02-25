@@ -35,10 +35,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private final double wallStoneSpeed = 0.5;
     private final double foundationDragSpeed = 0.5;
 
+    private final Navigation2D fudge = new Navigation2D(0,0,0);
+
     // Delays
     private final double start_Delay = 0.25;
     private final double scan_Delay = 0.5;
-    private final double grab_Delay = 4;
+    private final double grab_Delay = 1;
     private final double placeFoundation_Delay = 0.25;
 
     private Controller controller1;
@@ -68,8 +70,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         this.conservativeRoute = opMode.ConservativeRoute.get();
     }
 
-
-
     public void update() {
         stateMachine.update();
         opMode.updateMecanumHeadingFromGyroNow();
@@ -78,8 +78,6 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     public String getCurrentState() {
         return stateMachine.getCurrentStates();
     }
-
-
 
     /**
      * Define Concrete State Classes
@@ -176,9 +174,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
                     break;
                 case 1:
-                    if(waypoints.getSkystoneDetectionPosition() == 2)  // Waypoint offset adjusted to match WallStone Alignment state.
-                        arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D().addAndReturn(15, 0, 0),
-                                getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    if(waypoints.getSkystoneDetectionPosition() == 2)
+                        nextState(DRIVE, new WallStone_Alignment(), opMode.shouldContinue());
                     else
                         arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed, courseTolerance);
@@ -196,10 +193,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
             if (!arrived) return;
 
-            if(waypoints.getSkystoneDetectionPosition() == 2 && getIteration() == 1)
-                nextState(DRIVE, new WallStone_Alignment(), opMode.shouldContinue());
-            else
-                nextState(DRIVE, new Grab_Skystone(getIteration()), opMode.shouldContinue());
+            nextState(DRIVE, new Grab_Skystone(getIteration()), opMode.shouldContinue());
         }
     }
     /**
@@ -212,6 +206,13 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super(iteration);
         }
 
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            if(getIteration() == 1) {
+                modifyCurrentPosition(fudge);
+            }
+        }
 
         @Override
         public void update() {
@@ -238,10 +239,12 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             }
             if(!arrived) return;
 
-            if(!armStateSet)
+            if(!armStateSet) {
                 nextArmState(CLOSED, liftLowered, false);
+                stateTimer.reset();
+            }
 
-            if(isArmArrived())
+            if(isArmArrived() && stateTimer.seconds() > grab_Delay)
                 nextState(DRIVE, new Backup_Skystone(getIteration()), opMode.shouldContinue());
         }
     }
@@ -412,15 +415,18 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      * Grabs the wallstone
      */
     class Grab_WallStone extends Executive.StateBase<AutoOpmode> {
+
+        @Override
+        public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
+            super.init(stateMachine);
+            modifyCurrentPosition(fudge);
+        }
+
         @Override
         public void update() {
             super.update();
-            if(teamColor.equals(Color.Ftc.BLUE))
-                arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, -5, degreesToRadians(-30)),
-                        getDriveScale(stateTimer.seconds()) * wallStoneSpeed);
-            else
-                arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0, 3, degreesToRadians(30)),
-                        getDriveScale(stateTimer.seconds()) * wallStoneSpeed);
+            arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D(),
+                    getDriveScale(stateTimer.seconds()) * driveSpeed);
 
             if(!arrived) return;
 
@@ -573,9 +579,9 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void update() {
             super.update();
             //Todo Check if delay is necessary, if not remove it!
-            if(!isArmArrived() || stateTimer.seconds() < 2) return;
+            if(!isArmArrived() || stateTimer.seconds() < 1) return;
 
-            arrived = driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+            arrived = driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed, 1.0, 1.0);
 
             if(!arrived) return;
 
@@ -723,31 +729,17 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         RobotHardware.ClawPositions positions;
         Integer liftPos;
         boolean servoWaitForArm;
-        double initialServoAngle;
-        double targetServoAngle;
-        double servoDelay_sec = 2f;
-        double servoDelayPerAngle = 1.5;
-        // Used in logic for putting the servo delay AFTER arrived is true
-        boolean previousArrivedState;
-        double arrivedTime = 0.0;
 
         Arm_Control(RobotHardware.ClawPositions clawPositions, Integer liftTicks, boolean servoWaitForArm) {
             this.positions = clawPositions;
             this.liftPos = liftTicks;
             this.servoWaitForArm = servoWaitForArm;
-
-//            this.initialServoAngle = opMode.getAngle(RobotHardware.ServoName.CLAW_LEFT);
-//            this.targetServoAngle = clawPositions.getLeftPos();
-//            this.servoDelay_sec = Math.abs(targetServoAngle - initialServoAngle) * servoDelayPerAngle;
         }
 
         @Override
         public void update() {
             super.update();
             arrived = armControl(positions, liftPos, servoWaitForArm);
-            if (!servoWaitForArm && stateTimer.seconds() < servoDelay_sec) {
-                arrived = false;
-            }
         }
 
         @Override
@@ -898,10 +890,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
 
     public double getDriveScale(double seconds) {
         double driveScale;
-        double speedDivider = 0.75; // No idea what a good name is
+        double speedDivider = 0.75;
         driveScale = seconds / speedDivider;
         driveScale = driveScale < 1.0 ? driveScale : 1.0;
         return driveScale;
+    }
+
+    public void modifyCurrentPosition(Navigation2D change) {
+        this.opMode.odometryLocalizer.setCurrentPosition(opMode.odometryLocalizer.getCurrentPosition().copy().addAndReturn(change));
     }
 
 

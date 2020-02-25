@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
 import java.util.HashMap;
@@ -25,8 +24,6 @@ public class Executive {
         void update();
         String getCurrentState();
     }
-
-
 
     /**
      * Robot state machine, supporting multiple named simultaneous states, expanded by adding to an enum.
@@ -228,12 +225,16 @@ public class Executive {
         }
 
         public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed) {
-//            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
-            return opMode.positionController.driveTo(waypoint, driveSpeed);  // New positioning system
+            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed);
+//            return opMode.positionController.driveTo(waypoint, driveSpeed);  // New positioning system
+        }
+
+        public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed, double minRate, double tolerance) {
+            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed, minRate, tolerance);
         }
 
         public boolean driveTo(MecanumNavigation.Navigation2D waypoint, double driveSpeed, double tolerance) {
-            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed, tolerance);
+            return opMode.autoDrive.driveToPositionTranslateOnly(waypoint, driveSpeed, 0.05, tolerance);
         }
 
         public boolean isArmArrived() {
