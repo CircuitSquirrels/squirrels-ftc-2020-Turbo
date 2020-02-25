@@ -137,10 +137,14 @@ public class Manual extends RobotHardware {
         // Reset the robot's current position
         if(controller1.YOnce()) {
             imuUtilities.setCompensatedHeading(0);
-            mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
-            odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
             setDriveMotorsRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            setDeadWheelMotorsRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setDeadWheelMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            mecanumNavigation.update(new MecanumNavigation.WheelTicks(0,0,0,0));
+            odometryLocalizer.update(new OdometryTicks(0,0,0));
+            mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+            odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         }
         if(Debug.get()) {
             if (controller1.left_trigger > 0.1) {

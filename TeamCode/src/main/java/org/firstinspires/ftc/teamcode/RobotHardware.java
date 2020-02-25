@@ -57,27 +57,29 @@ public class RobotHardware extends OpMode {
 
     // The motors on the robot, must be the same names defined in the robot's Configuration file.
     public enum MotorName {
-        DRIVE_FRONT_LEFT("DRIVE_FRONT_LEFT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        DRIVE_FRONT_RIGHT("DRIVE_FRONT_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        DRIVE_BACK_LEFT("DRIVE_BACK_LEFT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
-        CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
-        LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        DRIVE_FRONT_LEFT("DRIVE_FRONT_LEFT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_FRONT_RIGHT("DRIVE_FRONT_RIGHT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_LEFT("DRIVE_BACK_LEFT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, Types.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
+        RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         private final String configName;
         private final ExpansionHubs expansionHub;
         private final DcMotor.Direction direction;
         private final DcMotor.ZeroPowerBehavior zeroPowerBehavior;
         private final DcMotor.RunMode runMode;
+        private final Types type;
 
-        MotorName(String configName, ExpansionHubs expansionHub, DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, DcMotor.RunMode runMode) {
+        MotorName(String configName, ExpansionHubs expansionHub, Types type, DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, DcMotor.RunMode runMode) {
             this.configName = configName;
             this.expansionHub = expansionHub;
             this.direction = direction;
             this.zeroPowerBehavior = zeroPowerBehavior;
             this.runMode = runMode;
+            this.type = type;
         }
 
         public String getConfigName() {
@@ -99,6 +101,10 @@ public class RobotHardware extends OpMode {
         public DcMotor.RunMode getRunMode() {
             return runMode;
         }
+
+        public Types getType() {
+            return type;
+        }
     }
 
     private enum ExpansionHubs {
@@ -114,6 +120,12 @@ public class RobotHardware extends OpMode {
         public String getHubName() {
             return hubName;
         }
+    }
+
+    private enum Types {
+        DRIVE,
+        DEADWHEEL,
+        ARM
     }
 
     /**
@@ -202,6 +214,18 @@ public class RobotHardware extends OpMode {
                 telemetry.addData("Motor Missing: " ,name.name());
             } else {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+        }
+    }
+
+    protected void setDeadWheelMotorsRunMode(DcMotor.RunMode runMode) {
+        for (MotorName motor : MotorName.values()) {
+            if(!motor.getType().equals(Types.DEADWHEEL)) continue;
+            ExpansionHubMotor m = allMotors.get(motor.ordinal());
+            if (m == null) {
+                telemetry.addData("Motor Missing: ", motor.name());
+            } else {
+                m.setMode(runMode);
             }
         }
     }
