@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
@@ -556,7 +558,7 @@ public class RobotHardware extends OpMode {
      * Output whether or not the defined motors, servos, sensors could not be found
      */
     public void init() {
-
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         // Setup expansion hubs for bulk reads.
         try {
             expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, ExpansionHubs.DRIVE.getHubName());
