@@ -62,9 +62,10 @@ public class RobotHardware extends OpMode {
         DRIVE_BACK_LEFT("DRIVE_BACK_LEFT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         DRIVE_BACK_RIGHT("DRIVE_BACK_RIGHT", ExpansionHubs.DRIVE, Types.DRIVE, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
         LIFT_WINCH("LIFT_WINCH", ExpansionHubs.ARM, Types.ARM, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_USING_ENCODER),
-        RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
+        LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
         CENTER_WHEEL("CENTER_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER),
-        LEFT_WHEEL("LEFT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RIGHT_WHEEL("RIGHT_WHEEL", ExpansionHubs.ARM, Types.DEADWHEEL, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         private final String configName;
         private final ExpansionHubs expansionHub;
@@ -122,7 +123,7 @@ public class RobotHardware extends OpMode {
         }
     }
 
-    private enum Types {
+    public enum Types {
         DRIVE,
         DEADWHEEL,
         ARM

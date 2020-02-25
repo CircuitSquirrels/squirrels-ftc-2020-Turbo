@@ -319,7 +319,7 @@ public class AutoOpmode extends RobotHardware {
         currentPosition.theta = Math.toRadians(gyroHeading);
         mecanumNavigation.setCurrentPosition(currentPosition);
 
-        odometryLocalizer.setCurrentPosition(new Navigation2D(odometryLocalizer.getCurrentPosition().x, odometryLocalizer.getCurrentPosition().y, Math.toRadians(gyroHeading)));
+//        odometryLocalizer.setCurrentPosition(new Navigation2D(odometryLocalizer.getCurrentPosition().x, odometryLocalizer.getCurrentPosition().y, Math.toRadians(gyroHeading)));
     }
 
     public boolean shouldContinue() {

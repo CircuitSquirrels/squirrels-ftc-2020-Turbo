@@ -103,7 +103,19 @@ public class Manual extends RobotHardware {
         telemetry.addLine("---Drive---");
         // Display the robot's position compared to where it started
         mecanumNavigation.displayPosition();
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
         telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
+        telemetry.addLine();
+        for (MotorName m : MotorName.values()) {
+            if(!m.getType().equals(Types.DEADWHEEL)) continue;
+            telemetry.addData(m.name(), getEncoderValue(m));
+        }
+
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
 
         if(controller1.AOnce()) precisionMode = !precisionMode;
         if(controller2.dpadLeftOnce()) liftArmSoftStop = !liftArmSoftStop;
