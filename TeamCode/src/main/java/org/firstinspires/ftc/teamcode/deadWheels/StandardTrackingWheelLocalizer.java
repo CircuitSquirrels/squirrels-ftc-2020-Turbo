@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DeadWheels;
+package org.firstinspires.ftc.teamcode.deadWheels;
 
 import android.support.annotation.NonNull;
 
@@ -29,7 +29,7 @@ import java.util.List;
  * Note: this could be optimized significantly with REV bulk reads
  */
 
-public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer implements Localizer
+public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLocalizer implements Localizer
 {
 //    public static double TICKS_PER_REV = 0;
 //    public static double WHEEL_RADIUS = 2; // in
@@ -76,8 +76,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         );
     }
 
-    // Make localizer happy
-
+    // Localizer interface methods
 
     @Override
     public void update(RobotHardware robotHardware) {
@@ -86,7 +85,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     @Override
     public Navigation2D getCurrentPosition() {
-        Navigation2D deltaPosition = toNav2dFromPose2d(getPoseEstimate()); // This is NOT the position, but a relative pose.
+        Navigation2D deltaPosition = toNav2dFromPose2d(getPoseEstimate());
         return deltaPosition; // Wrong
     }
 

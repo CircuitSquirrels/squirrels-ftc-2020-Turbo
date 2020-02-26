@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryConfig;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;

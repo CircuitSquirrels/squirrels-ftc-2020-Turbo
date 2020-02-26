@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;

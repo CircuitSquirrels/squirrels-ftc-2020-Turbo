@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DeadWheels;
+package org.firstinspires.ftc.teamcode.deadWheels;
 
 import com.acmerobotics.dashboard.config.Config;
 

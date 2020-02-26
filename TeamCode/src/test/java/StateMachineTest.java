@@ -2,8 +2,8 @@
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryConfig;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.DrivetrainControl;
 
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.DeadWheels.Localizer;
+import org.firstinspires.ftc.teamcode.deadWheels.Localizer;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;

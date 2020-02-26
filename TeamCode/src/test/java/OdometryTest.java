@@ -1,6 +1,6 @@
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryConfig;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryLocalizer;
-import org.firstinspires.ftc.teamcode.DeadWheels.OdometryTicks;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryConfig;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryTicks;
 import org.junit.Before;
 import org.junit.Test;
 

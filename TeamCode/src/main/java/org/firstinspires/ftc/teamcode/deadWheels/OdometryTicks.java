@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DeadWheels;
+package org.firstinspires.ftc.teamcode.deadWheels;
 
 public class OdometryTicks {
 

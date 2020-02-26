@@ -32,7 +32,8 @@ dependencies {
     implementation "com.opencsv:opencsv:4.1"
     implementation 'com.acmerobotics.dashboard:dashboard:0.3.8'
     implementation 'com.acmerobotics.roadrunner:core:0.5.0'
-}
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'}
 
 // This allows the unit test to show actual OpenGLMatrix behavior.
 android {
