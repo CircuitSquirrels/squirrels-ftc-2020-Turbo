@@ -192,6 +192,19 @@ public class RobotHardware extends OpMode {
     }
 
     /**
+     * Return a ExpansionHubMotor object given the MotorName enum
+     * @param motor
+     * @return
+     */
+    public ExpansionHubMotor getMotor(MotorName motor) {
+        ExpansionHubMotor m = allMotors.get(motor.ordinal());
+        if (m==null) { // Error message
+            telemetry.addData("Motor Missing: ", motor.name());
+        }
+        return m;
+    }
+
+    /**
      * Stops all motors.
      */
     public void stopAllMotors() {
