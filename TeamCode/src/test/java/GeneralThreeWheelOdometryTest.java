@@ -37,11 +37,21 @@ public class GeneralThreeWheelOdometryTest {
     }
 
     @Test
-    public void simpleEncoder() {
+    public void encoderLeft() {
             OdometryTicks incrementalDeadWheelsTicks = new OdometryTicks(0, 100, 0);
-//            OdometryTicks incrementalDeadWheelsTicks = new OdometryTicks(100, 10, 100);
-//            OdometryTicks incrementalDeadWheelsTicks = new OdometryTicks(-100, 0, 100);
             linearSim(incrementalDeadWheelsTicks);
+    }
+
+    @Test
+    public void encoderForward() {
+            OdometryTicks incrementalDeadWheelsTicks = new OdometryTicks(100, 10, 100);
+        linearSim(incrementalDeadWheelsTicks);
+    }
+
+    @Test
+    public void encoderRotateCW() {
+            OdometryTicks incrementalDeadWheelsTicks = new OdometryTicks(-100, 0, 100);
+        linearSim(incrementalDeadWheelsTicks);
     }
 
 

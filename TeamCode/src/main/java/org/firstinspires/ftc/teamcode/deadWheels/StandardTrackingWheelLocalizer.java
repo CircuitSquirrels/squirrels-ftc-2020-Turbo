@@ -78,10 +78,23 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         update();
     }
 
+
+    private double previousHeading = 0;
+    private double headingChange = 0;
+    private double headingCompensation = 0;
+    private double heading_deg = 0;
+    // Unwrap Angle to be +- infinity
     @Override
     public Navigation2D getCurrentPosition() {
-        Navigation2D deltaPosition = toNav2dFromPose2d(getPoseEstimate());
-        return deltaPosition; // Wrong
+        Navigation2D currentPosition = toNav2dFromPose2d(getPoseEstimate());
+        heading_deg = Math.toDegrees(currentPosition.theta);
+
+        headingChange = heading_deg - previousHeading;
+        previousHeading = Math.toDegrees(currentPosition.theta);
+        headingCompensation = headingChange > 180 ? headingCompensation - 360 : (headingChange < -180 ? headingCompensation + 360 : headingCompensation);
+
+        currentPosition.addInPlace(0,0,Math.toRadians(headingCompensation));
+        return currentPosition;
     }
 
     @Override
