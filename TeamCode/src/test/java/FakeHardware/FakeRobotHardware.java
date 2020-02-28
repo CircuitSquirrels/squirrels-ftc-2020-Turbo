@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
+import org.firstinspires.ftc.teamcode.deadWheels.OdometryTicks;
 
 
 import java.util.EnumMap;
@@ -80,4 +81,20 @@ public class FakeRobotHardware extends RobotHardware {
             fakeMotorMap.put(motorName, new FakeDcMotor(motorName));
         }
     }
+
+
+    // set and get dead wheel encoders
+    public void setDeadWheelEncoders(OdometryTicks odometryTicks) {
+        fakeMotorMap.get(MotorName.LEFT_WHEEL).setTicks((int) odometryTicks.left);
+        fakeMotorMap.get(MotorName.CENTER_WHEEL).setTicks((int) odometryTicks.center);
+        fakeMotorMap.get(MotorName.RIGHT_WHEEL).setTicks((int) odometryTicks.right);
+    }
+
+    public OdometryTicks getDeadWheelEncoders() {
+        return new OdometryTicks(
+                fakeMotorMap.get(MotorName.LEFT_WHEEL).getTicks(),
+                fakeMotorMap.get(MotorName.CENTER_WHEEL).getTicks(),
+                fakeMotorMap.get(MotorName.RIGHT_WHEEL).getTicks());
+    }
+
 }

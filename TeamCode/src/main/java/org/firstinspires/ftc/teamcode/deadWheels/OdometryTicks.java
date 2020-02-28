@@ -17,4 +17,10 @@ public class OdometryTicks {
     public OdometryTicks addAndReturn(OdometryTicks ticks) {
         return new OdometryTicks(left + ticks.left, center + ticks.center, right + ticks.right);
     }
+
+    public String toString() {
+        String format_xy = "%6d";
+        return "Left: " + String.format(format_xy,(int) left) + ",  " + "Center: " + String.format(format_xy,(int) center) + ", " + "Right: " + String.format(format_xy,(int) right) + "";
+    }
+
 }

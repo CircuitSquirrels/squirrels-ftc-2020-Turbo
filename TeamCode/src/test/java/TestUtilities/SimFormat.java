@@ -8,7 +8,8 @@ public class SimFormat {
         int simStep = (int) Math.floor( simTime/simulationTimeStep );
         int stepsPerSecond = (int) Math.floor(1/simulationTimeStep);
         int stepsPerDisplay = stepsPerSecond / displaysPerSecond;
-        return (simStep % stepsPerDisplay) == 0;
+
+        return (stepsPerDisplay == 0) || ((simStep % stepsPerDisplay) == 0);
     }
 
     public static String padStringTo(int desiredLength, String currentString) {
