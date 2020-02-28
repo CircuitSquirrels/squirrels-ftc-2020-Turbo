@@ -30,7 +30,7 @@ import java.util.List;
  * Note: this could be optimized significantly with REV bulk reads
  */
 
-public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer implements Localizer
+public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLocalizer implements Localizer
 {
 //    public static double TICKS_PER_REV = 0;
 //    public static double WHEEL_RADIUS = 2; // in
@@ -75,7 +75,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     @Override
     public void update(RobotHardware robotHardware) {
-        update();
+        super.update();
     }
 
 
