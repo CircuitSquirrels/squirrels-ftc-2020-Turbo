@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
+import org.firstinspires.ftc.teamcode.RobotHardware.MotorName;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Frame2D;
@@ -29,7 +30,7 @@ import java.util.List;
  * Note: this could be optimized significantly with REV bulk reads
  */
 
-public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLocalizer implements Localizer
+public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer implements Localizer
 {
 //    public static double TICKS_PER_REV = 0;
 //    public static double WHEEL_RADIUS = 2; // in
@@ -38,8 +39,7 @@ public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLo
 //    public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
 //    public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
 
-
-    private DcMotor leftEncoder, rightEncoder, centerEncoder;
+    private RobotHardware opmode;
 
     public StandardTrackingWheelLocalizer(RobotHardware opmode) {
         super(Arrays.asList(
@@ -48,10 +48,7 @@ public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLo
                 toPose2dFromNav2d(OdometryConfig.getCenterWheelPosition()) // center
         ));
 
-        // This is the way
-        leftEncoder = opmode.getMotor(RobotHardware.MotorName.LEFT_WHEEL);
-        rightEncoder = opmode.getMotor(RobotHardware.MotorName.RIGHT_WHEEL);
-        centerEncoder = opmode.getMotor(RobotHardware.MotorName.CENTER_WHEEL);
+        this.opmode = opmode;
     }
 
     public static double encoderTicksToInches(int ticks) {
@@ -70,13 +67,11 @@ public class StandardTrackingWheelLocalizer extends ModifiedThreeTrackingWheelLo
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition()),
-                encoderTicksToInches(rightEncoder.getCurrentPosition()),
-                encoderTicksToInches(centerEncoder.getCurrentPosition())
+                encoderTicksToInches(opmode.getEncoderValue(MotorName.LEFT_WHEEL)),
+                encoderTicksToInches(opmode.getEncoderValue(MotorName.RIGHT_WHEEL)),
+                encoderTicksToInches(opmode.getEncoderValue(MotorName.CENTER_WHEEL))
         );
     }
-
-    // Localizer interface methods
 
     @Override
     public void update(RobotHardware robotHardware) {

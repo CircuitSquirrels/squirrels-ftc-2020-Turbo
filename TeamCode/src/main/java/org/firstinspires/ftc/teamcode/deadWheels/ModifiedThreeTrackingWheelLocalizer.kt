@@ -50,7 +50,21 @@ abstract class ModifiedThreeTrackingWheelLocalizer(
     }
 
     override fun update() {
-        val wheelPositions = getWheelPositions()
+        val wheelPositions = getWheelPositions() // List<Double>
+        update(wheelPositions)
+    }
+
+    fun update(odometryTicks: OdometryTicks) {
+        val wheelPositions = listOf(
+                OdometryConfig.inchesFromTicks(odometryTicks.left),
+                OdometryConfig.inchesFromTicks(odometryTicks.right),
+                OdometryConfig.inchesFromTicks(odometryTicks.center))
+        update(wheelPositions)
+    }
+
+    private fun update(wheelPositions: List<Double> ) {
+//        val wheelPositions = listOf<Double>(odometryTicks.left, odometryTicks.right, odometryTicks.center);
+
         if (lastWheelPositions.isNotEmpty()) {
             val wheelDeltas = wheelPositions
                     .zip(lastWheelPositions)
