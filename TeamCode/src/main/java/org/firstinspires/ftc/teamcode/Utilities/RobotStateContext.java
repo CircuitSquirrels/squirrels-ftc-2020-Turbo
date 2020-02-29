@@ -32,6 +32,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private final int liftLowered = 0;
     private final double courseTolerance = 0.5;
     private final double liftSpeed = 1.0;
+    private final double grabSpeed = 0.3;
     private final double wallStoneSpeed = 0.5;
     private final double foundationDragSpeed = 0.5;
 
@@ -40,7 +41,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     // Delays
     private final double start_Delay = 0.25;
     private final double scan_Delay = 0.5;
-    private final double grab_Delay = 1;
+    private final double grab_Delay = 0.5;
     private final double placeFoundation_Delay = 0.25;
 
     private Controller controller1;
@@ -107,6 +108,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             opMode.imuUtilities.updateNow();
             opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(initialPosition.theta));
             opMode.odometryLocalizer.setCurrentPosition(initialPosition);
+            opMode.rrLocalizer.setCurrentPosition(initialPosition);
         }
     }
     /**
@@ -220,19 +222,19 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             switch (getIteration()) {
                 case 0:
                     arrived = driveTo(GRAB_SKYSTONE_A.getNewNavigation2D(),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                            getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D(),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0,-2,0),
+                            getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 case 2:
                     arrived = driveTo(GRAB_EXTRA_STONE_A.getNewNavigation2D(),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                            getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 case 3:
                     arrived = driveTo(GRAB_EXTRA_STONE_B.getNewNavigation2D(),
-                            getDriveScale(stateTimer.seconds()) * driveSpeed);
+                            getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Grab Index was out of bounds.");
@@ -338,14 +340,14 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             super.update();
 
             switch (getIteration()) {
-                case 0: case 1: case 2:
+                case 0:
                     nextState(DRIVE, new Align_Skystone(getIteration() + 1), opMode.shouldContinue());
                     break;
 //                    if (!conservativeRoute) {
 //                        nextState(DRIVE, new Align_Skystone(getIteration() + 1), opMode.shouldContinue());
 //                        break;
 //                    }
-                case 3:
+                case 1:
                     if(parkInner)
                         nextState(DRIVE, new Align_Inner(), opMode.shouldContinue());
                     else
@@ -485,7 +487,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                     break;
                 case 1:
                     if(!conservativeRoute) {
-                        arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(12, 0, 0),
+                        arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(12, 3, 0),
                                 getDriveScale(stateTimer.seconds()) * driveSpeed);
                         break;
                     }
@@ -657,6 +659,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void update() {
             super.update();
+            arrived = driveTo(PARK_OUTER.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
             if(!arrived) return;
 
             nextState(DRIVE, new Park_Outer(), opMode.shouldContinue());

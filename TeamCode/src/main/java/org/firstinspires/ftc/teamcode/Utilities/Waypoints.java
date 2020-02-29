@@ -58,11 +58,11 @@ public class Waypoints {
 
         BUILD_ZONE(24.5, 37.5, -90),
 
-        FOUNDATION_ALIGNMENT(51.5, 40.75 + 5, -90),
-        FOUNDATION_PLACE(51.5, 30.75 + 5, -90),
+        FOUNDATION_ALIGNMENT(51.5, 40.75, -90),
+        FOUNDATION_PLACE(51.5, 30.75, -90),
 
-        PULL_FOUNDATION(27, 42.5 + 5, 0),
-        PUSH_FOUNDATION(44, 42.5 + 5, 0),
+        PULL_FOUNDATION(27, 42.5, 0),
+        PUSH_FOUNDATION(44, 42.5, 0),
 
         PARK_OUTER(0, 60.5, -90),
         PARK_INNER(0, 40.5, -90),

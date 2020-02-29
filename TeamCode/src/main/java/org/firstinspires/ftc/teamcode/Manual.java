@@ -20,7 +20,7 @@ public class Manual extends RobotHardware {
     // Adding interactive init variables
     private Mutable<Double> DriveSpeed = new Mutable<>(0.7);
     private Mutable<Double> RotationSpeed = new Mutable<>(0.75);
-    private Mutable<Double> LiftSpeed = new Mutable<>(1.0);
+    private Mutable<Double> LiftSpeed = new Mutable<>(0.75);
     private Mutable<Boolean> CoPilot = new Mutable<>(true);
     private Mutable<Double> Exponential = new Mutable<>(3.0);
     private Mutable<Boolean> Debug = new Mutable<>(false);

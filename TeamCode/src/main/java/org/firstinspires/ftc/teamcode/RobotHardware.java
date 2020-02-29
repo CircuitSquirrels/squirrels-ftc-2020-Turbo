@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Vision.*;
+import org.firstinspires.ftc.teamcode.deadWheels.StandardTrackingWheelLocalizer;
 import org.openftc.revextensions2.*;
 
 import java.text.DecimalFormat;
@@ -30,6 +31,7 @@ public class RobotHardware extends OpMode {
     private ExpansionHubEx expansionHubDrive, expansionHubArm;
     private RevBulkData bulkDataDrive, bulkDataArm;
 
+    public StandardTrackingWheelLocalizer rrLocalizer;
 
     // All servos on the robot, in order of ServoName.
     private ArrayList<Servo> allServos;
@@ -571,7 +573,7 @@ public class RobotHardware extends OpMode {
      * Output whether or not the defined motors, servos, sensors could not be found
      */
     public void init() {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         // Setup expansion hubs for bulk reads.
         try {
             expansionHubDrive = hardwareMap.get(ExpansionHubEx.class, ExpansionHubs.DRIVE.getHubName());

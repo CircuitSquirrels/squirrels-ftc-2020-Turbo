@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.DrivetrainControl.AutoDrive;
 import org.firstinspires.ftc.teamcode.DrivetrainControl.PositionController;
 import org.firstinspires.ftc.teamcode.Utilities.*;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation.Navigation2D;
+import org.firstinspires.ftc.teamcode.deadWheels.StandardTrackingWheelLocalizer;
 
 public class AutoOpmode extends RobotHardware {
 
@@ -91,8 +92,6 @@ public class AutoOpmode extends RobotHardware {
         else
             robotStateContext = new RobotStateContext(AutoOpmode.this, robotColor, robotStartPos);
 
-
-
         timingMonitor = new TimingMonitor(AutoOpmode.this);
         // Disable timing monitor to avoid spamming telemetry
         timingMonitor.disable();
@@ -135,8 +134,10 @@ public class AutoOpmode extends RobotHardware {
         odometryLocalizer = new OdometryLocalizer(odometryConfig);
         odometryLocalizer.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         odometryLocalizer.setEncoderPosition(this); // Grabs current encoder positions
-        autoDrive = new AutoDrive(this, mecanumNavigation, odometryLocalizer);
-        positionController = new PositionController(this,odometryLocalizer);
+        rrLocalizer = new StandardTrackingWheelLocalizer(this);
+        rrLocalizer.setCurrentPosition(new Navigation2D(0,0,0));
+        autoDrive = new AutoDrive(this, mecanumNavigation, rrLocalizer);
+        positionController = new PositionController(this,mecanumNavigation);
 
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
@@ -174,6 +175,9 @@ public class AutoOpmode extends RobotHardware {
         odometryLocalizer.update(this);
         timingMonitor.checkpoint("POST odometryLocalizer.update()");
 
+        rrLocalizer.update(this);
+        timingMonitor.checkpoint("POST rrLocalizer.update()");
+
         robotStateContext.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
 
@@ -192,6 +196,7 @@ public class AutoOpmode extends RobotHardware {
         }
         mecanumNavigation.displayPosition();
         telemetry.addData("Dead Wheels: ", odometryLocalizer.getCurrentPosition());
+        telemetry.addData("Road Runner: ", rrLocalizer.getCurrentPosition());
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
