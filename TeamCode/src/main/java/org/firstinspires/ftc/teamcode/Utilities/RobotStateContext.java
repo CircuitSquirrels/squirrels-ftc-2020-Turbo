@@ -33,6 +33,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     private final double courseTolerance = 0.5;
     private final double liftSpeed = 1.0;
     private final double grabSpeed = 0.3;
+    private final double backupSpeed = 0.5;
     private final double wallStoneSpeed = 0.5;
     private final double foundationDragSpeed = 0.5;
 
@@ -225,7 +226,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                             getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0,-2,0),
+                    arrived = driveTo(GRAB_SKYSTONE_B.getNewNavigation2D().addAndReturn(0,teamColor == Color.Ftc.BLUE ? -2 : 2,0),
                             getDriveScale(stateTimer.seconds()) * grabSpeed);
                     break;
                 case 2:
@@ -269,16 +270,16 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             if (!isArmArrived()) return;
             switch (getIteration()) {
                 case 0:
-                    arrived = driveTo(ALIGNMENT_POSITION_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGNMENT_POSITION_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * backupSpeed);
                     break;
                 case 1:
-                    arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGNMENT_POSITION_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * backupSpeed);
                     break;
                 case 2:
-                    arrived = driveTo(ALIGN_EXTRA_STONE_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGN_EXTRA_STONE_A.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * backupSpeed);
                     break;
                 case 3:
-                    arrived = driveTo(ALIGN_EXTRA_STONE_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed);
+                    arrived = driveTo(ALIGN_EXTRA_STONE_B.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * backupSpeed);
                     break;
                 default:
                     throw new IndexOutOfBoundsException("Skystone Backup Index was out of bounds.");
@@ -305,7 +306,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
             //Todo Convert the ticks to a class variable
-            nextArmState(CLOSED, 800, false);
+            nextArmState(CLOSED, 600, false);
         }
 
         @Override
@@ -492,7 +493,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
                         break;
                     }
                 case 2:
-                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(0, teamColor == Color.Ftc.BLUE ? -3 : 3, 0),
+                    arrived = driveTo(FOUNDATION_PLACE.getNewNavigation2D().addAndReturn(0, teamColor == Color.Ftc.BLUE ? -5 : 5, 0),
                             getDriveScale(stateTimer.seconds()) * driveSpeed);
                     break;
                 default: throw new IndexOutOfBoundsException("Place Foundation index out of bounds");
@@ -574,20 +575,28 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
         @Override
         public void init(Executive.StateMachine<AutoOpmode> stateMachine) {
             super.init(stateMachine);
-            nextArmState(OPEN, liftLowered, true);
+            stateMachine.changeState(ARM, new LowerClawForFoundation());
         }
 
         @Override
         public void update() {
             super.update();
             //Todo Check if delay is necessary, if not remove it!
-            if(!isArmArrived() || stateTimer.seconds() < 1) return;
-
+            if(!isArmArrived()) return;
+            //Todo URGENT, FIX MIN RATE - WORKING CURRENTLY
             arrived = driveTo(PULL_FOUNDATION.getNewNavigation2D(), getDriveScale(stateTimer.seconds()) * driveSpeed, 1.0, 1.0);
 
             if(!arrived) return;
 
             nextState(DRIVE, new Push_Foundation(), opMode.shouldContinue());
+        }
+    }
+
+    class LowerClawForFoundation extends Executive.StateBase<AutoOpmode> {
+        @Override
+        public void update() {
+            super.update();
+            arrived = opMode.autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, liftLowered, 0.3);
         }
     }
 

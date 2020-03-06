@@ -241,7 +241,7 @@ public class Waypoints {
             blueStoneLocations.add(i,new Navigation2D(skystoneXFromIndex(i) - 1,22, Math.toRadians(-90)));
             // Add robot's length for correct grab position.
             blueStonePickupLocations.add(i, blueStoneLocations.get(i).addAndReturn(0,9,0));
-            blueStoneAlignmentLocations.add(i, blueStoneLocations.get(i).addAndReturn(0, 28, 0));
+            blueStoneAlignmentLocations.add(i, blueStoneLocations.get(i).addAndReturn(0, 28 - 1.5, 0));
         }
 
         /**

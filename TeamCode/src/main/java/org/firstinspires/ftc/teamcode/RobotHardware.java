@@ -24,7 +24,7 @@ import java.util.*;
 //Todo Clean up docs and add comments for newly added functions
 public class RobotHardware extends OpMode {
 
-    // All motors on the robot, in order of MotorName.
+    // All motors on the robot, in order of MotorName's ordinal.
     private ArrayList<ExpansionHubMotor> allMotors;
 
     // Expansion hubs and bulk reads
